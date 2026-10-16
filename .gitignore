@@ -1,0 +1,12 @@
+.venv/
+.idea/
+db.sqlite3
+__pycache__/
+*.pyc
+/work/
+.env
+.env.*
+node_modules/
+media/
+.DS_Store
+local_models/
