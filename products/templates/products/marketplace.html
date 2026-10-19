@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="workflow-page page-marketplace">
+  <header class="storefront-hero">
+    <div class="hero-copy"><p class="section-eyebrow">THE ORGANIC MARKETPLACE</p><h1>Fresh finds.<br>Rooted in good things.</h1><p class="page-description">Explore verified organic products from local sellers. Find something good for your table, and your everyday.</p><span class="hero-note">{% include 'components/icon.html' with name='leaf' %} Thoughtful choices start here.</span></div>
+    <div class="hero-art" aria-hidden="true"><span class="hero-ring"></span><span class="hero-leaf">{% include 'components/icon.html' with name='leaf' %}</span><span class="hero-art-label">ROOTLINE<br><small>Organic marketplace</small></span></div>
+  </header>
+  <section class="filter-panel surface" aria-labelledby="filter-title">
+    <div class="section-heading"><h2 id="filter-title">Find your fresh favorite</h2><span>Search & Filter</span></div>
+    <form method="GET" class="filter-grid">
+      <div class="form-field"><label for="search">Search products</label><input id="search" type="text" name="search" placeholder="What are you looking for?"></div>
+      <div class="form-field"><label for="category">Category</label><select id="category" name="category"><option value="">All Categories</option><option value="Food">Food</option><option value="Fruit">Fruit</option><option value="Vegetable">Vegetable</option><option value="Honey">Honey</option></select></div>
+      <div class="form-field"><label for="selling-type">Selling type</label><select id="selling-type" name="selling_type"><option value="">All Selling Types</option><option value="fixed">Fixed Price</option><option value="bidding">Auction</option><option value="both">Both</option></select></div>
+      <div class="form-field"><label for="min-price">Minimum price</label><input id="min-price" type="number" name="min_price" placeholder="Min Price"></div>
+      <div class="form-field"><label for="max-price">Maximum price</label><input id="max-price" type="number" name="max_price" placeholder="Max Price"></div>
+      <div class="form-field"><label for="sort">Sort by</label><select id="sort" name="sort"><option value="">Sort By</option><option value="newest">Newest Products</option><option value="low_price">Lowest Price</option><option value="high_price">Highest Price</option><option value="rating">Highest Rated</option></select></div>
+      <button type="submit" class="primary-action filter-submit">Filter {% include 'components/icon.html' with name='arrow' %}</button>
+    </form>
+  </section>
+  <div class="section-heading catalog-heading"><h2>RootLine Marketplace</h2><span>Find your next favorite</span></div>
+  {% if products %}
+  <div class="catalog-grid">
+    {% for product in products %}
+    <article class="catalog-card surface">
+      <div class="catalog-image">
+        {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">{% else %}<div class="product-placeholder">{% include 'components/icon.html' with name='leaf' %}<span>{{ product.category }}</span></div>{% endif %}
+        <span class="category-chip">{{ product.category }}</span>
+      </div>
+      <div class="catalog-body">
+        <p class="catalog-seller">Seller: {{ product.seller.username }}</p><h3>{{ product.name }}</h3>
+        <div class="catalog-rating">{% if product.average_rating %}<span class="rating-star">★</span> {{ product.average_rating|floatformat:1 }}/5 <span>({{ product.review_count }} reviews)</span>{% else %}<span>No reviews yet.</span>{% endif %}</div>
+        <p class="catalog-price">{% if product.price %}৳{{ product.price }}{% else %}Bidding Only{% endif %}</p>
+        <div class="catalog-meta"><span>Stock: {{ product.stock_quantity }} {{ product.get_unit_display }}</span><span>{{ product.get_selling_type_display }}</span></div>
+        <span class="verified-label">{% include 'components/icon.html' with name='check' %} Verified Organic Product</span>
+        <a href="{% url 'marketplace_product_detail' product.id %}" class="outline-action full-action">View Details {% include 'components/icon.html' with name='arrow' %}</a>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}<div class="empty-state surface"><span class="empty-icon">{% include 'components/icon.html' with name='leaf' %}</span><h3>A fresh start</h3><p>No verified products are available right now.</p></div>{% endif %}
+</div>
+{% endblock %}

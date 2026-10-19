@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="workflow-page page-edit-profile">
+    <div class="min-h-[70vh] flex items-center justify-center">
+        <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-lg ui-card">
+            <header class="page-heading">
+                <p class="section-eyebrow">YOUR ACCOUNT</p>
+                <h1>Edit Profile</h1>
+                <p class="page-description">Make your details feel like you.</p>
+            </header>
+
+            {% if user.profile_picture %}
+            <div class="mb-6 text-center">
+                <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-3">Current Profile Picture</p>
+                <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="w-36 h-36 rounded-full object-cover mx-auto border-4 border-white shadow-md" />
+            </div>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data" class="space-y-5 modern-form" id="profile-form">
+                {% csrf_token %}
+                <div class="space-y-4">
+                    {% include 'components/form_fields.html' %}
+                </div>
+
+                <button type="submit" class="w-full py-3 rounded-lg font-semibold transition primary-action">
+                    Save Changes
+                </button>
+            </form>
+            <a href="{% url 'profile' %}" class="block text-center mt-6 text-green-700 font-semibold">
+                ← Back to Profile
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Auto Age Calculation
+    const birthDateInput = document.getElementById('id_birth_date');
+    const ageInput = document.getElementById('id_age');
+
+    function calculateAge(birthDateString) {
+        if (!birthDateString) return '';
+        const today = new Date();
+        const birthDate = new Date(birthDateString);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age >= 0 ? age : '';
+    }
+
+    if (birthDateInput && ageInput) {
+        birthDateInput.addEventListener('change', function () {
+            ageInput.value = calculateAge(this.value);
+        });
+        if (birthDateInput.value && !ageInput.value) {
+            ageInput.value = calculateAge(birthDateInput.value);
+        }
+    }
+
+    // Styled Custom File Picker matching register.html
+    const fileInput = document.querySelector('input[type="file"][name="profile_picture"]');
+    if (!fileInput) return;
+
+    fileInput.style.display = 'none';
+
+    let initialName = "No file chosen";
+    {% if user.profile_picture %}
+    let rawName = "{{ user.profile_picture.name }}".split('/').pop();
+    initialName = rawName.replace(/_[a-zA-Z0-9]{7,10}(\.[^.]+)?$/, '$1');
+    {% endif %}
+
+    const customBox = document.createElement('div');
+    customBox.style.cssText = 'display: flex; align-items: center; gap: 12px; border: 1.5px solid #d1fae5; border-radius: 12px; padding: 8px 12px; background-color: #f0fdf4; cursor: pointer; user-select: none; transition: all 0.2s ease;';
+
+    const chooseBtn = document.createElement('button');
+    chooseBtn.type = 'button';
+    chooseBtn.style.cssText = 'background-color: #15803d; color: #ffffff; padding: 7px 16px; border-radius: 8px; font-weight: 600; font-size: 0.875rem; border: none; cursor: pointer; transition: background-color 0.2s ease;';
+    chooseBtn.textContent = 'Choose file';
+
+    const fileNameText = document.createElement('span');
+    fileNameText.style.cssText = 'font-size: 0.875rem; color: #166534; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
+    fileNameText.textContent = initialName;
+
+    customBox.appendChild(chooseBtn);
+    customBox.appendChild(fileNameText);
+    fileInput.parentNode.insertBefore(customBox, fileInput);
+
+    // Hover Effects
+    customBox.addEventListener('mouseenter', function () {
+        customBox.style.borderColor = '#86efac';
+        chooseBtn.style.backgroundColor = '#166534';
+    });
+    customBox.addEventListener('mouseleave', function () {
+        customBox.style.borderColor = '#d1fae5';
+        chooseBtn.style.backgroundColor = '#15803d';
+    });
+
+    // Click Handlers
+    customBox.addEventListener('click', function () {
+        fileInput.click();
+    });
+    chooseBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', function () {
+        if (fileInput.files && fileInput.files[0]) {
+            fileNameText.textContent = fileInput.files[0].name;
+        } else {
+            fileNameText.textContent = initialName;
+        }
+    });
+});
+</script>
+{% endblock %}
