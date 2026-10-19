@@ -13,7 +13,12 @@ class RegisterForm(UserCreationForm):
             'email',
             'phone_number',
             'address',
+            'birth_date',
+            'profile_picture',
         ]
+        widgets = {
+            'birth_date': forms.DateInput(attrs={'type': 'date'}),
+        }
 
 
 class ProfileUpdateForm(forms.ModelForm):
@@ -25,4 +30,9 @@ class ProfileUpdateForm(forms.ModelForm):
             'email',
             'phone_number',
             'address',
+            'birth_date',
+            'profile_picture',
         ]
+        widgets = {
+            'birth_date': forms.DateInput(attrs={'type': 'date'}),
+        }

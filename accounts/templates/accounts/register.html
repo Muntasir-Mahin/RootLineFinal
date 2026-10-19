@@ -1,14 +1,115 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="auth-layout">
-  <aside class="auth-story"><span class="section-eyebrow">FRESH FINDS. THOUGHTFUL CHOICES.</span><h2>A better way<br>to shop organic.</h2><p>Join RootLine to discover organic products, connect with local sellers, and make your everyday a little greener.</p><div class="auth-leaf">{% include 'components/icon.html' with name='leaf' %}</div><span class="auth-caption">Good for your table. Rooted in community.</span></aside>
-  <section class="auth-panel surface"><p class="section-eyebrow">WELCOME TO ROOTLINE</p><h2>Create your account</h2><p class="page-description">Your next fresh discovery starts here.</p>
-    <form method="POST" class="modern-form">{% csrf_token %}
-      {% if form.non_field_errors %}<div class="form-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
-      {% for field in form %}<div class="form-field">{{ field.label_tag }}{{ field }}{% if field.errors %}<div class="form-errors" role="alert">{{ field.errors }}</div>{% endif %}{% if field.help_text %}<div class="field-help">{{ field.help_text|safe }}</div>{% endif %}</div>{% endfor %}
-      <button type="submit" class="primary-action full-action">Create account {% include 'components/icon.html' with name='arrow' %}</button>
+  <aside class="auth-story">
+    <span class="section-eyebrow">FRESH FINDS. THOUGHTFUL CHOICES.</span>
+    <h2>A better way<br>to shop organic.</h2>
+    <p>Join RootLine to discover organic products, connect with local sellers, and make your everyday a little greener.</p>
+    <div class="auth-leaf">{% include 'components/icon.html' with name='leaf' %}</div>
+    <span class="auth-caption">Good for your table. Rooted in community.</span>
+  </aside>
+
+  <section class="auth-panel surface">
+    <p class="section-eyebrow">WELCOME TO ROOTLINE</p>
+    <h2>Create your account</h2>
+    <p class="page-description">Your next fresh discovery starts here.</p>
+
+    <form method="POST" enctype="multipart/form-data" class="modern-form">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="form-errors" role="alert">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <!-- PROFILE PICTURE SECTION WITH PREVIEW & CUSTOM BUTTON -->
+      <div class="profile-pic-section flex flex-col items-center gap-4 p-4 rounded-2xl border mb-6" style="background-color: #f0fdf4; border-color: #dcfce7; display: flex; flex-direction: column; align-items: center; padding: 16px; border-radius: 16px; margin-bottom: 24px;">
+
+        <!-- Circle Avatar Container -->
+        <div id="register-avatar-container" class="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-md flex items-center justify-center" style="width: 96px; height: 96px; border-radius: 9999px; background-color: #d1fae5; border: 4px solid #ffffff;">
+          <span id="register-avatar-fallback" class="text-2xl font-bold" style="color: #065f46; font-size: 24px; font-weight: 700;">
+            📷
+          </span>
+        </div>
+
+        <!-- Hidden File Input -->
+        <input
+          type="file"
+          name="profile_picture"
+          id="{{ form.profile_picture.id_for_label }}"
+          accept="image/*"
+          style="display: none;"
+          onchange="previewRegisterImage(this)"
+        >
+
+        <!-- Styled Custom File Button -->
+        <label
+          for="{{ form.profile_picture.id_for_label }}"
+          style="background-color: #047857; color: #ffffff; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 14px;"
+        >
+          {% include 'components/icon.html' with name='edit' %}
+          <span>Choose File</span>
+        </label>
+
+        {% if form.profile_picture.errors %}
+          <div class="form-errors text-xs mt-1" role="alert" style="color: #dc2626; font-size: 12px;">{{ form.profile_picture.errors }}</div>
+        {% endif %}
+      </div>
+
+      <!-- REMAINING FORM FIELDS -->
+      {% for field in form %}
+        {% if field.name != 'profile_picture' %}
+          <div class="form-field">
+            {{ field.label_tag }}
+            {{ field }}
+            {% if field.errors %}
+              <div class="form-errors" role="alert">{{ field.errors }}</div>
+            {% endif %}
+            {% if field.help_text %}
+              <div class="field-help">{{ field.help_text|safe }}</div>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      <button type="submit" class="primary-action full-action" style="margin-top: 16px;">
+        Create account {% include 'components/icon.html' with name='arrow' %}
+      </button>
     </form>
+
     <p class="auth-switch">Already have an account? <a href="{% url 'login' %}">Login</a></p>
   </section>
 </div>
+
+<!-- Real-time Image Preview Script -->
+<script>
+  function previewRegisterImage(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        const container = document.getElementById('register-avatar-container');
+        const fallback = document.getElementById('register-avatar-fallback');
+        let img = document.getElementById('register-avatar-preview');
+
+        if (fallback) {
+          fallback.style.display = 'none';
+        }
+
+        if (!img) {
+          img = document.createElement('img');
+          img.id = 'register-avatar-preview';
+          img.style.width = '100%';
+          img.style.height = '100%';
+          img.style.objectFit = 'cover';
+          container.appendChild(img);
+        }
+
+        img.src = e.target.result;
+        img.style.display = 'block';
+      }
+
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+</script>
 {% endblock %}
