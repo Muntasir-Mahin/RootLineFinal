@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="workflow-page page-edit-profile">
+  <div class="min-h-[70vh] flex items-center justify-center py-8">
+    <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-lg ui-card">
+      <header class="page-heading text-center mb-6">
+        <p class="section-eyebrow">YOUR ACCOUNT</p>
+        <h1 class="text-2xl font-bold">Edit Profile</h1>
+        <p class="page-description text-gray-600">Make your details feel like you.</p>
+      </header>
+
+      <form method="POST" enctype="multipart/form-data" class="space-y-6 modern-form">
+        {% csrf_token %}
+
+        <!-- TOP SECTION: Live Avatar Preview & Custom Upload Button -->
+        <div class="profile-pic-section flex flex-col items-center gap-4 p-4 rounded-2xl border" style="background-color: #f0fdf4; border-color: #dcfce7;">
+
+          <!-- Avatar Preview Container -->
+          <div id="avatar-container" class="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-md flex items-center justify-center" style="width: 96px; height: 96px; border-radius: 9999px; background-color: #d1fae5;">
+            {% if user.profile_picture %}
+              <img id="avatar-preview" src="{{ user.profile_picture.url }}" alt="Profile Picture" class="w-full h-full object-cover" style="width: 100%; height: 100%; object-fit: cover;">
+            {% else %}
+              <span id="avatar-fallback" class="text-2xl font-bold" style="color: #065f46;">
+                {{ user.first_name|default:user.username|slice:':1'|upper }}{{ user.last_name|slice:':1'|upper }}
+              </span>
+            {% endif %}
+          </div>
+
+          <!-- Hidden File Input -->
+          <input
+            type="file"
+            name="profile_picture"
+            id="{{ form.profile_picture.id_for_label }}"
+            accept="image/*"
+            style="display: none;"
+            onchange="previewImage(this)"
+          >
+
+          <div class="flex items-center gap-3">
+            <!-- Inline Styled Upload Button (Fixes Invisible Button Issue) -->
+            <label
+              for="{{ form.profile_picture.id_for_label }}"
+              class="cursor-pointer inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm shadow-md transition-all active:scale-95"
+              style="background-color: #047857; color: #ffffff; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;"
+            >
+              {% include 'components/icon.html' with name='edit' %}
+              <span>Choose File</span>
+            </label>
+
+            <!-- Clear Checkbox (Only when an image is saved) -->
+            {% if user.profile_picture %}
+              <label class="inline-flex items-center gap-1.5 text-xs font-semibold cursor-pointer border transition" style="background-color: #fef2f2; color: #dc2626; border-color: #fecaca; padding: 8px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                <input type="checkbox" name="profile_picture-clear" id="profile_picture-clear_id" class="rounded">
+                <span>Remove</span>
+              </label>
+            {% endif %}
+          </div>
+
+          {% if form.profile_picture.errors %}
+            <div class="form-errors text-xs mt-1" role="alert" style="color: #dc2626; font-size: 12px;">{{ form.profile_picture.errors }}</div>
+          {% endif %}
+        </div>
+
+        <!-- FORM FIELDS SECTION -->
+        <div class="space-y-4">
+          {% for field in form %}
+            {% if field.name != 'profile_picture' %}
+              <div class="form-field">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}
+                  <div class="form-errors text-xs mt-1" role="alert" style="color: #dc2626; font-size: 12px;">{{ field.errors }}</div>
+                {% endif %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        <!-- SAVE BUTTON -->
+        <button type="submit" class="w-full py-3 rounded-xl font-semibold primary-action shadow-md" style="background-color: #047857; color: #ffffff; width: 100%; padding: 12px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer;">
+          Save Changes
+        </button>
+      </form>
+
+      <a href="{% url 'profile' %}" class="block text-center mt-6 font-semibold hover:underline" style="color: #047857; display: block; text-align: center; margin-top: 24px;">
+        ← Back to Profile
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript for Live Image Preview -->
+<script>
+  function previewImage(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        const container = document.getElementById('avatar-container');
+        const fallback = document.getElementById('avatar-fallback');
+        let img = document.getElementById('avatar-preview');
+
+        // Hide fallback initials if present
+        if (fallback) {
+          fallback.style.display = 'none';
+        }
+
+        // Create img tag if it doesn't exist yet
+        if (!img) {
+          img = document.createElement('img');
+          img.id = 'avatar-preview';
+          img.style.width = '100%';
+          img.style.height = '100%';
+          img.style.objectFit = 'cover';
+          container.appendChild(img);
+        }
+
+        // Set preview source
+        img.src = e.target.result;
+        img.style.display = 'block';
+      }
+
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+</script>
+{% endblock %}
