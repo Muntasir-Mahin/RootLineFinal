@@ -6,6 +6,14 @@ disputes/templates/disputes/seller_response.html
 docs/contact-review/README.md
 docs/contact-review/changed-files.txt
 docs/contact-review/defaults-validation.txt
+docs/contact-review/footer-layout/README.md
+docs/contact-review/footer-layout/footer-dark-1280.png
+docs/contact-review/footer-layout/footer-dark-360.png
+docs/contact-review/footer-layout/footer-dark-768.png
+docs/contact-review/footer-layout/footer-light-1280.png
+docs/contact-review/footer-layout/footer-light-360.png
+docs/contact-review/footer-layout/footer-light-768.png
+docs/contact-review/footer-layout/validation.json
 docs/contact-review/palette-and-contrast.txt
 docs/contact-review/palette-grep.txt
 docs/contact-review/screenshots/checkout-dark-1280.png
@@ -49,6 +57,7 @@ rootline/site_views.py
 rootline/test_contact.py
 rootline/test_site.py
 rootline/urls.py
+scripts/update_contact_footer.py
 static/css/contact.css
 static/css/site-tools.css
 static/js/site-tools.js
@@ -56,6 +65,7 @@ templates/base.html
 templates/components/contact_card.html
 templates/components/contact_channels.html
 templates/components/contact_hours.html
+templates/components/footer_contact.html
 templates/components/footer_links.html
 templates/components/icon.html
 templates/components/order_contact.html

@@ -1,3 +1,3 @@
 {% if contact.channels %}<div class="contact-channels contact-channels--{{ variant|default:'cards' }}">
-{% for channel in contact.channels %}{% if variant != 'order' or channel.key == 'whatsapp' or channel.key == 'phone' or channel.key == 'email' %}{% include 'components/contact_card.html' with channel=channel variant=variant order_id=order_id %}{% endif %}{% endfor %}
+{% for channel in contact.channels %}{% if variant == 'footer' %}{% if channel.key == 'whatsapp' or channel.key == 'phone' or channel.key == 'email' %}{% include 'components/contact_card.html' with channel=channel variant=variant %}{% endif %}{% elif variant != 'order' or channel.key == 'whatsapp' or channel.key == 'phone' or channel.key == 'email' %}{% include 'components/contact_card.html' with channel=channel variant=variant order_id=order_id %}{% endif %}{% endfor %}
 </div>{% endif %}

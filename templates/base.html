@@ -54,7 +54,7 @@
 </main>
 <footer class="site-footer"><div class="footer-shell"><div class="footer-brand"><a class="site-brand" href="{% url 'marketplace' %}"><span class="brand-mark">{% include 'components/icon.html' with name='leaf' %}</span><span class="brand-wordmark">RootLine</span></a><p>Organic marketplace · Buy, sell and grow together.</p></div><div class="footer-grid">
 {% include 'components/footer_links.html' with section='shop' title='Shop' %}{% include 'components/footer_links.html' with section='sell' title='Sell' %}{% include 'components/footer_links.html' with section='support' title='Support' %}{% include 'components/footer_links.html' with section='company' title='Company' %}
-</div><div class="footer-bottom"><p>© {% now 'Y' %} RootLine. Organic Marketplace Platform.</p><button type="button" id="cookie-settings" hidden>Cookie preferences</button></div></div></footer>
+</div>{% include 'components/footer_contact.html' %}<div class="footer-bottom"><p>© {% now 'Y' %} RootLine. Organic Marketplace Platform.</p><button type="button" id="cookie-settings" hidden>Cookie preferences</button></div></div></footer>
 <nav class="mobile-tabs" aria-label="Quick navigation">
 <a href="{% url 'marketplace' %}" {% if request.resolver_match.url_name == 'marketplace' %}aria-current="page"{% endif %}>{% include 'components/icon.html' with name='home' %}<span>Home</span></a>
 <a href="{% url 'site_search' %}" data-open-search {% if request.resolver_match.url_name == 'site_search' %}aria-current="page"{% endif %}>{% include 'components/icon.html' with name='search' %}<span>Search</span></a>

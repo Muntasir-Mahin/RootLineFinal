@@ -44,6 +44,8 @@ The full-suite error is the existing `ReviewMigrationTests.test_duplicate_review
 
 ## Screenshots
 
+Latest footer refinement: [compact responsive contact layout](footer-layout/README.md).
+
 | Surface | Light desktop | Light mobile | Dark desktop | Dark mobile |
 | --- | --- | --- | --- | --- |
 | Contact page | [1280](screenshots/contact-light-1280.png) | [360](screenshots/contact-light-360.png) | [1280](screenshots/contact-dark-1280.png) | [360](screenshots/contact-dark-360.png) |
