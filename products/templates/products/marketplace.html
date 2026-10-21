@@ -22,20 +22,7 @@
   <div class="catalog-count">{% include 'components/stat.html' with value=products|length label='Available listings' description='Matching your current filters' %}</div>
   <div class="catalog-grid">
     {% for product in products %}
-    <article class="catalog-card surface">
-      <div class="catalog-image">
-        {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">{% else %}<div class="product-placeholder">{% include 'components/icon.html' with name='leaf' %}<span>{{ product.category }}</span></div>{% endif %}
-        <span class="category-chip">{{ product.category }}</span>
-      </div>
-      <div class="catalog-body">
-        <p class="catalog-seller">Seller: {{ product.seller.username }}</p><h3>{{ product.name }}</h3>
-        <div class="catalog-rating">{% if product.average_rating %}<span class="rating-star">★</span> {{ product.average_rating|floatformat:1 }}/5 <span>({{ product.review_count }} reviews)</span>{% else %}<span>No reviews yet.</span>{% endif %}</div>
-        <p class="catalog-price">{% if product.price %}৳{{ product.price }}{% else %}Bidding Only{% endif %}</p>
-        <div class="catalog-meta"><span>Stock: {{ product.stock_quantity }} {{ product.get_unit_display }}</span><span>{{ product.get_selling_type_display }}</span></div>
-        <span class="verified-label">{% include 'components/icon.html' with name='check' %} Verified Organic Product</span>
-        <a href="{% url 'marketplace_product_detail' product.id %}" class="outline-action full-action">View Details {% include 'components/icon.html' with name='arrow' %}</a>
-      </div>
-    </article>
+    {% include 'components/product_card.html' with product=product %}
     {% endfor %}
   </div>
   {% else %}<div class="empty-state surface"><span class="empty-icon">{% include 'components/icon.html' with name='leaf' %}</span><h3>A fresh start</h3><p>No verified products are available right now.</p></div>{% endif %}

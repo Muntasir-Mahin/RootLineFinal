@@ -90,3 +90,52 @@ class SiteFeedbackTests(TestCase):
         self.assertNotContains(response, 'mailto:')
         with self.settings(ROOTLINE_CONTACT_EMAIL='support@example.com'):
             self.assertContains(self.client.get(reverse('help')), 'mailto:support@example.com')
+
+
+class MarketplaceNavigationTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        PublicSearchTests.setUpTestData.__func__(cls)
+
+    def test_header_uses_public_categories_without_creating_cart(self):
+        from orders.models import Cart
+        from rootline.context_processors import marketplace_navigation
+        from django.test import RequestFactory
+        from django.contrib.auth.models import AnonymousUser
+        request = RequestFactory().get('/')
+        request.user = AnonymousUser()
+        with self.assertNumQueries(1):
+            context = marketplace_navigation(request)
+        self.assertEqual(context['navigation_categories'], [{'category': 'Grain', 'count': 1}])
+        self.assertEqual(context['navigation_cart_count'], 0)
+        self.client.force_login(self.seller)
+        self.client.get(reverse('marketplace'))
+        self.assertFalse(Cart.objects.filter(user=self.seller).exists())
+
+    def test_cart_count_is_scoped_to_user_and_counts_product_lines(self):
+        from orders.models import Cart, CartItem
+        buyer = User.objects.create_user('nav-buyer')
+        other = User.objects.create_user('nav-other')
+        CartItem.objects.create(cart=Cart.objects.create(user=buyer), product=self.product, quantity='0.50')
+        CartItem.objects.create(cart=Cart.objects.create(user=other), product=self.product, quantity=3)
+        self.client.force_login(buyer)
+        response = self.client.get(reverse('marketplace'))
+        self.assertEqual(response.context['navigation_cart_count'], 1)
+        self.assertContains(response, 'Cart, 1 item')
+        self.assertNotContains(response, '>Staff dashboard<')
+        self.assertNotContains(response, '>Seller dashboard<')
+        self.seller.seller_approved = True
+        self.seller.is_staff = True
+        self.seller.save()
+        self.client.force_login(self.seller)
+        response = self.client.get(reverse('marketplace'))
+        self.assertContains(response, '>Staff dashboard<')
+        self.assertContains(response, '>Seller dashboard<')
+
+    def test_search_category_filters_public_products_and_retains_video_semantics(self):
+        response = self.client.get(reverse('site_search'), {'category':'Grain'})
+        self.assertEqual(list(response.context['product_page']), [self.product])
+        self.assertEqual(response.context['video_page'].paginator.count, 0)
+        response = self.client.get(reverse('site_search'), {'q':'rice', 'category':'Other'})
+        self.assertEqual(response.context['product_page'].paginator.count, 0)
+        self.assertEqual(list(response.context['video_page']), [self.video])

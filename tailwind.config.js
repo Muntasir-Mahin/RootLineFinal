@@ -19,7 +19,7 @@ module.exports = {
         content: 'var(--text)', muted: 'var(--muted)', subtle: 'var(--muted)',
         line: 'var(--border)', primary: 'var(--primary)', 'on-primary': 'var(--on-primary)',
       },
-      fontFamily: {sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      fontFamily: {sans: ['Geist', 'Noto Sans Bengali', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         mono: ['Geist Mono', 'ui-monospace', 'SFMono-Regular', 'monospace']},
       borderColor: {DEFAULT: 'var(--border)'},
     },

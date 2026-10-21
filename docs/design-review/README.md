@@ -1,6 +1,8 @@
+> Historical report for commit ea0349b. The active marketplace-first review is [stage 2](../marketplace-stage2/README.md).
+
 # RootLine six-colour redesign: review and validation
 
-The NexusFlow reference was studied before implementation; [DESIGN.md](../../DESIGN.md) records its actual class strings, design patterns, palette mapping and accessibility adjustments. RootLine remains a Django application with Tailwind **3.4.19**. No React, Next.js or Vite dependency was added.
+The NexusFlow reference was studied before implementation; [original design study](design-six-colour.md) records its actual class strings, design patterns, palette mapping and accessibility adjustments. RootLine remains a Django application with Tailwind **3.4.19**. No React, Next.js or Vite dependency was added.
 
 The implementation covers every original **54 template**: storefront/product views; account/auth; seller tools; cart/checkout/orders/payment; auctions; disputes/reviews/wishlist; Agro Updates; search/help/chat; and the separate staff dashboard, tables, tabs, pagination and shared overlays.
 

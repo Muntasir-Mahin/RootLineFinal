@@ -80,6 +80,7 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.request',
                 'rootline.context_processors.site_contact',
+                'rootline.context_processors.marketplace_navigation',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],

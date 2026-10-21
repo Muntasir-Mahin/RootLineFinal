@@ -7,7 +7,7 @@
     const dark = root.dataset.theme === 'dark';
     themeButton.setAttribute('aria-pressed', String(dark));
     themeButton.setAttribute('aria-label', dark ? 'Use light mode' : 'Use dark mode');
-    themeButton.textContent = dark ? 'Light mode' : 'Dark mode';
+    if (!themeButton.classList.contains('icon-button')) themeButton.textContent = dark ? 'Light mode' : 'Dark mode';
   }
   themeButton.hidden = false;
   labelTheme();

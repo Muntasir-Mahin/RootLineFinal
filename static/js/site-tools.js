@@ -33,13 +33,13 @@
 
   const menuButton = document.getElementById('menu-toggle');
   const links = document.getElementById('site-links');
-  const mobile = matchMedia('(max-width: 1139px)');
+  const mobile = matchMedia('(max-width: 1023px)');
   function menu(open) {
     menuButton.setAttribute('aria-expanded', String(open));
     links.classList.toggle('is-open', open);
     // Inert prevents keyboard focus entering the closed mobile menu.
     links.inert = mobile.matches && !open;
-    links.querySelectorAll('.nav-popover').forEach(item => { item.open = mobile.matches && open; });
+
   }
   menuButton.hidden = false;
   menu(false);
@@ -68,6 +68,28 @@
   });
   document.addEventListener('click', event => {
     if (!mobile.matches && !event.target.closest('.site-nav')) document.querySelectorAll('.nav-popover').forEach(item => { item.open = false; });
+  });
+  const searchToggle = document.getElementById('search-toggle');
+  const searchPanel = document.getElementById('header-search');
+  if (searchToggle && searchPanel) {
+    searchToggle.hidden = false;
+    function search(open) {
+      searchPanel.classList.toggle('is-open', open);
+      searchToggle.setAttribute('aria-expanded', String(open));
+      if (open) { menu(false); document.getElementById('site-query').focus(); }
+    }
+    searchToggle.addEventListener('click', () => search(searchToggle.getAttribute('aria-expanded') !== 'true'));
+    document.querySelectorAll('[data-open-search]').forEach(link => link.addEventListener('click', event => {
+      if (mobile.matches) { event.preventDefault(); scrollTo({top:0}); search(true); }
+    }));
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && searchPanel.classList.contains('is-open')) { search(false); searchToggle.focus(); }
+    });
+    menuButton.addEventListener('click', () => search(false));
+  }
+  document.querySelectorAll('.category-menu').forEach(item => {
+    document.addEventListener('keydown', event => { if (event.key === 'Escape' && item.open) { item.open=false; item.querySelector('summary').focus(); } });
+    document.addEventListener('click', event => { if (!item.contains(event.target)) item.open=false; });
   });
   const top = document.getElementById('back-to-top');
   const scrollBar = document.getElementById('scroll-progress');

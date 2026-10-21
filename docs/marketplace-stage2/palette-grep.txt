@@ -1,0 +1,5 @@
+Command (from repository root):
+rg -n --pcre2 -i --glob *.css --glob *.html --glob *.js --glob *.svg #(?!(?:06141B|11212D|253745|4A5C6A|9BA8AB|CCD0CF)\b)[0-9a-f]{3,8}\b templates static accounts/templates products/templates orders/templates payments/templates bidding/templates disputes/templates reviews/templates wishlist/templates chatbot agro_updates dashboard tailwind.config.js
+
+No non-palette hex values found (rg exit 1 = no matches).
+White occurs only inside three permitted light-tint color-mix expressions. No semantic status colours added. npm run check:design also checks named/literal colour functions.
