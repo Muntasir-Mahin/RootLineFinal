@@ -1,0 +1,5 @@
+<form class="site-search" action="{% url 'site_search' %}" method="get" role="search" aria-label="Search marketplace">
+<label class="sr-only" for="site-category">Search category</label><select id="site-category" name="category"><option value="">All categories</option>{% for item in navigation_categories %}<option value="{{ item.category }}" {% if search_category == item.category %}selected{% endif %}>{{ item.category }}</option>{% endfor %}</select>
+<label class="sr-only" for="site-query">Search products and farming advice</label><input id="site-query" name="q" type="search" maxlength="150" placeholder="Search products and farming advice…" value="{{ query|default:'' }}">
+<button type="submit" class="primary-action" aria-label="Search">{% include 'components/icon.html' with name='search' %}<span>Search</span></button>
+</form>

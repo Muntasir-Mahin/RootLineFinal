@@ -36,8 +36,8 @@ def binary(configured):
                 return found
 
     raise VoiceError(
-        'Voice setup is incomplete. The site owner needs to install '
-        'whisper.cpp and ffmpeg.'
+        f'Voice questions are unavailable because {Path(str(configured)).name} '
+        'is not installed on the server. You can still type your question.'
     )
 
 
@@ -51,8 +51,8 @@ def configuration():
 
     if not model.is_file() or model.stat().st_size == 0:
         raise VoiceError(
-            'Download the multilingual Whisper small model to enable '
-            'voice questions. See chatbot/README.md.'
+            'Voice questions are unavailable because the server speech model '
+            'is not installed. You can still type your question.'
         )
 
     return cli, ffmpeg, model

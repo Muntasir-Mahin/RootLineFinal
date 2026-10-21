@@ -1,0 +1,29 @@
+[
+  {
+    "width": 360,
+    "default_light": true,
+    "search_category": true,
+    "theme_persistence": true,
+    "keyboard_drawer_search": true,
+    "tap_targets_44px": true,
+    "js_errors": []
+  },
+  {
+    "width": 768,
+    "default_light": true,
+    "search_category": true,
+    "theme_persistence": true,
+    "keyboard_drawer_search": true,
+    "tap_targets_44px": true,
+    "js_errors": []
+  },
+  {
+    "width": 1280,
+    "default_light": true,
+    "search_category": true,
+    "theme_persistence": true,
+    "keyboard_drawer_search": true,
+    "tap_targets_44px": true,
+    "js_errors": []
+  }
+]

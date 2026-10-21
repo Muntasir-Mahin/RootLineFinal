@@ -27,6 +27,7 @@ def chat(request):
     return render(request, 'chatbot/chat.html', {'chat_messages': history_for(request.user),
                                                'chat_enabled': settings.AI_CHAT_ENABLED,
                                                'supports_images': settings.OLLAMA_MODEL in ollama.VISION_MODELS,
+                                               'voice_ready': voice.status(),
                                                'voice_draft': request.session.pop('chat_voice_draft', '')})
 
 

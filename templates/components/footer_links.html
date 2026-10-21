@@ -1,0 +1,6 @@
+<div class="footer-column"><h2>{{ title }}</h2><ul>
+{% if section == 'shop' %}<li><a href="{% url 'marketplace' %}">Marketplace</a></li><li><a href="{% url 'auction_list' %}">Auctions</a></li><li><a href="{% url 'cart' %}">Cart</a></li>
+{% elif section == 'sell' %}{% if user.seller_approved %}<li><a href="{% url 'my_products' %}">My products</a></li><li><a href="{% url 'add_product' %}">Add a product</a></li><li><a href="{% url 'seller_orders' %}">Seller orders</a></li>{% else %}<li><a href="{% url 'profile' %}">Become a seller</a></li>{% endif %}<li><a href="{% url 'help' %}">Selling help</a></li>
+{% elif section == 'support' %}<li><a href="{% url 'help' %}">Help &amp; FAQ</a></li><li><a href="{% url 'my_orders' %}">Order support</a></li><li><a href="{% url 'help' %}#contact">Help &amp; contact</a></li>
+{% else %}<li><a href="{% url 'help' %}">About RootLine</a></li><li><a href="{% url 'agro_updates:index' %}">Agro Updates</a></li><li><a href="{% url 'help' %}#voice">Voice questions</a></li>{% endif %}
+</ul></div>

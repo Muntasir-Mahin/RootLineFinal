@@ -1,8 +1,8 @@
 {% load static %}<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{{ title }} · RootLine staff</title><link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}"></head>
-<body><a class="skip" href="#main">Skip to content</a><div class="shell">
-<aside class="sidebar"><a class="brand" href="{% url 'dashboard:overview' %}"><span class="brand-icon">R</span> RootLine <small>STAFF WORKSPACE</small></a>
+<html lang="en" data-account-theme="{{ user.theme_preference }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ title }} · RootLine staff</title><link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml"><script src="{% static 'js/theme-init.js' %}"></script><script src="{% static 'js/theme-toggle.js' %}" defer></script><link rel="stylesheet" href="{% static 'css/theme.css' %}"><link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}"></head>
+<body class="rootline-staff"><a class="skip" href="#main">Skip to content</a><div class="shell">
+<aside class="sidebar"><a class="brand" href="{% url 'dashboard:overview' %}"><span class="brand-mark">{% include 'components/icon.html' with name='leaf' %}</span> RootLine <small>STAFF WORKSPACE</small></a>
 <nav aria-label="Staff navigation">
 <a {% if section == 'overview' %}aria-current="page"{% endif %} href="{% url 'dashboard:overview' %}">Overview</a>
 {% if can_finance %}<a {% if section == 'payments' %}aria-current="page"{% endif %} href="{% url 'dashboard:payments' %}">Payments <span class="count">{{ queue_sizes.payments }}</span></a>{% endif %}
@@ -13,6 +13,6 @@
 <a {% if section == 'orders' %}aria-current="page"{% endif %} href="{% url 'dashboard:orders' %}">Orders</a>
 <a {% if section == 'activity' %}aria-current="page"{% endif %} href="{% url 'dashboard:activity' %}">Activity log</a>
 </nav><div class="sidebar-footer"><strong>{{ request.user.get_username }}</strong><a href="{% url 'profile' %}">My account</a><a href="{% url 'logout' %}">Sign out</a></div></aside>
-<main id="main"><header class="page-header"><div><p class="eyebrow">ROOTLINE OPERATIONS · BANGLADESH</p><h1>{{ title }}</h1></div><span class="pill verified">Staff workspace</span></header>
+<main id="main" tabindex="-1"><header class="page-header"><div><p class="eyebrow">ROOTLINE OPERATIONS · BANGLADESH</p><h1>{{ title }}</h1></div><div class="staff-header-tools"><span class="pill verified">Staff workspace</span><form id="theme-form" action="{% url 'toggle_theme' %}" method="post" data-authenticated="true">{% csrf_token %}<button type="button" id="theme-toggle" aria-pressed="false" aria-label="Use dark mode" hidden>Dark mode</button></form></div></header>
 {% if messages %}<div aria-live="polite" class="messages">{% for message in messages %}<div role="status" class="message {{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}
 {% block content %}{% endblock %}<footer class="page-footer">RootLine · All amounts in BDT · Times in Bangladesh time</footer></main></div></body></html>

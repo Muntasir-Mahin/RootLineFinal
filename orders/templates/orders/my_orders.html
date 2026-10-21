@@ -1,15 +1,16 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="workflow-page page-my-orders">
-<header class="page-heading"><p class="section-eyebrow">YOUR PURCHASES</p><h1>My Orders</h1><p class="page-description">Every fresh find, from checkout to your doorstep.</p></header>
+<header class="page-heading"><p class="section-eyebrow">[ 01 ] YOUR PURCHASES</p><h1>My Orders</h1><p class="page-description">Every fresh find, from checkout to your doorstep.</p></header>
 {% if orders %}
 {% for order in orders %}
-<div class="bg-white rounded-xl shadow-lg p-6 mb-8 ui-card order-card">
-<h3 class="text-2xl font-bold text-gray-800 mb-5">
+<div class="surface bg-surface rounded-xl p-6 mb-8 ui-card order-card">
+<h3 class="text-2xl font-bold text-content mb-5">
 Order #{{ order.id }}
 </h3>
+<div class="order-details-grid">
 <!-- BASIC INFO -->
-<div class="space-y-2">
+<div class="order-section space-y-2">
 <p>
 Seller:
 <span class="font-semibold">
@@ -18,7 +19,7 @@ Seller:
 </p>
 <p>
 Order Status:
-<span class="font-bold text-green-700">
+<span class="font-bold text-content">
 {{ order.get_status_display }}
 </span>
 </p>
@@ -29,7 +30,7 @@ Payment Method:
 </div>
 <!-- PAYMENT -->
 {% if order.payment %}
-<div class="mt-6 bg-gray-50 rounded-lg p-5">
+<div class="order-section mt-6 bg-elevated rounded-lg p-5">
 <h4 class="text-xl font-bold mb-3">
 Payment Information
 </h4>
@@ -51,7 +52,7 @@ Pay Now
 Transaction ID:
 {{ order.payment.transaction_id }}
 </p>
-<p class="text-yellow-600 mt-2">
+<p class="text-content mt-2">
 Waiting for admin verification.
 </p>
 {% elif order.payment.payment_status == 'paid' %}
@@ -61,25 +62,25 @@ Escrow Status:
 {{ order.payment.get_escrow_status_display }}
 </strong>
 </p>
-<p class="text-green-700">
+<p class="text-content">
 Payment verified successfully.
 </p>
 {% elif order.payment.payment_status == 'refunded' %}
-<p class="text-red-600 mt-3">
+<p class="text-content mt-3">
 Payment refunded.
 </p>
 {% endif %}
 </div>
 {% endif %}
 <!-- DELIVERY / DISPUTE -->
-<div class="mt-6">
+<div class="order-section mt-6">
 <h4 class="text-xl font-bold mb-4">
 Delivery Status
 </h4>
 {% if order.status == 'shipped' %}
 {% if order.dispute %}
-<div class="border border-red-300 bg-red-50 rounded-lg p-5">
-<h4 class="font-bold text-red-700 text-xl">
+<div class="border border-line bg-elevated rounded-lg p-5">
+<h4 class="font-bold text-content text-xl">
 Dispute Information
 </h4>
 <p class="mt-3">
@@ -113,10 +114,10 @@ Waiting for admin review.
 {% endif %}
 </p>
 {% if order.dispute.status == 'refund_approved' %}
-<p class="mt-3 text-green-700 font-bold">
+<p class="mt-3 text-content font-bold">
 Refund Approved
 </p>
-<p>
+<p class="font-mono">
 Refund Amount:
 ৳{{ order.payment.amount|floatformat:2 }}
 </p>
@@ -148,12 +149,12 @@ Confirm Delivery
 </form>
 <a
 href="{% url 'raise_dispute' order.id %}"
-class="inline-block mt-4 text-red-600 font-semibold">
+class="inline-block mt-4 text-content font-semibold">
 Raise Dispute
 </a>
 {% endif %}
 {% elif order.status == 'delivered' %}
-<p class="text-green-700 font-bold">
+<p class="text-content font-bold">
 Delivery Confirmed
 </p>
 <h4 class="text-xl font-bold mt-5">
@@ -163,7 +164,7 @@ Review
 {% if not item.has_review %}
 <a
 href="{% url 'add_review' item.product_id order.id %}"
-class="block text-blue-600 mt-2">
+class="block text-content mt-2">
 Write Review for {{ item.product_name }}
 </a>
 {% else %}
@@ -173,7 +174,7 @@ Review submitted for {{ item.product_name }}
 {% endif %}
 {% endfor %}
 {% elif order.status == 'cancelled' %}
-<p class="text-red-600">
+<p class="text-content">
 This order was cancelled.
 </p>
 {% elif order.status == 'pending' %}
@@ -187,7 +188,7 @@ Order confirmed. Waiting for shipment.
 {% endif %}
 </div>
 <!-- DELIVERY INFO -->
-<div class="mt-6 bg-gray-50 rounded-lg p-5">
+<div class="order-section mt-6 bg-elevated rounded-lg p-5">
 <h4 class="text-xl font-bold mb-3">
 Delivery Information
 </h4>
@@ -209,12 +210,12 @@ Address:
 </p>
 </div>
 <!-- ITEMS -->
-<div class="mt-6">
+<div class="order-section mt-6">
 <h4 class="text-xl font-bold">
 Items
 </h4>
 {% for item in order.items.all %}
-<p class="mt-2">
+<p class="font-mono mt-2">
 {{ item.product_name }}
 -
 {{ item.quantity }}
@@ -229,22 +230,23 @@ No items found.
 {% endfor %}
 <h3 class="text-2xl font-bold mt-5">
 Total:
-<span class="text-green-700">
+<span class="font-mono text-content">
 ৳{{ order.total_amount|floatformat:2 }}
 </span>
 </h3>
 </div>
 </div>
+</div>
 {% endfor %}
 {% else %}
-<div class="bg-white p-8 rounded-xl shadow ui-card">
-<p class="text-xl text-gray-600">
+<div class="surface bg-surface p-8 rounded-xl ui-card">
+<p class="text-xl text-muted">
 You have no orders yet.
 </p>
 </div>
 {% endif %}
 <a href="{% url 'marketplace' %}"
-class="inline-block mt-5 text-green-700 font-semibold">
+class="inline-block mt-5 text-content font-semibold">
 ← Continue Shopping
 </a>
 </div>

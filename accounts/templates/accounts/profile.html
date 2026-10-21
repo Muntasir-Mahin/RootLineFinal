@@ -13,13 +13,13 @@
   </header>
 
   <div class="account-layout">
-    <aside class="profile-panel surface p-6 rounded-2xl border">
+    <aside class="profile-panel surface p-6 rounded-xl border">
       <!-- Profile Picture Container -->
-      <div id="avatar-container" class="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-md flex items-center justify-center mx-auto mb-4" style="width: 96px; height: 96px; border-radius: 9999px; background-color: #d1fae5;">
+      <div id="avatar-container" class="profile-avatar w-24 h-24 rounded-full overflow-hidden border border-line flex items-center justify-center mx-auto mb-4">
         {% if user.profile_picture %}
-          <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" style="width: 100%; height: 100%; object-fit: cover;">
+          <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="w-full h-full object-cover">
         {% else %}
-          <span class="text-2xl font-bold" style="color: #065f46;">
+          <span class="text-2xl font-bold">
             {{ user.first_name|default:user.username|slice:':1'|upper }}{{ user.last_name|slice:':1'|upper }}
           </span>
         {% endif %}
@@ -27,7 +27,7 @@
 
       <h3 class="text-center font-bold text-xl">{{ user.get_full_name|default:user.username }}</h3>
       <p class="profile-handle text-center text-sm mb-2">@{{ user.username }}</p>
-      <span class="member-label block text-center text-xs font-semibold px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full w-max mx-auto mb-4">RootLine member</span>
+      <span class="member-label badge font-mono block text-center text-xs px-3 py-1 bg-elevated text-content rounded-full w-max mx-auto mb-4">RootLine member</span>
 
       <div class="panel-divider my-4 border-t"></div>
 
@@ -49,7 +49,7 @@
     <div class="account-main">
       <section aria-labelledby="quick-links-title">
         <div class="section-heading"><h3 id="quick-links-title">Your everyday essentials</h3><span>Quick links</span></div>
-        <div class="shortcut-grid">
+        <div class="shortcut-grid bordered-grid">
           <a href="{% url 'chatbot:chat' %}" class="shortcut surface"><span class="shortcut-icon">{% include 'components/icon.html' with name='leaf' %}</span><span><strong>Ask RootLine</strong><small>Chat about farming in Bangla or English</small></span><span class="shortcut-arrow">{% include 'components/icon.html' with name='arrow' %}</span></a>
           <a href="{% url 'agro_updates:index' %}" class="shortcut surface"><span class="shortcut-icon">{% include 'components/icon.html' with name='leaf' %}</span><span><strong>Agro Updates</strong><small>Watch farming news and practical guides</small></span><span class="shortcut-arrow">{% include 'components/icon.html' with name='arrow' %}</span></a>
           {% if user.is_staff or user.is_superuser %}<a href="{% url 'dashboard:overview' %}" class="shortcut surface"><span><strong>Staff dashboard</strong><small>Open your RootLine workspace</small></span><span class="shortcut-arrow">{% include 'components/icon.html' with name='arrow' %}</span></a>{% endif %}
@@ -60,7 +60,7 @@
         </div>
       </section>
 
-      <section class="seller-panel surface p-6 rounded-2xl border my-6" aria-labelledby="seller-title">
+      <section class="seller-panel surface p-6 rounded-xl border my-6" aria-labelledby="seller-title">
         <div class="seller-copy"><span class="section-eyebrow">GROW WITH ROOTLINE</span><h3 id="seller-title">Good things start with you.</h3>
           {% if user.seller_approved %}<p>Your seller account is approved. Your next great listing is just a step away.</p><span class="status-pill">Seller Status: Approved</span>
           {% elif user.seller_requested %}<p>We've received your seller request. Your application is awaiting approval.</p><span class="status-pill pending">Seller Status: Pending Approval</span>
@@ -72,7 +72,7 @@
         </div>
       </section>
 
-      <section class="settings-panel surface p-6 rounded-2xl border" aria-labelledby="settings-title">
+      <section class="settings-panel surface p-6 rounded-xl border" aria-labelledby="settings-title">
         <div class="section-heading"><h3 id="settings-title">Account settings</h3><span>Make yourself at home</span></div>
         <a href="{% url 'edit_profile' %}" class="settings-row flex items-center justify-between py-3 border-b"><span class="settings-icon">{% include 'components/icon.html' with name='edit' %}</span><span><strong>Edit profile</strong><small class="block text-xs">Keep your personal details up to date</small></span>{% include 'components/icon.html' with name='arrow' %}</a>
         <a href="{% url 'change_password' %}" class="settings-row flex items-center justify-between py-3 border-b"><span class="settings-icon">{% include 'components/icon.html' with name='lock' %}</span><span><strong>Change password</strong><small class="block text-xs">Keep your account secure</small></span>{% include 'components/icon.html' with name='arrow' %}</a>

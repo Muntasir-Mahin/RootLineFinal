@@ -1,0 +1,23 @@
+{
+  "scope": "Stage 2 foundation, navigation and product card; stages 3\u20137 await user approval",
+  "page_states": 276,
+  "http_failures": 0,
+  "page_overflow": 0,
+  "text_contrast_failure_occurrences": 0,
+  "viewport_widths": [
+    360,
+    768,
+    1280
+  ],
+  "themes": [
+    "light",
+    "dark"
+  ],
+  "additional_status_colors": [],
+  "python_production_changes": [
+    "rootline/context_processors.py",
+    "rootline/settings.py",
+    "rootline/site_views.py"
+  ],
+  "models_migrations_forms_urls_changed": false
+}

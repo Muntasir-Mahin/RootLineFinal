@@ -2,16 +2,16 @@
 {% block content %}
 <div class="workflow-page page-delete-product">
 <div class="min-h-[70vh] flex items-center justify-center">
-<div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md text-center ui-card">
-<header class="page-heading"><p class="section-eyebrow">MANAGE YOUR LISTING</p><h1>Delete Product</h1><p class="page-description">Review your product before removing it.</p></header>
-<p class="text-gray-700 text-lg mb-8">
+<div class="surface bg-surface rounded-xl p-8 w-full max-w-md text-center ui-card">
+<header class="page-heading"><p class="section-eyebrow">[ 01 ] MANAGE YOUR LISTING</p><h1>Delete Product</h1><p class="page-description">Review your product before removing it.</p></header>
+<p class="text-content text-lg mb-8">
 Are you sure you want to delete
-<strong class="text-gray-900">
+<strong class="text-content">
 {{ product.name }}
 </strong>
 ?
 </p>
-<form method="POST" class="modern-form">
+<form method="POST" class="modern-form" data-confirm="Remove this product from the marketplace?">
 {% csrf_token %}
 <button
 type="submit"
@@ -22,7 +22,7 @@ Yes, Delete
 </form>
 <a
 href="{% url 'my_products' %}"
-class="block mt-5 text-gray-600 font-semibold hover:text-gray-900"
+class="block mt-5 text-muted font-semibold hover:text-content"
 >
 Cancel
 </a>

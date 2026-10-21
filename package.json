@@ -1,5 +1,10 @@
 {
   "devDependencies": {
     "tailwindcss": "^3.4.19"
+  },
+  "scripts": {
+    "build:css": "tailwindcss -i ./static/css/style.css -o ./static/css/output.css --minify",
+    "watch:css": "tailwindcss -i ./static/css/style.css -o ./static/css/output.css --watch",
+    "check:design": "node scripts/check_design.mjs"
   }
 }

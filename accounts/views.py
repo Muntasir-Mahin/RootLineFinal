@@ -23,6 +23,7 @@ def register_view(request):
         form = RegisterForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Your account was created. You can now sign in.')
             return redirect('login')
     else:
         form = RegisterForm()
@@ -37,6 +38,7 @@ def login_view(request):
         if user is not None:
             login(request, user)
             return redirect('profile')
+        messages.error(request, 'The username or password was not recognised. Please try again.')
     return render(request, 'accounts/login.html')
 
 
@@ -49,6 +51,7 @@ def profile_view(request):
 def become_seller_view(request):
     if request.method == 'POST':
         request_seller_access(request.user.pk)
+        messages.success(request, 'Your seller request was sent for review.')
         return redirect('profile')
     return redirect('profile')
 
@@ -82,6 +85,7 @@ def edit_profile_view(request):
         form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Your profile was updated.')
             return redirect('profile')
     else:
         form = ProfileUpdateForm(instance=request.user)
@@ -95,6 +99,7 @@ def change_password_view(request):
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)
+            messages.success(request, 'Your password was changed.')
             return redirect('profile')
     else:
         form = PasswordChangeForm(request.user)
