@@ -15,6 +15,15 @@ class="mt-4 md:mt-0 px-6 py-3 rounded-lg primary-action"
 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 {% for product in products %}
 <div class="surface bg-surface rounded-xl p-6 ui-card listing-card">
+<div class="product-card-media catalog-image rounded-lg mb-5">
+<a href="{% url 'product_detail' product.id %}" aria-label="View {{ product.name }} details">
+{% if product.image %}
+<img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy" width="640" height="480">
+{% else %}
+<div class="product-placeholder">{% include 'components/icon.html' with name='leaf' %}<span>No photo uploaded</span></div>
+{% endif %}
+</a>
+</div>
 <h3 class="text-2xl font-bold text-content mb-4">
 {{ product.name }}
 </h3>

@@ -1,0 +1,56 @@
+{
+  "upload_works": true,
+  "media_response": 200,
+  "text_only_update_keeps_image": true,
+  "states": [
+    {
+      "width": 278,
+      "theme": "light",
+      "height": 208.5,
+      "naturalWidth": 640,
+      "naturalHeight": 480,
+      "overflow": false
+    },
+    {
+      "width": 278,
+      "theme": "dark",
+      "height": 208.5,
+      "naturalWidth": 640,
+      "naturalHeight": 480,
+      "overflow": false
+    },
+    {
+      "width": 278,
+      "theme": "light",
+      "height": 208.5,
+      "naturalWidth": 640,
+      "naturalHeight": 480,
+      "overflow": false
+    },
+    {
+      "width": 278,
+      "theme": "dark",
+      "height": 208.5,
+      "naturalWidth": 640,
+      "naturalHeight": 480,
+      "overflow": false
+    },
+    {
+      "width": 494,
+      "theme": "light",
+      "height": 370.5,
+      "naturalWidth": 640,
+      "naturalHeight": 480,
+      "overflow": false
+    },
+    {
+      "width": 494,
+      "theme": "dark",
+      "height": 370.5,
+      "naturalWidth": 640,
+      "naturalHeight": 480,
+      "overflow": false
+    }
+  ],
+  "js_errors": []
+}
