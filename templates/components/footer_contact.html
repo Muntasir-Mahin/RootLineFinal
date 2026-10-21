@@ -1,0 +1,10 @@
+{% if contact.has_channels or contact.hours %}
+<section class="footer-contact-area" aria-labelledby="footer-contact-title">
+<div class="footer-contact-heading"><h2 id="footer-contact-title">Contact {{ contact.business_name }}</h2><a href="{% url 'contact' %}">All contact options {% include 'components/icon.html' with name='arrow' %}</a></div>
+{% if contact.phone or contact.whatsapp or contact.email %}{% include 'components/contact_channels.html' with variant='footer' %}{% endif %}
+{% if contact.hours or contact.socials %}<div class="footer-contact-meta">
+{% if contact.hours %}<p class="footer-contact-hours">{% include 'components/icon.html' with name='clock' %}<span><strong>Support hours</strong>{{ contact.hours }} · Asia/Dhaka</span></p>{% endif %}
+{% if contact.socials %}<nav class="footer-social-links" aria-label="RootLine social channels">{% for channel in contact.socials %}{% include 'components/contact_card.html' with channel=channel variant='social' %}{% endfor %}</nav>{% endif %}
+</div>{% endif %}
+</section>
+{% endif %}

@@ -1,0 +1,5 @@
+<aside class="order-contact" aria-label="Order support{% if order_id %} for order {{ order_id }}{% endif %}"><h2>Need help with {% if order_id %}order #{{ order_id }}{% else %}your order{% endif %}?</h2>
+<p>Contact support{% if order_id %} with your order number{% endif %}, or use the dispute option in your orders when available.</p>
+{% include 'components/contact_channels.html' with variant='order' order_id=order_id %}
+<a class="contact-text-link" href="{% url 'my_orders' %}">Order support &amp; disputes {% include 'components/icon.html' with name='arrow' %}</a>
+</aside>

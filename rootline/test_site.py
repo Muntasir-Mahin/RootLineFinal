@@ -87,7 +87,8 @@ class SiteFeedbackTests(TestCase):
         response = self.client.get(reverse('help'))
         self.assertContains(response, '<details>')
         self.assertContains(response, 'Skip to content')
-        self.assertNotContains(response, 'mailto:')
+        with self.settings(ROOTLINE_CONTACT_EMAIL=''):
+            self.assertNotContains(self.client.get(reverse('help')), 'mailto:')
         with self.settings(ROOTLINE_CONTACT_EMAIL='support@example.com'):
             self.assertContains(self.client.get(reverse('help')), 'mailto:support@example.com')
 

@@ -1,0 +1,10 @@
+Simplified contact defaults follow-up
+
+Fresh Django server launched after removing every ROOTLINE_CONTACT_* environment variable:
+/contact/ returned HTTP 200 with phone, WhatsApp, email and languages visible.
+Browser verification at 360 and 1280px: contact links visible; no page overflow.
+
+Targeted regression suite: 81 run, 73 passed, 8 existing skips.
+New settings regressions: no environment, blank environment, and valid non-empty overrides.
+Full suite: 213 run, 200 passed, 12 existing skips, 1 pre-existing ReviewMigrationTests error (accounts_user.theme_preference NOT NULL).
+Django check passes. No models, migrations, forms or additional packages changed.

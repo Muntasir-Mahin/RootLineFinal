@@ -176,5 +176,20 @@ WHISPER_MODEL_PATH = os.environ.get('WHISPER_MODEL_PATH', str(BASE_DIR / 'local_
 WHISPER_CLI = os.environ.get('WHISPER_CLI', 'whisper-cli')
 FFMPEG_BINARY = os.environ.get('FFMPEG_BINARY', 'ffmpeg')
 
-# Optional public support address; never expose a private account address by default.
-ROOTLINE_CONTACT_EMAIL = os.environ.get('ROOTLINE_CONTACT_EMAIL', '')
+# Public business details work out of the box, locally and in production.
+# Non-empty environment values can override them; optional channels stay hidden.
+ROOTLINE_CONTACT_BUSINESS_NAME = os.environ.get('ROOTLINE_CONTACT_BUSINESS_NAME', '').strip() or 'RootLine'
+ROOTLINE_CONTACT_PHONE = os.environ.get('ROOTLINE_CONTACT_PHONE', '').strip() or '+8801923194036'
+ROOTLINE_CONTACT_WHATSAPP = os.environ.get('ROOTLINE_CONTACT_WHATSAPP', '').strip() or '+8801923194036'
+ROOTLINE_CONTACT_EMAIL = os.environ.get('ROOTLINE_CONTACT_EMAIL', '').strip() or 'rootlineuap@gmail.com'
+ROOTLINE_CONTACT_FACEBOOK = os.environ.get('ROOTLINE_CONTACT_FACEBOOK', '')
+ROOTLINE_CONTACT_MESSENGER = os.environ.get('ROOTLINE_CONTACT_MESSENGER', '')
+ROOTLINE_CONTACT_INSTAGRAM = os.environ.get('ROOTLINE_CONTACT_INSTAGRAM', '')
+ROOTLINE_CONTACT_YOUTUBE = os.environ.get('ROOTLINE_CONTACT_YOUTUBE', '')
+ROOTLINE_CONTACT_SOCIALS = os.environ.get('ROOTLINE_CONTACT_SOCIALS', '')
+ROOTLINE_CONTACT_ADDRESS = os.environ.get('ROOTLINE_CONTACT_ADDRESS', '')
+ROOTLINE_CONTACT_HOURS = os.environ.get('ROOTLINE_CONTACT_HOURS', '')
+ROOTLINE_CONTACT_LANGUAGES = os.environ.get('ROOTLINE_CONTACT_LANGUAGES', '').strip() or 'Bangla, English'
+ROOTLINE_CONTACT_REPLY_TIME = os.environ.get('ROOTLINE_CONTACT_REPLY_TIME', '')
+ROOTLINE_CONTACT_WHATSAPP_MESSAGE = os.environ.get('ROOTLINE_CONTACT_WHATSAPP_MESSAGE', '')
+ROOTLINE_CONTACT_EMAIL_SUBJECT = os.environ.get('ROOTLINE_CONTACT_EMAIL_SUBJECT', '')

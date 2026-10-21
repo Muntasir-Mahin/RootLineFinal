@@ -1,8 +1,9 @@
-from django.conf import settings
+from .contact import contact_details
 
 
 def site_contact(request):
-    return {'contact_email': settings.ROOTLINE_CONTACT_EMAIL}
+    contact = contact_details()
+    return {'contact': contact, 'contact_email': contact['email']}
 
 
 def marketplace_navigation(request):
