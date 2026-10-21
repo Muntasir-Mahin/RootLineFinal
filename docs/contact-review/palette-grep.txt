@@ -1,0 +1,5 @@
+rg -n -i --pcre2 --glob "*.html" --glob "*.css" --glob "*.js" --glob "*.svg"
+  "#(?!(?:06141B|11212D|253745|4A5C6A|9BA8AB|CCD0CF)\b)[0-9a-f]{3,8}\b"
+  templates static products/templates orders/templates payments/templates disputes/templates bidding/templates
+
+No matches (rg exit 1). npm run check:design also passed across all authored/generated UI sources. No extra status or brand colours.

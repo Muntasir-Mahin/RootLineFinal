@@ -10,3 +10,5 @@ node_modules/
 media/
 .DS_Store
 local_models/
+
+!.env.example

@@ -1,0 +1,98 @@
+{
+  "browser_states": 78,
+  "viewports": [
+    360,
+    768,
+    1280
+  ],
+  "themes": [
+    "light",
+    "dark"
+  ],
+  "http_failures": 0,
+  "page_overflow": 0,
+  "text_contrast_failure_occurrences": 0,
+  "javascript_errors": [],
+  "external_resource_requests": [],
+  "interaction_checks": [
+    {
+      "width": 360,
+      "theme": "light",
+      "copy_success_and_denial": true,
+      "order_number_prefill_only": true,
+      "modal_focus_cycle": true,
+      "escape_close_and_restore_focus": true,
+      "button_close_and_restore_focus": true,
+      "tap_targets_44px": true
+    },
+    {
+      "width": 360,
+      "theme": "dark",
+      "copy_success_and_denial": true,
+      "order_number_prefill_only": true,
+      "modal_focus_cycle": true,
+      "escape_close_and_restore_focus": true,
+      "button_close_and_restore_focus": true,
+      "tap_targets_44px": true
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "copy_success_and_denial": true,
+      "order_number_prefill_only": true,
+      "modal_focus_cycle": true,
+      "escape_close_and_restore_focus": true,
+      "button_close_and_restore_focus": true,
+      "tap_targets_44px": true
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "copy_success_and_denial": true,
+      "order_number_prefill_only": true,
+      "modal_focus_cycle": true,
+      "escape_close_and_restore_focus": true,
+      "button_close_and_restore_focus": true,
+      "tap_targets_44px": true
+    },
+    {
+      "width": 1280,
+      "theme": "light",
+      "copy_success_and_denial": true,
+      "order_number_prefill_only": true,
+      "modal_focus_cycle": true,
+      "escape_close_and_restore_focus": true,
+      "button_close_and_restore_focus": true,
+      "tap_targets_44px": true
+    },
+    {
+      "width": 1280,
+      "theme": "dark",
+      "copy_success_and_denial": true,
+      "order_number_prefill_only": true,
+      "modal_focus_cycle": true,
+      "escape_close_and_restore_focus": true,
+      "button_close_and_restore_focus": true,
+      "tap_targets_44px": true
+    }
+  ],
+  "fallback_states": 12,
+  "contact_and_site_tests": {
+    "run": 20,
+    "passed": 20
+  },
+  "affected_regression_tests": {
+    "run": 78,
+    "passed": 70,
+    "skipped": 8
+  },
+  "full_suite": {
+    "run": 210,
+    "passed": 197,
+    "skipped": 12,
+    "preexisting_errors": 1
+  },
+  "additional_colors": [],
+  "existing_order_form_bodies_byte_identical": 8,
+  "existing_error": "reviews.tests.ReviewMigrationTests.test_duplicate_reviews_block_migration_without_deleting_data: accounts_user.theme_preference NOT NULL"
+}

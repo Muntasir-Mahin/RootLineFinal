@@ -41,3 +41,8 @@ def site_search(request):
 @require_GET
 def help_page(request):
     return render(request, 'site/help.html')
+
+
+@require_GET
+def contact_page(request):
+    return render(request, 'site/contact.html')

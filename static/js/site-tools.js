@@ -113,15 +113,41 @@
 
   const contact = document.getElementById('contact-toggle');
   const panel = document.getElementById('contact-panel');
+  let previousOverflow = '';
+  const toastHome = toastBox.parentNode;
+  const toastAnchor = toastBox.nextSibling;
   contact.hidden = false;
+  function closeContact() { panel.close(); }
   contact.addEventListener('click', () => {
-    panel.hidden = !panel.hidden;
-    contact.setAttribute('aria-expanded', String(!panel.hidden));
+    if (panel.open) { closeContact(); return; }
+    previousOverflow = document.body.style.overflow;
+    panel.hidden = false;
+    toastBox.hidden = true;
+    panel.append(toastBox);
+    panel.showModal();
+    document.body.style.overflow = 'hidden';
+    contact.setAttribute('aria-expanded', 'true');
+    panel.querySelector('[data-contact-close]').focus();
   });
-  document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && !panel.hidden) {
-      panel.hidden = true; contact.setAttribute('aria-expanded', 'false'); contact.focus();
-    }
+  panel.querySelector('[data-contact-close]').addEventListener('click', closeContact);
+  panel.addEventListener('cancel', event => { event.preventDefault(); closeContact(); });
+  panel.addEventListener('close', () => {
+    panel.hidden = true;
+    toastHome.insertBefore(toastBox, toastAnchor);
+    document.body.style.overflow = previousOverflow;
+    contact.setAttribute('aria-expanded', 'false');
+    contact.focus({preventScroll:true});
+  });
+  panel.addEventListener('click', event => {
+    const box = panel.getBoundingClientRect();
+    if (event.target === panel && (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom)) closeContact();
+  });
+  panel.addEventListener('keydown', event => {
+    if (event.key !== 'Tab') return;
+    const controls = [...panel.querySelectorAll('a[href],button:not([disabled]),[tabindex="0"]')].filter(el => el.getClientRects().length);
+    const first = controls[0], last = controls[controls.length-1];
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
   });
 
   const consentBanner = document.getElementById('cookie-banner');
@@ -153,18 +179,18 @@
   }));
   captureCampaign();
 
-  document.querySelectorAll('[data-copy-link]').forEach(button => { button.hidden = false; });
+  document.querySelectorAll('[data-copy-link], [data-copy-contact]').forEach(button => { button.hidden = false; });
   document.addEventListener('click', async event => {
     const dismiss = event.target.closest('[data-dismiss-message]');
     if (dismiss) dismiss.closest('.site-message').remove();
-    const copy = event.target.closest('[data-copy-link], [data-copy-message]');
+    const copy = event.target.closest('[data-copy-link], [data-copy-message], [data-copy-contact]');
     if (copy) {
-      const text = copy.hasAttribute('data-copy-link') ? `${location.origin}${location.pathname}` :
+      const text = copy.hasAttribute('data-copy-contact') ? copy.dataset.copyContact : copy.hasAttribute('data-copy-link') ? `${location.origin}${location.pathname}` :
         copy.closest('.ask-message')?.querySelector('.ask-bubble')?.textContent;
       try {
         if (!text) throw new Error();
         await navigator.clipboard.writeText(text);
-        toast(copy.hasAttribute('data-copy-link') ? 'Link copied.' : 'Answer copied.');
+        toast(copy.hasAttribute('data-copy-contact') ? `${copy.dataset.copyLabel} copied.` : copy.hasAttribute('data-copy-link') ? 'Link copied.' : 'Answer copied.');
       } catch { toast('Copy is unavailable in this browser. Select the text or address and copy it manually.'); }
     }
     const link = event.target.closest('a[href]');

@@ -1,0 +1,11 @@
+<article class="contact-card contact-card--{{ variant|default:'cards' }}">
+{% if variant == 'quick' or variant == 'footer' or variant == 'order' or variant == 'social' %}
+<a class="contact-channel-link{% if channel.key == 'whatsapp' and variant == 'quick' %} primary-action{% endif %}" href="{{ channel.href }}{% if order_id and channel.key == 'whatsapp' or order_id and channel.key == 'email' %}{{ ' Order #'|urlencode }}{{ order_id|urlencode }}{% endif %}" {% if channel.external %}target="_blank" rel="noopener noreferrer"{% endif %} aria-label="{% if channel.key == 'whatsapp' %}Chat with {{ contact.business_name }} on WhatsApp{% else %}{{ channel.action }}: {{ contact.business_name }}{% endif %}{% if order_id %} about order {{ order_id }}{% endif %}">{% include 'components/icon.html' with name=channel.icon %}<span><strong>{{ channel.label }}</strong>{% if channel.key == 'phone' or channel.key == 'whatsapp' or channel.key == 'email' %}<span class="contact-value">{{ channel.value }}</span>{% endif %}</span>{% include 'components/icon.html' with name='arrow' %}</a>
+{% else %}
+<div class="contact-card-heading"><span class="contact-icon">{% include 'components/icon.html' with name=channel.icon %}</span><h2>{{ channel.label }}</h2></div>
+<p class="contact-value">{{ channel.value }}</p>
+<div class="contact-card-actions"><a class="{% if channel.key == 'whatsapp' %}primary-action{% else %}outline-action{% endif %}" href="{{ channel.href }}" {% if channel.external %}target="_blank" rel="noopener noreferrer"{% endif %} aria-label="{% if channel.key == 'whatsapp' %}Chat with {{ contact.business_name }} on WhatsApp{% else %}{{ channel.action }}: {{ contact.business_name }}{% endif %}">{{ channel.action }} {% include 'components/icon.html' with name='arrow' %}</a>
+{% endif %}
+{% if channel.copy_value and variant != 'social' %}<button type="button" class="contact-copy" data-copy-contact="{{ channel.copy_value }}" data-copy-label="{{ channel.label }}" aria-label="Copy {{ contact.business_name }} {{ channel.label|lower }}" hidden>Copy</button>{% endif %}
+{% if variant != 'quick' and variant != 'footer' and variant != 'order' and variant != 'social' %}</div>{% endif %}
+</article>
