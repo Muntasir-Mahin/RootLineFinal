@@ -1,0 +1,4 @@
+Out-of-palette literal hex scan (CSS/HTML/JS/MJS/SVG including generated output.css)
+Command: ['rg', '-n', '--pcre2', '-i', '--glob', '*.css', '--glob', '*.html', '--glob', '*.js', '--glob', '*.mjs', '--glob', '*.svg', '#(?!(?:06141B|11212D|253745|4A5C6A|9BA8AB|CCD0CF)\\b)[0-9a-f]{3,8}\\b', 'static', 'templates', 'accounts', 'agro_updates', 'bidding', 'chatbot', 'dashboard', 'disputes', 'orders', 'payments', 'products', 'reviews', 'wishlist', 'scripts', 'tailwind.config.js']
+Matches: 0
+See npm run check:design for encoded SVG, RGB and named-colour checks.

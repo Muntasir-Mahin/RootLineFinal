@@ -3,7 +3,7 @@
 {% block content %}
 <div class="agro-page">
   <a class="agro-back" href="{% url 'agro_updates:index' %}">← All Agro Updates</a>
-  <article class="agro-watch surface">
+  <article class="agro-watch surface editorial-detail">
     <div class="agro-player"><iframe src="{{ video.embed_url }}" title="{{ video.title }}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
     <div class="agro-watch-body">
       <div class="agro-card-meta"><span class="agro-topic">{{ video.get_category_display }}</span><span>{{ video.get_language_display }}</span>{% if video.featured %}<span class="agro-topic">Editor's pick</span>{% endif %}</div>

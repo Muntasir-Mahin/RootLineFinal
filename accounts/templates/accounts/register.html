@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="auth-layout">
+<div class="auth-layout auth-page auth-page-register">
   <aside class="auth-story">
     <span class="section-eyebrow">FRESH FINDS. THOUGHTFUL CHOICES.</span>
     <h2>A better way<br>to shop organic.</h2>
@@ -22,12 +22,12 @@
       {% endif %}
 
       <!-- PROFILE PICTURE SECTION WITH PREVIEW & CUSTOM BUTTON -->
-      <div class="profile-pic-section flex flex-col items-center gap-4 p-4 rounded-2xl border mb-6" style="background-color: #f0fdf4; border-color: #dcfce7; display: flex; flex-direction: column; align-items: center; padding: 16px; border-radius: 16px; margin-bottom: 24px;">
+      <div class="profile-pic-section bg-elevated border-line flex flex-col items-center gap-4 p-6 rounded-xl border mb-6">
 
         <!-- Circle Avatar Container -->
-        <div id="register-avatar-container" class="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-md flex items-center justify-center" style="width: 96px; height: 96px; border-radius: 9999px; background-color: #d1fae5; border: 4px solid #ffffff;">
-          <span id="register-avatar-fallback" class="text-2xl font-bold" style="color: #065f46; font-size: 24px; font-weight: 700;">
-            📷
+        <div id="register-avatar-container" class="profile-avatar w-24 h-24 rounded-full overflow-hidden border border-line flex items-center justify-center">
+          <span id="register-avatar-fallback" class="text-2xl font-bold text-content">
+            <svg class="ui-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-label="Profile photo"><path d="M9 4 7 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2-3Z"/><circle cx="12" cy="13" r="4"/></svg>
           </span>
         </div>
 
@@ -44,14 +44,14 @@
         <!-- Styled Custom File Button -->
         <label
           for="{{ form.profile_picture.id_for_label }}"
-          style="background-color: #047857; color: #ffffff; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 14px;"
+          class="outline-action file-upload-label"
         >
           {% include 'components/icon.html' with name='edit' %}
           <span>Choose File</span>
         </label>
 
         {% if form.profile_picture.errors %}
-          <div class="form-errors text-xs mt-1" role="alert" style="color: #dc2626; font-size: 12px;">{{ form.profile_picture.errors }}</div>
+          <div class="form-errors text-xs mt-1" role="alert">{{ form.profile_picture.errors }}</div>
         {% endif %}
       </div>
 
@@ -71,7 +71,7 @@
         {% endif %}
       {% endfor %}
 
-      <button type="submit" class="primary-action full-action" style="margin-top: 16px;">
+      <button type="submit" class="primary-action full-action mt-4">
         Create account {% include 'components/icon.html' with name='arrow' %}
       </button>
     </form>

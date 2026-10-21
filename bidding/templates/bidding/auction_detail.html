@@ -3,8 +3,8 @@
 <div class="workflow-page page-auction-detail">
 <div class="max-w-5xl mx-auto">
 <!-- AUCTION HEADER -->
-<div class="bg-white rounded-2xl shadow-lg p-8 mb-8 ui-card">
-<header class="page-heading"><p class="section-eyebrow">LIVE FROM ROOTLINE</p><h1>{{ auction.product.name }}</h1><p class="page-description">Follow the bids and find your next favorite.</p></header>
+<div class="surface bg-surface rounded-xl p-8 mb-8 ui-card">
+<header class="page-heading"><p class="section-eyebrow">[ 01 ] LIVE FROM ROOTLINE</p><h1>{{ auction.product.name }}</h1><p class="page-description">Follow the bids and find your next favorite.</p></header>
 <p>
 Seller:
 <strong>
@@ -14,11 +14,11 @@ Seller:
 <div class="mt-5 space-y-2">
 <p>
 Starting Price:
-<span class="font-bold text-green-700">
+<span class="font-mono font-bold text-content">
 ৳{{ auction.starting_price|floatformat:2 }}
 </span>
 </p>
-<p>
+<p class="font-mono">
 Minimum Increment:
 ৳{{ auction.minimum_increment|floatformat:2 }}
 </p>
@@ -39,14 +39,14 @@ End:
 </div>
 </div>
 <!-- CURRENT BID -->
-<div class="bg-green-50 rounded-2xl p-6 shadow mb-8">
+<div class="pricing-panel surface bg-elevated rounded-xl p-6 mb-8">
 <h3 class="text-2xl font-bold mb-4">
 Current Bid
 </h3>
 {% if highest_bid %}
 <p>
 Highest Bid:
-<strong class="text-green-700 text-xl">
+<strong class="font-mono text-content text-xl">
 ৳{{ highest_bid.amount }}
 </strong>
 </p>
@@ -57,20 +57,21 @@ Highest Bidder:
 </strong>
 </p>
 {% else %}
-<p class="text-gray-600">
+<p class="text-muted">
 No bids yet.
 </p>
 {% endif %}
 </div>
 <!-- ACTIVE AUCTION -->
 {% if auction.status == 'active' %}
-<div class="bg-white rounded-2xl shadow-lg p-8 mb-8 ui-card">
+<div class="surface bg-surface rounded-xl p-8 mb-8 ui-card pricing-panel highlight-panel">
+{% include 'components/badge.html' with label='ACTIVE AUCTION' kind='featured' %}
 <h3 class="text-2xl font-bold mb-4">
 Place Bid
 </h3>
 <p>
 Minimum Next Bid:
-<strong class="text-green-700">
+<strong class="font-mono text-content">
 ৳{{ minimum_bid }}
 </strong>
 </p>
@@ -89,7 +90,7 @@ step="0.01"
 min="{{ minimum_bid }}"
 required
 placeholder="Enter bid amount"
-class="border rounded-lg px-4 py-3"
+class="border rounded-lg px-4 py-3 border-line"
 >
 <button
 type="submit"
@@ -99,12 +100,12 @@ Place Bid
 </button>
 </form>
 {% else %}
-<p class="text-red-600 mt-4">
+<p class="text-content mt-4">
 You cannot bid on your own product.
 </p>
 {% endif %}
 {% else %}
-<p class="text-yellow-600">
+<p class="text-content">
 Please login to place a bid.
 </p>
 {% endif %}
@@ -112,15 +113,15 @@ Please login to place a bid.
 {% endif %}
 <!-- UPCOMING -->
 {% if auction.status == 'upcoming' %}
-<div class="bg-yellow-50 rounded-xl p-5 mb-8">
-<p class="font-semibold text-yellow-700">
+<div class="bg-elevated rounded-xl p-5 mb-8">
+<p class="font-semibold text-content">
 Auction has not started yet.
 </p>
 </div>
 {% endif %}
 <!-- ENDED RESULT -->
 {% if auction.status == 'ended' %}
-<div class="bg-white rounded-2xl shadow-lg p-8 mb-8 ui-card">
+<div class="surface bg-surface rounded-xl p-8 mb-8 ui-card">
 <h3 class="text-3xl font-bold mb-5">
 Auction Result
 </h3>
@@ -133,13 +134,13 @@ Winner:
 </p>
 <p>
 Winning Bid:
-<strong class="text-green-700">
+<strong class="font-mono text-content">
 ৳{{ auction.winning_bid|floatformat:2 }}
 </strong>
 </p>
 {% if user == auction.winner %}
-<div class="mt-6 bg-green-50 p-5 rounded-lg">
-<h4 class="text-xl font-bold text-green-700">
+<div class="mt-6 bg-elevated p-5 rounded-lg">
+<h4 class="text-xl font-bold text-content">
 Congratulations!
 </h4>
 <p>
@@ -163,7 +164,7 @@ Complete Purchase
 </div>
 {% endif %}
 {% if user == auction.product.seller %}
-<div class="mt-6 bg-gray-50 p-5 rounded-lg">
+<div class="mt-6 bg-elevated p-5 rounded-lg">
 <h4 class="text-xl font-bold">
 Seller View
 </h4>
@@ -173,26 +174,26 @@ Auction Winner:
 </p>
 <p>
 Final Selling Price:
-<strong>
+<strong class="font-mono">
 ৳{{ auction.winning_bid|floatformat:2 }}
 </strong>
 </p>
 {% if auction.order %}
 <a
 href="{% url 'seller_orders' %}"
-class="inline-block mt-4 text-green-700 font-semibold"
+class="inline-block mt-4 text-content font-semibold"
 >
 View Incoming Orders
 </a>
 {% else %}
-<p class="mt-3 text-gray-600">
+<p class="mt-3 text-muted">
 Waiting for winner purchase.
 </p>
 {% endif %}
 </div>
 {% endif %}
 {% else %}
-<p class="text-gray-600">
+<p class="text-muted">
 Auction ended without any bids.
 </p>
 {% endif %}
@@ -200,17 +201,17 @@ Auction ended without any bids.
 {% endif %}
 <!-- CANCELLED -->
 {% if auction.status == 'cancelled' %}
-<div class="bg-red-50 text-red-700 p-5 rounded-xl mb-8">
+<div class="bg-elevated text-content p-5 rounded-xl mb-8">
 This auction has been cancelled.
 </div>
 {% endif %}
 <!-- BID HISTORY -->
-<div class="bg-white rounded-2xl shadow-lg p-8 mb-8 ui-card">
+<div class="surface bg-surface rounded-xl p-8 mb-8 ui-card">
 <h3 class="text-2xl font-bold mb-5">
 Bid History
 </h3>
 {% for bid in auction.bids.all %}
-<div class="border rounded-lg p-4 mb-3 bg-gray-50">
+<div class="border rounded-lg p-4 mb-3 bg-elevated border-line">
 <p>
 Bidder:
 <strong>
@@ -219,16 +220,16 @@ Bidder:
 </p>
 <p>
 Amount:
-<strong class="text-green-700">
+<strong class="font-mono text-content">
 ৳{{ bid.amount }}
 </strong>
 </p>
-<p class="text-gray-500">
+<p class="text-muted">
 {{ bid.created_at }}
 </p>
 </div>
 {% empty %}
-<p class="text-gray-500">
+<p class="text-muted">
 No bids yet.
 </p>
 {% endfor %}

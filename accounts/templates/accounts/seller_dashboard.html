@@ -2,9 +2,9 @@
 {% block content %}
 <div class="workflow-page page-seller-dashboard">
   <header class="account-heading"><div><p class="section-eyebrow">SELLER STUDIO</p><h2>Room to grow.</h2><p class="page-description">Welcome, {{ user.get_full_name|default:user.username }}. You are an approved RootLine seller.</p></div><a href="{% url 'add_product' %}" class="primary-action">{% include 'components/icon.html' with name='plus' %} Add Product</a></header>
-  <section class="studio-banner"><div><span class="section-eyebrow">YOUR ROOTLINE BUSINESS</span><h3>Good products deserve a good home.</h3><p>Manage your listings, care for your customers, and keep your business growing.</p></div><span class="studio-leaf">{% include 'components/icon.html' with name='leaf' %}</span></section>
+  <section class="studio-banner surface"><div><span class="section-eyebrow">YOUR ROOTLINE BUSINESS</span><h3>Good products deserve a good home.</h3><p>Manage your listings, care for your customers, and keep your business growing.</p></div><span class="studio-leaf">{% include 'components/icon.html' with name='leaf' %}</span></section>
   <div class="section-heading"><h3>Seller Options</h3><span>Everything you need, in one place</span></div>
-  <div class="studio-grid">
+  <div class="studio-grid bordered-grid">
     <a href="{% url 'add_product' %}" class="studio-card surface"><span class="shortcut-icon">{% include 'components/icon.html' with name='plus' %}</span><h3>Add Product</h3><p>Create a new product listing.</p><span class="studio-link">Start a listing {% include 'components/icon.html' with name='arrow' %}</span></a>
     <a href="{% url 'my_products' %}" class="studio-card surface"><span class="shortcut-icon">{% include 'components/icon.html' with name='box' %}</span><h3>My Products</h3><p>Manage your products.</p><span class="studio-link">View your listings {% include 'components/icon.html' with name='arrow' %}</span></a>
     <a href="{% url 'seller_reviews' %}" class="studio-card surface"><span class="shortcut-icon">{% include 'components/icon.html' with name='star' %}</span><h3>My Reviews</h3><p>See customer feedback.</p><span class="studio-link">Hear from customers {% include 'components/icon.html' with name='arrow' %}</span></a>

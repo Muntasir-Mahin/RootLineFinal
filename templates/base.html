@@ -1,10 +1,13 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" data-account-theme="{% if user.is_authenticated %}{{ user.theme_preference }}{% endif %}">
+<html lang="en" data-theme="dark" data-account-theme="{% if user.is_authenticated %}{{ user.theme_preference }}{% endif %}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}RootLine{% endblock %}</title>
+<link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
+<link rel="preload" href="{% static 'fonts/geist-sans.woff2' %}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{% static 'fonts/geist-mono.woff2' %}" as="font" type="font/woff2" crossorigin>
 <script src="{% static 'js/theme-init.js' %}"></script>
 <link rel="stylesheet" href="{% static 'css/output.css' %}">
 <link rel="stylesheet" href="{% static 'css/theme.css' %}">
@@ -16,12 +19,12 @@
 <script src="{% static 'js/number-inputs.js' %}" defer></script>
 {% block extra_js %}{% endblock %}
 </head>
-<body class="rootline-app bg-gray-100 min-h-screen">
+<body class="rootline-app">
 <a class="skip-link" href="#main-content">Skip to content</a>
 <div class="scroll-progress" aria-hidden="true"><span id="scroll-progress"></span></div>
 <nav class="site-nav" aria-label="Main navigation">
   <div class="nav-shell">
-    <a class="site-brand" href="{% url 'marketplace' %}"><span class="brand-mark">{% include 'components/icon.html' with name='leaf' %}</span> RootLine</a>
+    <a class="site-brand" href="{% url 'marketplace' %}"><span class="brand-mark">{% include 'components/icon.html' with name='leaf' %}</span><span class="brand-wordmark">RootLine</span><span class="brand-pill">ORGANIC MARKETPLACE</span></a>
     <div class="nav-tools">
       <form id="theme-form" action="{% url 'toggle_theme' %}" method="post" data-authenticated="{{ user.is_authenticated|yesno:'true,false' }}">
         {% csrf_token %}<button type="button" id="theme-toggle" class="tool-button" aria-pressed="false" aria-label="Use dark mode" hidden>Dark mode</button>
@@ -29,21 +32,27 @@
       <button type="button" id="menu-toggle" class="tool-button" aria-expanded="false" aria-controls="site-links" hidden><span aria-hidden="true">☰</span> Menu</button>
     </div>
     <div id="site-links" class="site-links">
+      <div class="nav-primary">
       <a href="{% url 'marketplace' %}">Marketplace</a>
       <a href="{% url 'chatbot:chat' %}">Ask RootLine</a>
       <a href="{% url 'agro_updates:index' %}">Agro Updates</a>
       <a href="{% url 'auction_list' %}">Auctions</a>
       <a href="{% url 'help' %}">Help</a>
+      </div>
       {% if user.is_authenticated %}
+      <details class="nav-popover nav-account-menu"><summary>Account <span aria-hidden="true">⌄</span></summary><div class="nav-popover-body">
       <a href="{% url 'cart' %}">Cart</a><a href="{% url 'my_wishlist' %}">Wishlist</a>
       <a href="{% url 'my_orders' %}">Orders</a><a href="{% url 'profile' %}" class="nav-account">My account</a>
       <a href="{% url 'logout' %}">Logout</a>
-      {% else %}<a href="{% url 'login' %}" class="nav-account">Sign in</a>{% endif %}
+      </div></details>
+      {% else %}<a href="{% url 'login' %}" class="nav-account">Sign in</a><a href="{% url 'register' %}" class="primary-action nav-create">Create account</a>{% endif %}
+      <details class="nav-popover nav-search"><summary aria-label="Open site search"><span aria-hidden="true">⌕</span><span>Search</span></summary><div class="nav-popover-body">
       <form class="site-search" action="{% url 'site_search' %}" method="get" role="search">
         <label class="sr-only" for="site-query">Search RootLine</label>
         <input id="site-query" name="q" type="search" maxlength="150" placeholder="Search RootLine…" value="{{ query|default:'' }}">
         <button type="submit" class="tool-button">Search</button>
       </form>
+      </div></details>
     </div>
   </div>
 </nav>
@@ -51,8 +60,8 @@
   {% if messages %}<div class="site-messages" aria-live="polite">{% for message in messages %}<div class="site-message {{ message.tags }}" role="status"><span>{{ message }}</span><button type="button" data-dismiss-message aria-label="Dismiss notification">×</button></div>{% endfor %}</div>{% endif %}
   {% block content %}{% endblock %}
 </main>
-<footer class="site-footer"><div class="container mx-auto p-5 text-center"><p>© {% now 'Y' %} RootLine. Organic Marketplace Platform.</p><a href="{% url 'help' %}">Help &amp; FAQ</a> · <button type="button" id="cookie-settings" hidden>Cookie preferences</button></div></footer>
-<div class="floating-tools"><button type="button" id="back-to-top" class="tool-button" hidden>↑ Back to top</button><button type="button" id="contact-toggle" class="primary-action" aria-expanded="false" aria-controls="contact-panel" hidden>Help &amp; contact</button></div>
+<footer class="site-footer"><div class="footer-shell"><div class="footer-grid"><div class="footer-brand"><div class="site-brand"><span class="brand-mark">{% include 'components/icon.html' with name='leaf' %}</span><span class="brand-wordmark">RootLine</span></div><p>Good food. Local growers.<br>A thoughtful way to buy, sell and learn.</p><span class="section-eyebrow">ROOTED IN GOOD THINGS</span></div>{% include 'components/footer_links.html' with section='discover' title='Discover' %}{% include 'components/footer_links.html' with section='learn' title='Learn' %}{% include 'components/footer_links.html' with section='account' title='Your RootLine' %}</div><div class="footer-bottom"><p>© {% now 'Y' %} RootLine. Organic Marketplace Platform.</p><div><a href="{% url 'help' %}">Help &amp; FAQ</a><button type="button" id="cookie-settings" hidden>Cookie preferences</button></div></div></div></footer>
+<div class="floating-tools"><button type="button" id="back-to-top" aria-label="Back to top" class="tool-button" hidden>↑ Back to top</button><button type="button" id="contact-toggle" aria-label="Help &amp; contact" class="primary-action" aria-expanded="false" aria-controls="contact-panel" hidden><span class="floating-label">Help &amp; contact</span></button></div>
 <aside id="contact-panel" class="contact-panel surface" aria-label="Help and contact" hidden><h2>How can we help?</h2><p>Find answers or get help with an order.</p><a href="{% url 'help' %}">Read the FAQ</a><a href="{% url 'my_orders' %}">Order support &amp; disputes</a>{% if contact_email %}<a href="mailto:{{ contact_email }}">Email support</a>{% endif %}</aside>
 <section id="cookie-banner" class="cookie-banner surface" aria-label="Cookie preferences" hidden><p>RootLine uses essential cookies for sign-in and form security. With your permission, we also keep campaign tags in this tab to understand how you found us. No external analytics service is loaded.</p><div><button type="button" class="outline-action" data-consent="essential">Essential only</button><button type="button" class="primary-action" data-consent="analytics">Allow campaign tracking</button></div></section>
 <div id="site-toast" class="site-toast" role="status" aria-live="polite" hidden></div>

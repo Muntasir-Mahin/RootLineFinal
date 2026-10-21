@@ -1,0 +1,85 @@
+{
+  "original_templates": 54,
+  "original_python_files": 153,
+  "python_changes": [],
+  "rendered_page_states": 276,
+  "pages": 46,
+  "widths": [
+    360,
+    768,
+    1280
+  ],
+  "themes": [
+    "dark",
+    "light"
+  ],
+  "http_failures": 0,
+  "page_overflow_failures": 0,
+  "text_contrast_failures": 0,
+  "original_contract_differences": [],
+  "control_observations": 186,
+  "control_failures": 0,
+  "minimum_control_border_contrast": 3.7,
+  "minimum_focus_contrast": 6.71,
+  "interaction_modes": 4,
+  "overlay_contrast_failures": 0,
+  "javascript_errors": [],
+  "font_response_statuses": [
+    200
+  ],
+  "ui_external_requests": [],
+  "additional_status_colors": [],
+  "tests": {
+    "executed": 197,
+    "passed": 196,
+    "errors": 1,
+    "existing_error": "reviews.tests.ReviewMigrationTests.test_duplicate_reviews_block_migration_without_deleting_data; NOT NULL accounts_user.theme_preference"
+  },
+  "key_contrast_pairs": [
+    {
+      "foreground": "c200",
+      "background": "c900",
+      "ratio": 12.01
+    },
+    {
+      "foreground": "c200",
+      "background": "c800",
+      "ratio": 10.55
+    },
+    {
+      "foreground": "c400",
+      "background": "c800",
+      "ratio": 6.71
+    },
+    {
+      "foreground": "c900",
+      "background": "c200",
+      "ratio": 12.01
+    },
+    {
+      "foreground": "c700",
+      "background": "c200",
+      "ratio": 7.88
+    },
+    {
+      "foreground": "c600",
+      "background": "c900",
+      "ratio": 2.7
+    },
+    {
+      "foreground": "c600",
+      "background": "c200",
+      "ratio": 4.45
+    },
+    {
+      "foreground": "c400",
+      "background": "c200",
+      "ratio": 1.57
+    }
+  ],
+  "final_affected_tests": {
+    "executed": 125,
+    "passed": 125,
+    "failures": 0
+  }
+}

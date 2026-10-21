@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="workflow-page page-marketplace">
-  <header class="storefront-hero">
-    <div class="hero-copy"><p class="section-eyebrow">THE ORGANIC MARKETPLACE</p><h1>Fresh finds.<br>Rooted in good things.</h1><p class="page-description">Explore verified organic products from local sellers. Find something good for your table, and your everyday.</p><span class="hero-note">{% include 'components/icon.html' with name='leaf' %} Thoughtful choices start here.</span></div>
+  <header class="storefront-hero vercel-glow">
+    <div class="hero-copy"><p class="section-eyebrow">THE ORGANIC MARKETPLACE</p><h1>Fresh finds.<br><span class="headline-gradient">Rooted in good things.</span></h1><p class="page-description">Explore verified organic products from local sellers. Find something good for your table, and your everyday.</p><span class="hero-note">{% include 'components/icon.html' with name='leaf' %} Thoughtful choices start here.</span></div>
     <div class="hero-art" aria-hidden="true"><span class="hero-ring"></span><span class="hero-leaf">{% include 'components/icon.html' with name='leaf' %}</span><span class="hero-art-label">ROOTLINE<br><small>Organic marketplace</small></span></div>
   </header>
   <section class="filter-panel surface" aria-labelledby="filter-title">
@@ -17,8 +17,9 @@
       <button type="submit" class="primary-action filter-submit">Filter {% include 'components/icon.html' with name='arrow' %}</button>
     </form>
   </section>
-  <div class="section-heading catalog-heading"><h2>RootLine Marketplace</h2><span>Find your next favorite</span></div>
+  <div class="catalog-heading">{% include 'components/section_heading.html' with eyebrow='[ 01 ] FRESH PRODUCE' title='RootLine Marketplace' description='Find your next favorite among verified products from local sellers.' %}</div>
   {% if products %}
+  <div class="catalog-count">{% include 'components/stat.html' with value=products|length label='Available listings' description='Matching your current filters' %}</div>
   <div class="catalog-grid">
     {% for product in products %}
     <article class="catalog-card surface">
@@ -38,5 +39,10 @@
     {% endfor %}
   </div>
   {% else %}<div class="empty-state surface"><span class="empty-icon">{% include 'components/icon.html' with name='leaf' %}</span><h3>A fresh start</h3><p>No verified products are available right now.</p></div>{% endif %}
+  <section class="category-section" aria-label="Shop by category">
+    {% include 'components/section_heading.html' with eyebrow='[ 02 ] FIND YOUR EVERYDAY' title='Good things, by nature.' description='Browse the categories already growing in our marketplace.' %}
+    <div class="bordered-grid category-links"><a href="?category=Food"><small>01 / PANTRY</small><strong>Food</strong>{% include 'components/icon.html' with name='bag' %}</a><a href="?category=Fruit"><small>02 / SEASONAL</small><strong>Fruit</strong>{% include 'components/icon.html' with name='leaf' %}</a><a href="?category=Vegetable"><small>03 / FRESH</small><strong>Vegetables</strong>{% include 'components/icon.html' with name='leaf' %}</a><a href="?category=Honey"><small>04 / NATURAL</small><strong>Honey</strong>{% include 'components/icon.html' with name='box' %}</a></div>
+  </section>
+  {% include 'components/card.html' with part='open' %}<div class="cta-band"><p class="section-eyebrow">[ 03 ] GROW WITH ROOTLINE</p><h2>From your farm.<br>To someone's everyday.</h2><p class="page-description">Request a seller account, share your produce and keep your orders in one place.</p><div class="cta-actions">{% url 'profile' as account_url %}{% include 'components/button.html' with href=account_url label='Open my account' %}{% url 'help' as help_url %}{% include 'components/button.html' with href=help_url label='How RootLine works' variant='secondary' %}</div></div>{% include 'components/card.html' with part='close' %}
 </div>
 {% endblock %}

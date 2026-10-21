@@ -2,21 +2,22 @@
 {% block content %}
 <div class="workflow-page page-winner-checkout">
 <div class="min-h-[70vh] flex items-center justify-center">
-<div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg ui-card">
-<header class="page-heading"><p class="section-eyebrow">YOUR WINNING FIND</p><h1>Auction Winner Checkout</h1><p class="page-description">One more step to bring it home.</p></header>
-<div class="bg-green-50 rounded-xl p-5 mb-6">
-<h3 class="text-2xl font-bold text-gray-800">
+<div class="surface bg-surface rounded-xl p-8 w-full max-w-lg ui-card">
+<header class="page-heading"><p class="section-eyebrow">[ 01 ] YOUR WINNING FIND</p><h1>Auction Winner Checkout</h1><p class="page-description">One more step to bring it home.</p></header>
+<div class="pricing-panel highlight-panel bg-elevated rounded-xl p-5 mb-6">
+{% include 'components/badge.html' with label='WINNING BID' kind='featured' %}
+<h3 class="text-2xl font-bold text-content">
 {{ product.name }}
 </h3>
-<p class="mt-4 text-green-700 font-semibold text-lg">
+<p class="mt-4 text-content font-semibold text-lg">
  Congratulations!
 </p>
-<p class="mt-2 text-gray-700">
+<p class="mt-2 text-content">
 You won this auction.
 </p>
 <p class="mt-4">
 Winning Bid:
-<strong class="text-green-700 text-xl">
+<strong class="font-mono text-content text-xl">
 ৳{{ auction.winning_bid|floatformat:2 }}
 </strong>
 </p>
@@ -28,7 +29,7 @@ Seller:
 </p>
 </div>
 <hr class="my-6">
-<h3 class="text-2xl font-bold text-gray-800 mb-5">
+<h3 class="text-2xl font-bold text-content mb-5">
 Delivery & Payment Information
 </h3>
 <form method="POST" class="modern-form">
@@ -45,7 +46,7 @@ Complete Auction Purchase
 </form>
 <a
 href="{% url 'auction_detail' auction.id %}"
-class="block text-center mt-6 text-green-700 font-semibold"
+class="block text-center mt-6 text-content font-semibold"
 >
 ← Back to Auction
 </a>
