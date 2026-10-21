@@ -8,17 +8,19 @@ Implemented on `feature/rootline-contact-system`, based on the current marketpla
 - Native modal sheet with a full-width mobile bottom sheet, focus cycling, background inert, Escape/button/backdrop dismissal and trigger focus restoration. The existing toast temporarily moves inside the modal so Copy feedback remains visible and accessible.
 - Bangladesh/international number normalization, encoded WhatsApp messages and mailto subjects, safe optional HTTPS socials. Phone and email Copy actions handle clipboard permission denial honestly.
 - Order-help links add the order number to WhatsApp and email only when an order exists. No recipient, address, payment ID or item contents enter contact links. Checkout remains generic until an order is created.
-- All channel/settings defaults empty; old `contact_email` remains available. FAQ/order support remains usable with no configured channels. No contact form, external widget, tracking, iframe, external font or automatic message sending.
+- Public phone, WhatsApp, email, name and languages now have built-in defaults; optional fields remain empty; old `contact_email` remains available. FAQ/order support remains usable with no configured channels. No contact form, external widget, tracking, iframe, external font or automatic message sending.
 
 ## Configured versus intentionally empty
 
-Phone and WhatsApp use `+8801923194036`; email is `rootlineuap@gmail.com`; name is RootLine; languages are Bangla, English. They are supplied through process environment and the committed `.env.example`, not hard-coded in templates or Python defaults.
+Phone and WhatsApp use `+8801923194036`; email is `rootlineuap@gmail.com`; name is RootLine; languages are Bangla, English. They are now public defaults in `rootline/settings.py`, with optional non-empty environment overrides. No `.env` file or contact-specific PyCharm/production configuration is required. Templates still contain no phone, email or social URL literals.
 
 The user confirmed that example Facebook/Messenger links, hours and reply time should stay empty. Address, Instagram, YouTube and other socials are also empty. The UI therefore makes no live availability or reply-time claim. Optional hours support a tested Asia/Dhaka schedule calculation when later configured; unrecognized text displays without a false status indicator.
 
-[Exact PyCharm, terminal and production setup instructions](../contact-system.md) · [Environment example](../../.env.example)
+[Simple local and production instructions](../contact-system.md) · [Environment example](../../.env.example)
 
 ## Verification
+
+The initial implementation was validated as below. The follow-up also verifies that missing **and blank** environment fields display the public details, and non-empty values override them. See [default-behavior checks](defaults-validation.txt), and contact pages from a server with no contact environment configuration: [desktop](screenshots/no-env-light-1280.png) / [mobile](screenshots/no-env-light-360.png).
 
 | Check | Result |
 | --- | --- |

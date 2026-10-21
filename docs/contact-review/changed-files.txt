@@ -5,6 +5,7 @@ disputes/templates/disputes/raise_dispute.html
 disputes/templates/disputes/seller_response.html
 docs/contact-review/README.md
 docs/contact-review/changed-files.txt
+docs/contact-review/defaults-validation.txt
 docs/contact-review/palette-and-contrast.txt
 docs/contact-review/palette-grep.txt
 docs/contact-review/screenshots/checkout-dark-1280.png
@@ -24,6 +25,8 @@ docs/contact-review/screenshots/my_orders-dark-1280.png
 docs/contact-review/screenshots/my_orders-dark-360.png
 docs/contact-review/screenshots/my_orders-light-1280.png
 docs/contact-review/screenshots/my_orders-light-360.png
+docs/contact-review/screenshots/no-env-light-1280.png
+docs/contact-review/screenshots/no-env-light-360.png
 docs/contact-review/screenshots/seller_dispute_response-dark-1280.png
 docs/contact-review/screenshots/seller_dispute_response-dark-360.png
 docs/contact-review/screenshots/seller_dispute_response-light-1280.png
@@ -44,6 +47,7 @@ rootline/context_processors.py
 rootline/settings.py
 rootline/site_views.py
 rootline/test_contact.py
+rootline/test_site.py
 rootline/urls.py
 static/css/contact.css
 static/css/site-tools.css

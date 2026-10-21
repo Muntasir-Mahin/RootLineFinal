@@ -116,3 +116,42 @@ class ContactPageTests(TestCase):
             self.assertIn('Need help with order #42?', html)
             self.assertNotIn('recipient_name', html)
             self.assertNotIn('<form', html)
+
+
+class PublicContactDefaultTests(TestCase):
+    def settings_values(self, overrides):
+        import os
+        import runpy
+        from pathlib import Path
+        from unittest.mock import patch
+        with patch.dict(os.environ, overrides):
+            for key in CONTACT_EMPTY:
+                if key not in overrides:
+                    os.environ.pop(key, None)
+            return runpy.run_path(str(Path(__file__).with_name('settings.py')))
+
+    def assert_public_details_visible(self, values):
+        contact_settings = {key: values[key] for key in CONTACT_EMPTY}
+        with override_settings(**contact_settings):
+            response = self.client.get(reverse('contact'))
+            self.assertContains(response, 'tel:+8801923194036')
+            self.assertContains(response, 'https://wa.me/8801923194036?text=')
+            self.assertContains(response, 'mailto:rootlineuap@gmail.com?subject=')
+            self.assertContains(response, 'Bangla, English')
+            self.assertNotContains(response, 'Find answers in our FAQ, or open your orders')
+            self.assertNotContains(response, 'yourpage')
+            self.assertNotContains(response, 'Available now')
+
+    def test_no_contact_environment_displays_public_details(self):
+        self.assert_public_details_visible(self.settings_values({}))
+
+    def test_blank_environment_still_displays_public_details(self):
+        self.assert_public_details_visible(self.settings_values(CONTACT_EMPTY))
+
+    def test_nonempty_environment_overrides_public_defaults(self):
+        values = self.settings_values({'ROOTLINE_CONTACT_PHONE': '+8801712345678',
+                                       'ROOTLINE_CONTACT_EMAIL': 'new@example.test'})
+        with override_settings(**{key: values[key] for key in CONTACT_EMPTY}):
+            contact = contact_details()
+            self.assertEqual(contact['phone_href'], 'tel:+8801712345678')
+            self.assertEqual(contact['email'], 'new@example.test')
