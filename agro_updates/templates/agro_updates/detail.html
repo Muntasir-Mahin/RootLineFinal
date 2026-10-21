@@ -8,6 +8,7 @@
     <div class="agro-watch-body">
       <div class="agro-card-meta"><span class="agro-topic">{{ video.get_category_display }}</span><span>{{ video.get_language_display }}</span>{% if video.featured %}<span class="agro-topic">Editor's pick</span>{% endif %}</div>
       <h1>{{ video.title }}</h1>
+<p class="updated-date">Last updated: <time datetime="{{ video.updated_at|date:'c' }}">{{ video.updated_at|date:'d M Y, H:i' }}</time></p><button type="button" class="outline-action" data-copy-link hidden>Copy video link</button>
       <div class="agro-watch-meta"><span>{{ video.channel_name|default:'YouTube video' }}</span>{% if video.source_published_on %}<span>Original video: {{ video.source_published_on|date:'d M Y' }}</span>{% endif %}<span>Added to RootLine: {{ video.published_at|date:'d M Y' }}</span></div>
       {% if video.summary %}<div class="agro-description">{{ video.summary|linebreaks }}</div>{% endif %}
       <div class="agro-watch-actions"><p>Video not playing? The creator may have disabled embedding.</p><a class="outline-action" href="{{ video.youtube_url }}" target="_blank" rel="noopener noreferrer">Watch on YouTube ↗</a></div>

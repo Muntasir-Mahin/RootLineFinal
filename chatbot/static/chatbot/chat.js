@@ -21,7 +21,7 @@
   const voiceLanguage = document.getElementById('chat-voice-language');
   const voiceStatus = document.getElementById('chat-voice-status');
   const imageEnabled = !image.disabled;
-  const canRecord = Boolean(navigator.mediaDevices?.getUserMedia && window.MediaRecorder);
+  const canRecord = Boolean(window.isSecureContext && navigator.mediaDevices?.getUserMedia && window.MediaRecorder);
   let voiceReady = false;
   let recorder = null;
   let media = null;
@@ -69,6 +69,14 @@
       tag.className = 'ask-photo-tag';
       tag.textContent = 'Photo attached · not retained';
       article.insertBefore(tag, bubble);
+    }
+    if (role === 'assistant') {
+      const copy = document.createElement('button');
+      copy.type = 'button';
+      copy.className = 'ask-copy';
+      copy.dataset.copyMessage = '';
+      copy.textContent = 'Copy answer';
+      article.append(copy);
     }
     if (role === 'assistant' && 'speechSynthesis' in window) {
       const listen = document.createElement('button');
@@ -124,10 +132,14 @@
       status.textContent = result.message;
       voiceReady = Boolean(result.voice?.ready);
       voiceStatus.textContent = result.voice?.message || 'Local voice setup could not be checked.';
-      if (!canRecord && voiceReady) voiceStatus.textContent += ' Microphone recording is unavailable here; upload a recording instead.';
+      if (!canRecord) voiceStatus.textContent += window.isSecureContext
+        ? ' This browser does not support microphone recording. You can upload a recording when server voice is ready.'
+        : ' Microphone recording requires HTTPS or localhost. You can upload a recording when server voice is ready.';
     } catch {
       status.dataset.state = 'offline';
       status.textContent = 'Connection could not be checked. Refresh or sign in again.';
+      voiceReady = false;
+      voiceStatus.textContent = 'Voice availability could not be checked. Sign in again or select Check connection to retry.';
     } finally { checkButton.disabled = false; if (!busy) setBusy(false); }
   }
 
@@ -163,7 +175,8 @@
 
   clearForm.addEventListener('submit', async event => {
     event.preventDefault();
-    if (busy || !window.confirm('Clear your saved conversation?')) return;
+    if (busy || !await window.RootLine.confirm('Clear your saved conversation?')) return;
+    if (busy) return;
     const data = new FormData(clearForm);
     showError('');
     setBusy(true, 'Clearing your history…');
@@ -242,7 +255,7 @@
     stopSpeaking();
     try {
       media = await navigator.mediaDevices.getUserMedia({audio: true});
-      if (leaving) { releaseMicrophone(); return; }
+      if (leaving) { releaseMicrophone(); setBusy(false); return; }
       const chunks = [];
       const mimeType = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/ogg;codecs=opus'].find(type => MediaRecorder.isTypeSupported(type));
       recorder = new MediaRecorder(media, mimeType ? {mimeType} : undefined);
@@ -273,6 +286,7 @@
     if ('speechSynthesis' in window) speechSynthesis.cancel();
     transcript.querySelectorAll('.ask-listen').forEach(button => { button.textContent = 'Listen'; });
   }
+  transcript.querySelectorAll('[data-copy-message]').forEach(button => { button.hidden = false; });
   transcript.querySelectorAll('.ask-listen').forEach(button => { button.hidden = !('speechSynthesis' in window); });
   transcript.addEventListener('click', event => {
     const button = event.target.closest('.ask-listen');
@@ -292,6 +306,7 @@
     speechSynthesis.speak(utterance);
   });
   window.addEventListener('pagehide', () => { leaving = true; if (recorder?.state === 'recording') recorder.stop(); releaseMicrophone(); stopSpeaking(); });
+  window.addEventListener('pageshow', () => { leaving = false; setBusy(false); });
   checkButton.addEventListener('click', checkConnection);
   if (!question.disabled) checkConnection();
   transcript.scrollTop = transcript.scrollHeight;

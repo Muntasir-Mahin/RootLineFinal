@@ -9,7 +9,7 @@
       <header class="ask-toolbar"><div class="ask-assistant"><span class="ask-avatar" aria-hidden="true">{% include 'components/icon.html' with name='leaf' %}</span><div><strong>RootLine AI</strong><span class="ask-status" data-state="checking" role="status">{% if chat_enabled %}Checking local AI…{% else %}AI chat is switched off{% endif %}</span></div></div><button class="ask-check" type="button" data-check-connection {% if not chat_enabled %}disabled{% endif %}>Check connection</button></header>
       <div class="ask-transcript" id="chat-transcript" role="log" aria-label="Conversation" aria-live="polite" aria-relevant="additions" tabindex="0">
         {% if not chat_messages %}<div class="ask-welcome" id="chat-welcome"><span class="ask-welcome-icon" aria-hidden="true">{% include 'components/icon.html' with name='leaf' %}</span><h2>What would you like to grow?</h2><p>Ask about crops, soil, compost or everyday farming. Add your crop and location so the answer can be more useful.</p><p lang="bn">আপনার ফসল, এলাকা ও প্রশ্ন লিখুন—সহজভাবে শেখার শুরু এখানেই।</p></div>{% endif %}
-        {% for message in chat_messages %}<article class="ask-message ask-message-{{ message.role }}"><span class="ask-speaker">{% if message.role == 'user' %}You{% else %}RootLine AI{% endif %}</span>{% if message.has_image %}<span class="ask-photo-tag">Photo attached · not retained</span>{% endif %}<div class="ask-bubble" dir="auto">{{ message.content }}</div>{% if message.role == 'assistant' %}<button type="button" class="ask-listen" hidden>Listen</button>{% endif %}</article>{% endfor %}
+        {% for message in chat_messages %}<article class="ask-message ask-message-{{ message.role }}"><span class="ask-speaker">{% if message.role == 'user' %}You{% else %}RootLine AI{% endif %}</span>{% if message.has_image %}<span class="ask-photo-tag">Photo attached · not retained</span>{% endif %}<div class="ask-bubble" dir="auto">{{ message.content }}</div>{% if message.role == 'assistant' %}<button type="button" class="ask-copy" data-copy-message hidden>Copy answer</button><button type="button" class="ask-listen" hidden>Listen</button>{% endif %}</article>{% endfor %}
       </div>
       <div class="ask-error" id="chat-error" role="alert" hidden></div>
       <div class="ask-suggestions" aria-label="Example questions"><button type="button" data-question="কম্পোস্ট তৈরি করার সহজ উপায় কী?" lang="bn">কম্পোস্ট কীভাবে তৈরি করব?</button><button type="button" data-question="What should I check before preparing soil for vegetables?">Preparing soil</button><button type="button" data-question="Why might tomato leaves turn yellow? Ask me for any details you need.">Tomato plant care</button></div>
@@ -23,7 +23,8 @@
           <div id="chat-voice-tools" class="ask-voice-tools" hidden>
             <div class="ask-voice-actions"><button type="button" id="chat-record" disabled>Record question</button><button type="button" id="chat-upload-voice" disabled>Upload recording</button><label for="chat-voice-language">Voice language</label><select id="chat-voice-language"><option value="bn">বাংলা</option><option value="en">English</option><option value="auto">Auto</option></select></div>
             <input type="file" id="chat-audio" accept="audio/webm,audio/mp4,audio/wav,audio/ogg,.m4a" hidden>
-            <p id="chat-voice-status" role="status">Checking local voice setup…</p><small>Record → Stop → review the text → Send. Microphone recordings stop after 55 seconds.</small>
+            <p id="chat-voice-status" role="status">{{ voice_ready.message }}</p><small>Record → Stop → review the text → Send. Microphone recordings stop after 55 seconds.</small>
+          <a href="{% url 'help' %}#contact">Voice help &amp; support</a>
           </div>
         </div>
         <div class="ask-composer-footer"><span>Bangla &amp; English · Photos and recordings are not retained</span><span id="chat-progress" role="status" hidden>Thinking… This may take a moment.</span></div>
@@ -36,6 +37,6 @@
       <p class="ask-caution">AI answers can be mistaken. This assistant does not have live weather, prices or news. Check crop treatments with a local agricultural officer.</p>
     </aside>
   </div>
-  <noscript><p class="ask-noscript">Text, photos and clearing history work without JavaScript. Voice controls require JavaScript. Keep Ollama running on the computer hosting RootLine.</p></noscript>
+  <noscript><p class="ask-noscript">{{ voice_ready.message }} Text and photos can be sent without JavaScript.</p>{% if voice_ready.ready %}<form method="post" action="{% url 'chatbot:transcribe' %}" enctype="multipart/form-data" class="modern-form">{% csrf_token %}<label for="voice-upload">Upload a recording (up to 8 MB / 60 seconds)</label><input id="voice-upload" name="audio" type="file" accept="audio/webm,audio/mp4,audio/wav,audio/ogg,.m4a" required><label for="voice-language">Voice language</label><select id="voice-language" name="language"><option value="bn">বাংলা</option><option value="en">English</option><option value="auto">Auto</option></select><button class="primary-action" type="submit">Transcribe recording</button></form>{% endif %}</noscript>
 </div>
 {% endblock %}

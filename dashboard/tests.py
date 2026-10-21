@@ -505,7 +505,18 @@ class DashboardDisplayTests(Fixtures, TestCase):
             self.assertEqual(list(response.context['page_obj']), [self.order])
         for query in [{'q': 'missing'}, {'q': '9' * 150}, {'status': 'pending'}]:
             self.assertEqual(self.client.get(url, query).context['page_obj'].paginator.count, 0)
-        self.assertNotContains(self.client.get(url), 'method="post"')
+        # Theme preferences are writable; order records remain read-only here.
+        from html.parser import HTMLParser
+        post_actions = []
+
+        class FormActions(HTMLParser):
+            def handle_starttag(self, tag, attrs):
+                attrs = dict(attrs)
+                if tag == 'form' and attrs.get('method', '').lower() == 'post':
+                    post_actions.append(attrs.get('action'))
+
+        FormActions().feed(self.client.get(url).content.decode())
+        self.assertEqual(post_actions, [reverse('toggle_theme')])
 
     @override_settings(DASHBOARD_STALE_HOURS={'payments': 1, 'disputes': 1, 'products': 1, 'sellers': 1})
     def test_overview_counts_and_overdue_filters(self):

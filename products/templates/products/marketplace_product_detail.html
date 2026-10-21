@@ -3,6 +3,7 @@
 <div class="workflow-page page-marketplace-product-detail">
 <div class="bg-white rounded-xl shadow-lg p-8 ui-card">
 <!-- PRODUCT HEADER -->
+<p class="updated-date">Last updated: <time datetime="{{ product.updated_at|date:'c' }}">{{ product.updated_at|date:'d M Y, H:i' }}</time></p><button type="button" class="outline-action" data-copy-link hidden>Copy product link</button>
 <div class="detail-grid grid grid-cols-1 md:grid-cols-2 gap-8">
 <div>
 {% if product.image %}

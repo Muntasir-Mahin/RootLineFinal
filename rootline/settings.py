@@ -79,6 +79,7 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
+                'rootline.context_processors.site_contact',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -173,3 +174,6 @@ OLLAMA_TIMEOUT = 120
 WHISPER_MODEL_PATH = os.environ.get('WHISPER_MODEL_PATH', str(BASE_DIR / 'local_models' / 'ggml-small.bin'))
 WHISPER_CLI = os.environ.get('WHISPER_CLI', 'whisper-cli')
 FFMPEG_BINARY = os.environ.get('FFMPEG_BINARY', 'ffmpeg')
+
+# Optional public support address; never expose a private account address by default.
+ROOTLINE_CONTACT_EMAIL = os.environ.get('ROOTLINE_CONTACT_EMAIL', '')

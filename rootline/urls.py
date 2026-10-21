@@ -16,10 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from .site_views import help_page, site_search
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('search/', site_search, name='site_search'),
+    path('help/', help_page, name='help'),
     path('ask-rootline/', include('chatbot.urls')),
     path('agro-updates/', include('agro_updates.urls')),
     path('dashboard/', include('dashboard.urls')),
