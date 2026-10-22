@@ -6,6 +6,8 @@ from django.core.exceptions import ValidationError
 from .forms import AchievementForm, CertificationForm, GalleryImageForm, CompanyProfileForm
 from .models import Achievement, Certification, CompanyProfile, GalleryImage, PartnerAuditLog, PartnerCategory
 from .services import decide_company
+from .forms import CompanyProductForm, CompanyProductImageForm
+from .models import CompanyProduct, CompanyProductImage
 
 
 class PartnerActionForm(ActionForm):
@@ -108,3 +110,22 @@ class PartnerAuditLogAdmin(ImmutableAdmin):
     list_display = ('created_at', 'company', 'actor', 'action', 'target')
     list_filter = ('action',)
     search_fields = ('company__name', 'reason', 'target')
+
+
+@admin.register(CompanyProduct)
+class CompanyProductAdmin(admin.ModelAdmin):
+    form = CompanyProductForm
+    fields = ('company', 'name', 'slug', 'category', 'price', 'discount_price', 'unit', 'stock_quantity',
+              'description', 'main_image', 'is_active', 'created_at', 'updated_at')
+    readonly_fields = ('slug', 'created_at', 'updated_at')
+    list_display = ('name', 'company', 'category', 'price', 'stock_quantity', 'is_active')
+    list_filter = ('is_active', 'category')
+    search_fields = ('name', 'company__name')
+
+
+@admin.register(CompanyProductImage)
+class CompanyProductImageAdmin(admin.ModelAdmin):
+    form = CompanyProductImageForm
+    fields = ('product', 'image', 'caption')
+    list_display = ('product', 'caption')
+    search_fields = ('product__name',)

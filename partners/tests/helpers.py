@@ -14,3 +14,11 @@ def make_company(name='Green Farm', status='approved', **kwargs):
     return CompanyProfile.objects.create(user=user, name=name, email=user.email, phone='01700000000',
         address='Private road, Dhaka', district='Dhaka', division='Dhaka', status=status,
         terms_accepted_at=timezone.now(), approved_at=timezone.now() if status == 'approved' else None, **kwargs)
+
+
+def make_product(company, name='Partner seeds', **kwargs):
+    from partners.models import CompanyProduct, PartnerCategory
+    category, _ = PartnerCategory.objects.get_or_create(name='Seeds')
+    return CompanyProduct.objects.create(company=company, name=name, category=category,
+        price=kwargs.pop('price', '100.00'), stock_quantity=kwargs.pop('stock_quantity', '50.00'),
+        description='A company-only product.', **kwargs)

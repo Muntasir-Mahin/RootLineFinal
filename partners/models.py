@@ -1,4 +1,5 @@
 from uuid import uuid4
+from decimal import Decimal
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -153,3 +154,67 @@ class PartnerAuditLog(models.Model):
 
     def __str__(self):
         return f'{self.action}: {self.company}'
+
+
+class CompanyProduct(models.Model):
+    UNIT_CHOICES = [('kg', 'kg'), ('litre', 'litre'), ('bag', 'bag'), ('piece', 'piece')]
+    company = models.ForeignKey(CompanyProfile, on_delete=models.PROTECT, related_name='products')
+    name = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=100, blank=True)
+    category = models.ForeignKey(PartnerCategory, on_delete=models.PROTECT, related_name='products')
+    price = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
+    discount_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True,
+                                        validators=[MinValueValidator(Decimal('0.01'))])
+    unit = models.CharField(max_length=10, choices=UNIT_CHOICES, default='kg')
+    stock_quantity = models.DecimalField(max_digits=12, decimal_places=2, default=0,
+                                         validators=[MinValueValidator(0)])
+    description = models.TextField(max_length=12000)
+    main_image = models.ImageField(upload_to='partners/products/', blank=True, validators=[validate_image])
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at', '-pk']
+        constraints = [
+            models.UniqueConstraint(fields=['company', 'slug'], name='partner_product_unique_slug'),
+            models.CheckConstraint(condition=models.Q(price__gt=0), name='partner_product_positive_price'),
+            models.CheckConstraint(condition=models.Q(stock_quantity__gte=0), name='partner_product_nonnegative_stock'),
+            models.CheckConstraint(condition=models.Q(discount_price__isnull=True) |
+                models.Q(discount_price__gt=0, discount_price__lt=models.F('price')), name='partner_product_valid_discount'),
+        ]
+
+    @property
+    def sale_price(self):
+        return self.discount_price if self.discount_price is not None else self.price
+
+    def clean(self):
+        super().clean()
+        if self.discount_price is not None and self.price is not None and self.discount_price >= self.price:
+            raise ValidationError({'discount_price': 'The discount price must be lower than the regular price.'})
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = new_slug(self.name)
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('partners:product_detail', args=[self.company.slug, self.slug])
+
+    def __str__(self):
+        return self.name
+
+
+class CompanyProductImage(models.Model):
+    product = models.ForeignKey(CompanyProduct, on_delete=models.CASCADE, related_name='extra_images')
+    image = models.ImageField(upload_to='partners/product-extras/', validators=[validate_image])
+    caption = models.CharField(max_length=200, blank=True)
+
+    def clean(self):
+        from .validators import MAX_PRODUCT_IMAGES
+        super().clean()
+        if self.product_id and CompanyProductImage.objects.filter(product_id=self.product_id).exclude(pk=self.pk).count() >= MAX_PRODUCT_IMAGES:
+            raise ValidationError(f'Keep at most {MAX_PRODUCT_IMAGES} extra product images.')
+
+    def __str__(self):
+        return f'{self.product}: {self.caption or "extra image"}'

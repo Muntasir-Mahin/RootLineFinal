@@ -3,7 +3,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
-from .models import Achievement, Certification, CompanyProfile, GalleryImage
+from .models import Achievement, Certification, CompanyProduct, CompanyProductImage, CompanyProfile, GalleryImage
 from .validators import clean_upload
 
 
@@ -81,4 +81,17 @@ class CertificationForm(UploadFormMixin, forms.ModelForm):
 class GalleryImageForm(UploadFormMixin, forms.ModelForm):
     class Meta:
         model = GalleryImage
+        fields = ['image', 'caption']
+
+
+class CompanyProductForm(UploadFormMixin, forms.ModelForm):
+    class Meta:
+        model = CompanyProduct
+        fields = ['name', 'category', 'price', 'discount_price', 'unit', 'stock_quantity',
+                  'description', 'main_image', 'is_active']
+
+
+class CompanyProductImageForm(UploadFormMixin, forms.ModelForm):
+    class Meta:
+        model = CompanyProductImage
         fields = ['image', 'caption']

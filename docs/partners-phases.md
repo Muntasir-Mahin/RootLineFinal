@@ -38,3 +38,31 @@ Validation: 8 Partner account/approval/ownership/upload/admin tests passed on Dj
 | `rootline/settings.py` | Register the isolated partners app. |
 | `rootline/urls.py` | Include the partners URL namespace. |
 | `docs/partners-phases.md` | Record per-phase checks and the complete changed-file inventory. |
+
+## Phase 2 — products and public Partner Stores
+
+Validation: All 14 Partner tests passed, including marketplace/cart isolation, private contact details, pending/suspended visibility, product ownership, filtering and pagination. Migration applied; scoped Tailwind rebuilt.
+
+| File | Reason |
+| --- | --- |
+| `docs/partners-phases.md` | Record this phase, verification and the complete file inventory. |
+| `partners/admin.py` | Register phase 2 models and owner-only actions. |
+| `partners/forms.py` | Add phase 2 input validation without exposing ownership or admin fields. |
+| `partners/migrations/0002_companyproduct_companyproductimage_and_more.py` | New phase 2 schema migration; no old marketplace schema edits. |
+| `partners/models.py` | Add phase 2 data models, constraints and public-state queries. |
+| `partners/product_views.py` | Enforce company ownership on product and image operations. |
+| `partners/public_views.py` | Serve approved stores/products using isolated queries and gated contact details. |
+| `partners/static/partners/partners.css` | Rebuild only the Partner-scoped Tailwind utility asset. |
+| `partners/templates/partners/base.html` | New or updated phase 2 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/contact.html` | New or updated phase 2 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/directory.html` | New or updated phase 2 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/pagination.html` | New or updated phase 2 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/product_card.html` | New or updated phase 2 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/product_detail.html` | New or updated phase 2 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/product_images.html` | New or updated phase 2 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/product_list.html` | New or updated phase 2 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/store.html` | New or updated phase 2 page using existing design classes and scoped Tailwind. |
+| `partners/tests/helpers.py` | Phase 2 ownership, isolation and workflow regression tests. |
+| `partners/tests/test_stores.py` | Phase 2 ownership, isolation and workflow regression tests. |
+| `partners/urls.py` | Register phase 2 namespaced routes before the store slug route. |
+| `templates/base.html` | Add only the Agro Partners navbar link. |
