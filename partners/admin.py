@@ -15,10 +15,14 @@ from .forms import CompanyProductForm, CompanyProductImageForm
 from .models import CompanyProduct, CompanyProductImage
 from .models import LedgerAdjustment, OrderRequest, SalesLedger
 from .order_services import adjust_ledger
+from .models import BillingPlan, CompanyBillingSettings, Invoice, InvoiceLine, InvoicePaymentSubmission
+from .billing_services import generate_invoice, mark_invoice_paid, parse_month
+from . import admin_reports
 
 
 class PartnerActionForm(ActionForm):
     reason = forms.CharField(required=False, widget=forms.TextInput, label='Decision reason')
+    month = forms.RegexField(regex=r'^\d{4}-\d{2}$', required=False, label='Invoice month (YYYY-MM; blank = previous month)')
 
 
 @admin.register(CompanyProfile)
@@ -30,7 +34,27 @@ class CompanyProfileAdmin(admin.ModelAdmin):
     readonly_fields = ('user', 'slug', 'status', 'rejection_reason', 'is_verified', 'is_suspended',
                        'approved_at', 'terms_accepted_at', 'terms_version', 'created_at', 'updated_at')
     action_form = PartnerActionForm
-    actions = ('approve', 'reject', 'verify', 'suspend', 'unsuspend')
+    actions = ('approve', 'reject', 'verify', 'suspend', 'unsuspend', 'generate_monthly_invoices')
+    fields = (*CompanyProfileForm.Meta.fields, 'is_active', 'visibility_override', *readonly_fields)
+
+    def save_model(self, request, obj, form, change):
+        from django.contrib.auth import get_user_model
+        from .services import audit
+        super().save_model(request, obj, form, change)
+        get_user_model().objects.filter(pk=obj.user_id).update(email=obj.email)
+        audit(obj, request.user, 'company.owner_update', reason='Owner updated company settings.',
+              fields=list(form.changed_data))
+
+    @admin.action(description='Generate monthly Partner invoices (optional YYYY-MM field)')
+    def generate_monthly_invoices(self, request, queryset):
+        try:
+            month = parse_month(request.POST.get('month') or None)
+            for company in queryset.order_by('pk'):
+                generate_invoice(company.pk, month, actor=request.user)
+        except ValidationError as error:
+            self.message_user(request, '; '.join(error.messages), messages.ERROR)
+        else:
+            self.message_user(request, 'Partner invoices generated/refreshed without duplicate company/month records.')
 
     def has_add_permission(self, request):
         return False
@@ -188,3 +212,63 @@ class SalesLedgerAdmin(ImmutableAdmin):
 class LedgerAdjustmentAdmin(ImmutableAdmin):
     list_display = ('ledger', 'actor', 'previous_amount', 'new_amount', 'created_at')
     search_fields = ('ledger__company__name', 'reason')
+
+
+@admin.register(BillingPlan)
+class BillingPlanAdmin(admin.ModelAdmin):
+    list_display = ('name', 'is_default', 'is_active', 'billing_mode', 'commission_rate', 'fixed_fee', 'subscription_period')
+    list_filter = ('billing_mode', 'subscription_period', 'is_active')
+    search_fields = ('name',)
+
+
+@admin.register(CompanyBillingSettings)
+class CompanyBillingSettingsAdmin(admin.ModelAdmin):
+    list_display = ('company', 'plan', 'billing_mode', 'commission_rate', 'pause_billing')
+    search_fields = ('company__name',)
+
+
+@admin.register(Invoice)
+class InvoiceAdmin(ImmutableAdmin):
+    list_display = ('number', 'company', 'month', 'sales_total', 'total_due', 'payment_state', 'due_date')
+    list_filter = ('status', 'billing_mode', 'company')
+    search_fields = ('number', 'company__name')
+    action_form = PartnerActionForm
+    actions = ('verify_paid',)
+    change_list_template = 'admin/partners/invoice_changelist.html'
+
+    def get_urls(self):
+        return [
+            path('report/', self.admin_site.admin_view(lambda request: admin_reports.report(request, self.admin_site)), name='partners_billing_report'),
+            path('ledger.csv', self.admin_site.admin_view(admin_reports.export_ledger), name='partners_ledger_csv'),
+            path('invoices.csv', self.admin_site.admin_view(admin_reports.export_invoices), name='partners_invoices_csv'),
+        ] + super().get_urls()
+
+    @admin.action(description='Verify invoice paid (decision reason required)')
+    def verify_paid(self, request, queryset):
+        for invoice in queryset.order_by('pk'):
+            try:
+                mark_invoice_paid(invoice.pk, actor=request.user, reason=request.POST.get('reason', ''))
+            except ValidationError as error:
+                self.message_user(request, '; '.join(error.messages), messages.ERROR)
+
+
+@admin.register(InvoiceLine)
+class InvoiceLineAdmin(ImmutableAdmin):
+    list_display = ('invoice', 'ledger', 'amount')
+    search_fields = ('invoice__number', 'ledger__company__name')
+
+
+@admin.register(InvoicePaymentSubmission)
+class InvoicePaymentSubmissionAdmin(ImmutableAdmin):
+    list_display = ('invoice', 'reference', 'submitted_at', 'reviewed_at', 'proof_link')
+    search_fields = ('invoice__number', 'reference')
+    fields = ('invoice', 'reference', 'submitted_by', 'submitted_at', 'reviewed_by', 'reviewed_at', 'proof_link')
+
+    def get_readonly_fields(self, request, obj=None):
+        return self.fields
+
+    @admin.display(description='Private payment proof')
+    def proof_link(self, obj):
+        if obj.screenshot:
+            return format_html('<a href="{}">Download private proof</a>', reverse('partners:payment_proof', args=[obj.pk]))
+        return 'No screenshot'

@@ -92,3 +92,36 @@ Validation: All 21 Partner tests passed. Request/accept/complete/cancel, stock r
 | `partners/templates/partners/product_detail.html` | New or updated phase 3 page using existing design classes and scoped Tailwind. |
 | `partners/tests/test_orders.py` | Phase 3 ownership, isolation and workflow regression tests. |
 | `partners/urls.py` | Register phase 3 namespaced routes before the store slug route. |
+
+## Phase 4 — Configurable billing, invoices and private payment evidence
+
+Validation: 28 Partner tests passed; system checks and migration drift checks passed. Commission, subscription, annual hybrid, idempotence, private proofs, admin verification, overdue visibility and CSV permissions verified.
+
+| File | Reason |
+| --- | --- |
+| `.gitignore` | Implement the isolated phase 4 workflow or operational tooling. |
+| `docs/partners-phases.md` | Record this phase, verification and the complete file inventory. |
+| `partners/admin.py` | Register phase 4 models and owner-only actions. |
+| `partners/admin_reports.py` | Implement the isolated phase 4 workflow or operational tooling. |
+| `partners/billing_forms.py` | Implement the isolated phase 4 workflow or operational tooling. |
+| `partners/billing_services.py` | Implement the isolated phase 4 workflow or operational tooling. |
+| `partners/billing_views.py` | Implement the isolated phase 4 workflow or operational tooling. |
+| `partners/management/__init__.py` | Implement the isolated phase 4 workflow or operational tooling. |
+| `partners/management/commands/__init__.py` | Implement the isolated phase 4 workflow or operational tooling. |
+| `partners/management/commands/generate_partner_invoices.py` | Implement the isolated phase 4 workflow or operational tooling. |
+| `partners/management/commands/update_partner_billing.py` | Implement the isolated phase 4 workflow or operational tooling. |
+| `partners/migrations/0004_companyprofile_visibility_override_billingplan_and_more.py` | New phase 4 schema migration; no old marketplace schema edits. |
+| `partners/migrations/0005_default_billing_plan.py` | New phase 4 schema migration; no old marketplace schema edits. |
+| `partners/models.py` | Add phase 4 data models, constraints and public-state queries. |
+| `partners/order_services.py` | Implement the isolated phase 4 workflow or operational tooling. |
+| `partners/static/partners/partners.css` | Rebuild only the Partner-scoped Tailwind utility asset. |
+| `partners/storage.py` | Implement the isolated phase 4 workflow or operational tooling. |
+| `partners/templates/admin/partners/billing_report.html` | New or updated phase 4 page using existing design classes and scoped Tailwind. |
+| `partners/templates/admin/partners/invoice_changelist.html` | New or updated phase 4 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/base.html` | New or updated phase 4 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/billing.html` | New or updated phase 4 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/invoice.html` | New or updated phase 4 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/terms.html` | New or updated phase 4 page using existing design classes and scoped Tailwind. |
+| `partners/tests/test_billing.py` | Phase 4 ownership, isolation and workflow regression tests. |
+| `partners/urls.py` | Register phase 4 namespaced routes before the store slug route. |
+| `partners/views.py` | Implement the isolated phase 4 workflow or operational tooling. |

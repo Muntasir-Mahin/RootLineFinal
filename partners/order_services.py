@@ -113,6 +113,8 @@ def complete_order(order_id, *, actor, final_amount, reason=''):
     ledger = SalesLedger.objects.create(company=company, order=order, source='order',
         original_amount=amount, amount=amount, sale_date=timezone.localdate(), reported_by=actor)
     audit(company, actor, 'order.complete', order, reason=reason, amount=str(amount))
+    from .billing_services import refresh_ledger_invoice
+    refresh_ledger_invoice(ledger)
     return ledger
 
 
@@ -156,6 +158,8 @@ def report_manual_sale(company_id, *, actor, data):
     ledger = SalesLedger.objects.create(company=company, source='manual', amount=amount, original_amount=amount,
         sale_date=data['sale_date'], reference=data['reference'].strip(), reported_by=actor)
     audit(company, actor, 'ledger.manual_report', ledger, amount=str(amount))
+    from .billing_services import refresh_ledger_invoice
+    refresh_ledger_invoice(ledger)
     return ledger
 
 
@@ -177,4 +181,6 @@ def adjust_ledger(ledger_id, *, actor, amount, reason, resolve=False):
     if ledger.order_id:
         OrderRequest.objects.filter(pk=ledger.order_id).update(buyer_confirmed_at=None)
     audit(company, actor, 'ledger.adjust', ledger, reason=reason, previous=str(adjustment.previous_amount), amount=str(amount))
+    from .billing_services import refresh_ledger_invoice
+    refresh_ledger_invoice(ledger)
     return ledger

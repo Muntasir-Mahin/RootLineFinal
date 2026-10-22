@@ -65,7 +65,12 @@ def partner_login(request):
 
 @require_GET
 def terms(request):
-    return render(request, 'partners/terms.html')
+    from .billing_services import default_plan
+    try:
+        plan = default_plan()
+    except ValidationError:
+        plan = None
+    return render(request, 'partners/terms.html', {'default_plan':plan})
 
 
 @company_required

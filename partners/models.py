@@ -6,10 +6,13 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.functions import Lower
+from django.db.models import Exists, OuterRef
+from django.utils import timezone
 from django.urls import reverse
 from django.utils.text import slugify
 
 from .validators import MAX_GALLERY_IMAGES, validate_document, validate_image
+from .storage import PartnerPrivateStorage
 
 
 def new_slug(value):
@@ -35,7 +38,11 @@ class PartnerCategory(models.Model):
 
 class CompanyQuerySet(models.QuerySet):
     def public(self):
-        return self.filter(status='approved', is_active=True, is_suspended=False, user__is_active=True)
+        blocked = Invoice.objects.filter(company_id=OuterRef('pk'), status__in=['unpaid', 'overdue'],
+                                         suspend_on__lte=timezone.localdate(), total_due__gt=0)
+        return self.filter(status='approved', is_active=True, is_suspended=False, user__is_active=True
+            ).exclude(visibility_override='hide').annotate(_billing_blocked=Exists(blocked)
+            ).filter(models.Q(visibility_override='allow') | models.Q(_billing_blocked=False))
 
 
 class CompanyProfile(models.Model):
@@ -67,6 +74,8 @@ class CompanyProfile(models.Model):
     is_active = models.BooleanField(default=True)
     is_suspended = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
+    visibility_override = models.CharField(max_length=10, default='auto', choices=[
+        ('auto', 'Automatic billing visibility'), ('allow', 'Bypass billing suspension'), ('hide', 'Hide store')])
     approved_at = models.DateTimeField(null=True, blank=True)
     terms_accepted_at = models.DateTimeField()
     terms_version = models.CharField(max_length=40, default='draft-v1')
@@ -192,6 +201,8 @@ class CompanyProduct(models.Model):
         super().clean()
         if self.discount_price is not None and self.price is not None and self.discount_price >= self.price:
             raise ValidationError({'discount_price': 'The discount price must be lower than the regular price.'})
+        if self.company_id and self.is_active and not self.company.can_publish:
+            raise ValidationError({'is_active': 'Only an approved, active, non-suspended company can publish products.'})
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -297,3 +308,116 @@ class LedgerAdjustment(models.Model):
 
     class Meta:
         ordering = ['-created_at', '-pk']
+
+
+class BillingPlan(models.Model):
+    MODE_CHOICES = [('commission', 'Commission only'), ('subscription', 'Subscription only'),
+                    ('higher', 'Higher of subscription or commission')]
+    PERIOD_CHOICES = [('monthly', 'Monthly'), ('yearly', 'Yearly')]
+    name = models.CharField(max_length=120, unique=True)
+    is_default = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    billing_mode = models.CharField(max_length=15, choices=MODE_CHOICES, default='commission')
+    commission_rate = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('5.00'),
+        validators=[MinValueValidator(0), MaxValueValidator(100)])
+    fixed_fee = models.DecimalField(max_digits=12, decimal_places=2, default=0, validators=[MinValueValidator(0)])
+    subscription_period = models.CharField(max_length=10, choices=PERIOD_CHOICES, default='monthly')
+    minimum_monthly_fee = models.DecimalField(max_digits=12, decimal_places=2, default=0,
+                                              validators=[MinValueValidator(0)])
+    due_days = models.PositiveSmallIntegerField(default=14, validators=[MinValueValidator(1), MaxValueValidator(365)])
+    grace_days = models.PositiveSmallIntegerField(default=7, validators=[MaxValueValidator(365)])
+    payment_instructions = models.TextField(blank=True, help_text='Public-to-company bKash/bank payment instructions. No secrets.')
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['is_default'], condition=models.Q(is_default=True),
+                                               name='partner_one_default_billing_plan')]
+
+    def __str__(self):
+        return self.name
+
+
+class CompanyBillingSettings(models.Model):
+    company = models.OneToOneField(CompanyProfile, on_delete=models.PROTECT, related_name='billing_settings')
+    plan = models.ForeignKey(BillingPlan, on_delete=models.PROTECT)
+    billing_mode = models.CharField(max_length=15, choices=BillingPlan.MODE_CHOICES, blank=True)
+    commission_rate = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True,
+        validators=[MinValueValidator(0), MaxValueValidator(100)])
+    fixed_fee = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0)])
+    subscription_period = models.CharField(max_length=10, choices=BillingPlan.PERIOD_CHOICES, blank=True)
+    minimum_monthly_fee = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True,
+                                              validators=[MinValueValidator(0)])
+    due_days = models.PositiveSmallIntegerField(null=True, blank=True, validators=[MinValueValidator(1), MaxValueValidator(365)])
+    grace_days = models.PositiveSmallIntegerField(null=True, blank=True, validators=[MaxValueValidator(365)])
+    subscription_start = models.DateField(null=True, blank=True, help_text='Defaults to the original company approval date.')
+    pause_billing = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.company}: {self.plan}'
+
+
+class Invoice(models.Model):
+    company = models.ForeignKey(CompanyProfile, on_delete=models.PROTECT, related_name='invoices')
+    number = models.CharField(max_length=50, unique=True)
+    month = models.DateField(help_text='First day of the billing month.')
+    status = models.CharField(max_length=10, default='unpaid', choices=[('unpaid', 'Unpaid'), ('paid', 'Paid'), ('overdue', 'Overdue')])
+    billing_mode = models.CharField(max_length=15, choices=BillingPlan.MODE_CHOICES)
+    subscription_period = models.CharField(max_length=10, choices=BillingPlan.PERIOD_CHOICES)
+    subscription_start = models.DateField()
+    commission_rate = models.DecimalField(max_digits=5, decimal_places=2)
+    fixed_fee = models.DecimalField(max_digits=12, decimal_places=2)
+    minimum_monthly_fee = models.DecimalField(max_digits=12, decimal_places=2)
+    sales_total = models.DecimalField(max_digits=16, decimal_places=2, default=0)
+    commission_amount = models.DecimalField(max_digits=16, decimal_places=2, default=0)
+    fixed_fee_applied = models.DecimalField(max_digits=16, decimal_places=2, default=0)
+    cycle_commission = models.DecimalField(max_digits=16, decimal_places=2, default=0)
+    prior_cycle_due = models.DecimalField(max_digits=16, decimal_places=2, default=0)
+    total_due = models.DecimalField(max_digits=16, decimal_places=2, default=0)
+    due_date = models.DateField()
+    suspend_on = models.DateField()
+    payment_instructions = models.TextField(blank=True)
+    paid_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-month', '-pk']
+        constraints = [
+            models.UniqueConstraint(fields=['company', 'month'], name='partner_invoice_company_month'),
+            models.CheckConstraint(condition=models.Q(total_due__gte=0), name='partner_invoice_nonnegative_due'),
+        ]
+
+    @property
+    def payment_state(self):
+        return 'overdue' if self.status != 'paid' and self.due_date < timezone.localdate() else self.status
+
+    def __str__(self):
+        return self.number
+
+
+class InvoiceLine(models.Model):
+    invoice = models.ForeignKey(Invoice, on_delete=models.PROTECT, related_name='lines')
+    ledger = models.ForeignKey(SalesLedger, on_delete=models.PROTECT, related_name='invoice_lines')
+    amount = models.DecimalField(max_digits=14, decimal_places=2)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['invoice', 'ledger'], name='partner_invoice_unique_ledger_line')]
+
+
+class InvoicePaymentSubmission(models.Model):
+    invoice = models.ForeignKey(Invoice, on_delete=models.PROTECT, related_name='payment_submissions')
+    reference = models.CharField(max_length=200)
+    screenshot = models.ImageField(upload_to='payment-proofs/', blank=True,
+                                   storage=PartnerPrivateStorage(), validators=[validate_image])
+    submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+                                    related_name='partner_invoice_payments')
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT,
+                                   related_name='partner_payment_reviews')
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-submitted_at', '-pk']
+        constraints = [models.UniqueConstraint(fields=['invoice', 'reference'], name='partner_invoice_payment_reference')]
+
+    def __str__(self):
+        return f'{self.invoice}: {self.reference}'

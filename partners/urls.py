@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import order_views, product_views, public_views, views
+from . import billing_views, order_views, product_views, public_views, views
 
 app_name = 'partners'
 urlpatterns = [
@@ -16,6 +16,9 @@ urlpatterns = [
     path('dashboard/orders/<int:pk>/', order_views.company_order, name='company_order'),
     path('dashboard/ledger/', order_views.ledger, name='ledger'),
     path('dashboard/ledger/manual/', order_views.manual_sale, name='manual_sale'),
+    path('dashboard/billing/', billing_views.billing, name='billing'),
+    path('dashboard/billing/<int:pk>/', billing_views.invoice_detail, name='invoice_detail'),
+    path('payment-proofs/<int:pk>/', billing_views.payment_proof, name='payment_proof'),
     path('dashboard/products/', product_views.product_list, name='product_list'),
     path('dashboard/products/add/', product_views.product_edit, name='product_add'),
     path('dashboard/products/<int:pk>/edit/', product_views.product_edit, name='product_edit'),
