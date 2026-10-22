@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import billing_views, order_views, product_views, public_views, views
+from . import billing_views, order_views, product_views, public_views, review_views, views
 
 app_name = 'partners'
 urlpatterns = [
@@ -10,6 +10,8 @@ urlpatterns = [
     path('terms/', views.terms, name='terms'),
     path('my-orders/', order_views.buyer_orders, name='buyer_orders'),
     path('my-orders/<int:pk>/', order_views.buyer_order, name='buyer_order'),
+    path('my-orders/<int:pk>/review/', review_views.review_create, name='review_create'),
+    path('reviews/<int:pk>/report/', review_views.review_report, name='review_report'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('dashboard/profile/', views.profile_edit, name='profile_edit'),
     path('dashboard/orders/', order_views.company_orders, name='company_orders'),
@@ -18,6 +20,8 @@ urlpatterns = [
     path('dashboard/ledger/manual/', order_views.manual_sale, name='manual_sale'),
     path('dashboard/billing/', billing_views.billing, name='billing'),
     path('dashboard/billing/<int:pk>/', billing_views.invoice_detail, name='invoice_detail'),
+    path('dashboard/reviews/', review_views.company_reviews, name='company_reviews'),
+    path('dashboard/reviews/<int:pk>/reply/', review_views.review_reply, name='review_reply'),
     path('payment-proofs/<int:pk>/', billing_views.payment_proof, name='payment_proof'),
     path('dashboard/products/', product_views.product_list, name='product_list'),
     path('dashboard/products/add/', product_views.product_edit, name='product_add'),

@@ -18,6 +18,8 @@ from .order_services import adjust_ledger
 from .models import BillingPlan, CompanyBillingSettings, Invoice, InvoiceLine, InvoicePaymentSubmission
 from .billing_services import generate_invoice, mark_invoice_paid, parse_month
 from . import admin_reports
+from .models import CompanyReview, ReviewReport
+from .review_services import moderate_review
 
 
 class PartnerActionForm(ActionForm):
@@ -272,3 +274,33 @@ class InvoicePaymentSubmissionAdmin(ImmutableAdmin):
         if obj.screenshot:
             return format_html('<a href="{}">Download private proof</a>', reverse('partners:payment_proof', args=[obj.pk]))
         return 'No screenshot'
+
+
+@admin.register(CompanyReview)
+class CompanyReviewAdmin(ImmutableAdmin):
+    list_display = ('company', 'rating', 'title', 'order', 'is_visible', 'created_at')
+    list_filter = ('is_visible', 'rating', 'company')
+    search_fields = ('title', 'comment', 'company__name', 'order__number')
+    action_form = PartnerActionForm
+    actions = ('hide_reviews', 'show_reviews')
+
+    def moderate(self, request, queryset, visible):
+        for review in queryset.order_by('pk'):
+            try:
+                moderate_review(review.pk, actor=request.user, visible=visible, reason=request.POST.get('reason', ''))
+            except ValidationError as error:
+                self.message_user(request, '; '.join(error.messages), messages.ERROR)
+
+    @admin.action(description='Hide selected reviews (decision reason required)')
+    def hide_reviews(self, request, queryset):
+        self.moderate(request, queryset, False)
+
+    @admin.action(description='Restore selected reviews (decision reason required)')
+    def show_reviews(self, request, queryset):
+        self.moderate(request, queryset, True)
+
+
+@admin.register(ReviewReport)
+class ReviewReportAdmin(ImmutableAdmin):
+    list_display = ('review', 'reporter', 'created_at')
+    search_fields = ('review__title', 'reason', 'review__company__name')

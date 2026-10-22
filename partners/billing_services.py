@@ -1,4 +1,3 @@
-import calendar
 from datetime import date, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 
@@ -67,7 +66,7 @@ def cycle_start(month, start):
     return date(month.year if month.month >= start.month else month.year - 1, start.month, 1)
 
 
-def calculate(company, month, policy, *, include_invoice=None):
+def calculate(company, month, policy):
     end = next_month(month)
     sales = company.ledger_entries.filter(sale_date__gte=month, sale_date__lt=end).aggregate(total=Sum('amount'))['total'] or ZERO
     commission = rounded(sales * policy['commission_rate'] / 100)

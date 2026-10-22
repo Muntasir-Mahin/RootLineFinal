@@ -99,7 +99,7 @@ Validation: 28 Partner tests passed; system checks and migration drift checks pa
 
 | File | Reason |
 | --- | --- |
-| `.gitignore` | Implement the isolated phase 4 workflow or operational tooling. |
+| `.gitignore` | Keep private payment-evidence uploads out of Git. |
 | `docs/partners-phases.md` | Record this phase, verification and the complete file inventory. |
 | `partners/admin.py` | Register phase 4 models and owner-only actions. |
 | `partners/admin_reports.py` | Implement the isolated phase 4 workflow or operational tooling. |
@@ -125,3 +125,35 @@ Validation: 28 Partner tests passed; system checks and migration drift checks pa
 | `partners/tests/test_billing.py` | Phase 4 ownership, isolation and workflow regression tests. |
 | `partners/urls.py` | Register phase 4 namespaced routes before the store slug route. |
 | `partners/views.py` | Implement the isolated phase 4 workflow or operational tooling. |
+
+## Phase 5 — Verified-purchase reviews, moderation and final verification
+
+Validation: All 37 Partner tests passed, including real concurrent completion/invoice/review submissions. Chromium desktop/mobile checks passed (390px/1440px, both themes, image aspect ratios, hover, reduced motion, private contacts and no overflow/JS errors). Full suite: 267 tests, 266 passed and one pre-existing reviews migration error on accounts_user.theme_preference. Migration drift, system, dependency and design checks passed.
+
+| File | Reason |
+| --- | --- |
+| `accounts/templates/accounts/register.html` | Restore the original signup template exactly; company registration is linked from Agro Partners only. |
+| `docs/agro-partners-setup.md` | Provide numbered beginner setup, billing configuration, cron, full manual checks, deployment notes and future upgrades. |
+| `docs/partners-phases.md` | Record this phase, verification and the complete file inventory. |
+| `partners/admin.py` | Register phase 5 models and owner-only actions. |
+| `partners/billing_services.py` | Remove an unused import/parameter from the new billing helper; behavior is unchanged. |
+| `partners/billing_views.py` | Remove unused imports from the new billing views. |
+| `partners/migrations/0006_companyreview_reviewreport_and_more.py` | New phase 5 schema migration; no old marketplace schema edits. |
+| `partners/models.py` | Add phase 5 data models, constraints and public-state queries. |
+| `partners/public_views.py` | Serve approved stores/products using isolated queries and gated contact details. |
+| `partners/review_forms.py` | Implement the isolated phase 5 workflow or operational tooling. |
+| `partners/review_services.py` | Implement the isolated phase 5 workflow or operational tooling. |
+| `partners/review_views.py` | Implement the isolated phase 5 workflow or operational tooling. |
+| `partners/static/partners/partners.css` | Rebuild only the Partner-scoped Tailwind utility asset. |
+| `partners/templates/partners/base.html` | New or updated phase 5 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/company_reviews.html` | New or updated phase 5 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/directory.html` | New or updated phase 5 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/form.html` | New or updated phase 5 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/order_detail.html` | New or updated phase 5 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/product_card.html` | Keep the existing 4:3 image area stable after portrait/landscape images load, reusing the original card/hover classes. |
+| `partners/templates/partners/store.html` | New or updated phase 5 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/store_reviews.html` | New or updated phase 5 page using existing design classes and scoped Tailwind. |
+| `partners/tests/test_billing.py` | Remove an unused import from the billing tests. |
+| `partners/tests/test_concurrency.py` | Phase 5 ownership, isolation and workflow regression tests. |
+| `partners/tests/test_reviews.py` | Phase 5 ownership, isolation and workflow regression tests. |
+| `partners/urls.py` | Register phase 5 namespaced routes before the store slug route. |

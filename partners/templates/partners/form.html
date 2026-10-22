@@ -1,3 +1,4 @@
 {% extends 'partners/base.html' %}
 {% block partner_title %}{{ title }}{% endblock %}
-{% block partner_content %}<section class="surface ui-card max-w-3xl"><form method="post" enctype="multipart/form-data" class="modern-form">{% csrf_token %}{% include 'components/form_fields.html' %}<button class="primary-action" type="submit">Save changes</button></form><p class="auth-switch"><a href="{% url 'partners:dashboard' %}">Back to dashboard</a></p></section>{% endblock %}
+{% block partner_intro %}{% if intro %}<p class="page-description">{{ intro }}</p>{% endif %}{% endblock %}
+{% block partner_content %}<section class="surface ui-card max-w-3xl"><form method="post" enctype="multipart/form-data" class="modern-form">{% csrf_token %}{% include 'components/form_fields.html' %}<button class="primary-action" type="submit">{{ submit_label|default:"Save changes" }}</button></form><p class="auth-switch">{% if company %}<a href="{% url 'partners:dashboard' %}">Back to dashboard</a>{% else %}<a href="{% url 'partners:buyer_orders' %}">My Partner Order Requests</a>{% endif %}</p></section>{% endblock %}

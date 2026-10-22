@@ -1,7 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied, ValidationError
-from django.db.models import Sum
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -9,7 +8,7 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_http_methods
 
 from .billing_forms import InvoicePaymentForm
-from .billing_services import calculate, effective_policy, month_start, next_month, submit_invoice_payment
+from .billing_services import calculate, effective_policy, month_start, submit_invoice_payment
 from .models import Invoice, InvoicePaymentSubmission
 from .services import ROLE_NAME
 from .views import company_required

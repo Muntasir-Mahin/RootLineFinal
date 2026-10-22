@@ -421,3 +421,38 @@ class InvoicePaymentSubmission(models.Model):
 
     def __str__(self):
         return f'{self.invoice}: {self.reference}'
+
+
+class CompanyReview(models.Model):
+    order = models.OneToOneField(OrderRequest, on_delete=models.PROTECT, related_name='company_review')
+    company = models.ForeignKey(CompanyProfile, on_delete=models.PROTECT, related_name='company_reviews')
+    buyer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='partner_reviews')
+    rating = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    title = models.CharField(max_length=160)
+    comment = models.TextField(max_length=4000)
+    reply = models.TextField(max_length=3000, blank=True)
+    replied_at = models.DateTimeField(null=True, blank=True)
+    is_visible = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at', '-pk']
+        constraints = [models.CheckConstraint(condition=models.Q(rating__gte=1, rating__lte=5),
+                                               name='partner_review_rating_range')]
+
+    def __str__(self):
+        return f'{self.company}: {self.rating}/5 — {self.title}'
+
+
+class ReviewReport(models.Model):
+    review = models.ForeignKey(CompanyReview, on_delete=models.PROTECT, related_name='reports')
+    reporter = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='partner_review_reports')
+    reason = models.TextField(max_length=2000)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at', '-pk']
+        constraints = [models.UniqueConstraint(fields=['review', 'reporter'], name='partner_review_one_report_per_user')]
+
+    def __str__(self):
+        return f'Report on {self.review}'

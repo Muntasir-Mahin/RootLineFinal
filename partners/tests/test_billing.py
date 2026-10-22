@@ -17,7 +17,7 @@ from django.utils import timezone
 from partners.billing_services import (default_plan, generate_invoice, mark_invoice_paid,
     month_start, submit_invoice_payment)
 from partners.models import (CompanyBillingSettings, CompanyProfile, Invoice,
-    InvoicePaymentSubmission, PartnerAuditLog, SalesLedger)
+    InvoicePaymentSubmission, PartnerAuditLog)
 from partners.order_services import adjust_ledger, report_manual_sale
 from partners.storage import PartnerPrivateStorage
 from .helpers import make_company
