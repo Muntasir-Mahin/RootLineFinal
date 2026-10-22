@@ -1,5 +1,7 @@
 <article class="product-card">
 <div class="product-card-media"><a href="{% url 'marketplace_product_detail' product.pk %}" tabindex="-1" aria-hidden="true">{% if product.image %}<img src="{{ product.image.url }}" alt="" loading="lazy" width="640" height="480">{% else %}<div class="product-placeholder">{% include 'components/icon.html' with name='leaf' %}<span>{{ product.category }}</span></div>{% endif %}</a>
+<a class="product-card-quick-view" href="{% url 'marketplace_product_detail' product.pk %}" aria-label="Quick view {{ product.name }}">QUICK VIEW</a>
+<a class="product-card-magnifier" href="{% url 'marketplace_product_detail' product.pk %}" aria-label="View {{ product.name }} details">{% include 'components/icon.html' with name='search' %}</a>
 {% if user.id != product.seller_id %}<form action="{% url 'add_wishlist' product.pk %}" method="post" class="card-wishlist">{% csrf_token %}<button type="submit" class="icon-button" aria-label="Save {{ product.name }} to wishlist">{% include 'components/icon.html' with name='heart' %}</button></form>{% endif %}
 </div>
 <div class="product-card-body"><div class="product-card-badges">{% if product.verification_status == 'verified' %}<span class="badge">{% include 'components/icon.html' with name='check' %} Verified</span>{% endif %}<span class="badge">{% if product.selling_type == 'fixed' %}Fixed{% elif product.selling_type == 'both' %}Both{% else %}Auction{% endif %}</span></div>

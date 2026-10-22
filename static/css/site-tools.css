@@ -32,3 +32,90 @@
 }
 @media(max-width:767px){.footer-shell{padding:32px 16px 104px}.footer-brand{align-items:start;flex-direction:column;gap:12px}.footer-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}.footer-bottom{align-items:start;flex-direction:column;gap:8px}.cookie-banner{padding:20px}.help-section,.search-form,.search-result{padding:24px}.search-input-row{align-items:stretch;flex-direction:column}.search-input-row button{width:100%}.product-card-body{padding:16px}#contact-toggle,#back-to-top{width:44px;height:44px;padding:0}#contact-toggle .floating-label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}#contact-toggle::before{content:'?';font-size:18px}#back-to-top{font-size:0}#back-to-top::before{content:'↑';font-size:18px}}
 @keyframes menu-reveal{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+
+/* Product card hover interaction — lift, zoom and detail-link overlays. */
+.product-card {
+  --product-hover-lift: -6px;
+  --product-hover-zoom: 1.07;
+  --product-hover-speed: .3s;
+  --product-hover-shadow: 0 18px 40px color-mix(in srgb, var(--c-900) 12%, transparent);
+}
+.product-card .product-card-media > a:first-child { overflow: hidden; }
+.product-card .product-card-media > :is(.product-card-quick-view, .product-card-magnifier) {
+  display: none;
+}
+@media (hover: hover) {
+  .product-card { transition: transform var(--product-hover-speed) ease; }
+  .product-card:is(:hover, :focus-within) {
+    transform: translateY(var(--product-hover-lift));
+    box-shadow: var(--product-hover-shadow);
+  }
+  .product-card .product-card-media > a:first-child > img {
+    transition: transform var(--product-hover-speed) ease;
+  }
+  .product-card:is(:hover, :focus-within) .product-card-media > a:first-child > img {
+    transform: scale(var(--product-hover-zoom));
+  }
+  .product-card .product-card-media > :is(.product-card-quick-view, .product-card-magnifier) {
+    position: absolute;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: auto;
+    min-height: 36px;
+    background: color-mix(in srgb, var(--c-200) 0%, white);
+    color: var(--c-900);
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--c-900) 16%, transparent);
+    text-decoration: none;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform var(--product-hover-speed) ease, opacity var(--product-hover-speed) ease;
+  }
+  .product-card .product-card-media > .product-card-quick-view {
+    bottom: 16px;
+    left: 50%;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: .12em;
+    white-space: nowrap;
+    transform: translate(-50%, 10px);
+  }
+  .product-card .product-card-media > .product-card-magnifier {
+    top: 12px;
+    left: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    transform: translateY(10px);
+  }
+  .product-card:is(:hover, :focus-within) .product-card-media > :is(.product-card-quick-view, .product-card-magnifier) {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .product-card:is(:hover, :focus-within) .product-card-media > .product-card-quick-view {
+    transform: translate(-50%, 0);
+  }
+  .product-card:is(:hover, :focus-within) .product-card-media > .product-card-magnifier {
+    transform: translateY(0);
+  }
+}
+@media (hover: none) {
+  .product-card:hover { transform: none; box-shadow: none; }
+}
+@media (hover: hover) and (prefers-reduced-motion: reduce) {
+  .product-card,
+  .product-card .product-card-media > a:first-child > img,
+  .product-card .product-card-media > :is(.product-card-quick-view, .product-card-magnifier) {
+    transition: none;
+  }
+  .product-card:is(:hover, :focus-within),
+  .product-card:is(:hover, :focus-within) .product-card-media > a:first-child > img {
+    transform: none;
+  }
+  .product-card .product-card-media > .product-card-quick-view { transform: translateX(-50%); }
+  .product-card .product-card-media > .product-card-magnifier { transform: none; }
+}
