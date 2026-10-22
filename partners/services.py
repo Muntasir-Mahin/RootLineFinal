@@ -35,6 +35,8 @@ def require_company_actor(company, actor, *, publishing=False):
 
 
 def notify(recipient, subject, body):
+    if not recipient:
+        return
     if settings.EMAIL_BACKEND == 'django.core.mail.backends.smtp.EmailBackend' and not (
             settings.EMAIL_HOST_USER and settings.EMAIL_HOST_PASSWORD):
         return

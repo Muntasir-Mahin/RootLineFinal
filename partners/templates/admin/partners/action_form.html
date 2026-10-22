@@ -1,0 +1,2 @@
+{% extends 'admin/base_site.html' %}
+{% block content %}<h1>{{ title }}</h1><p>{{ explanation }}</p><form method="post" enctype="multipart/form-data">{% csrf_token %}{{ form.as_p }}<input type="submit" value="Save audited decision"></form>{% endblock %}

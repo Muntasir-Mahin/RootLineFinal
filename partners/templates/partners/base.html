@@ -5,4 +5,5 @@
   {% if company and request.user.id == company.user_id %}<nav class="flex flex-wrap gap-3" aria-label="Partner Company dashboard"><a class="outline-action" href="{% url 'partners:dashboard' %}">Dashboard</a><a class="outline-action" href="{% url 'partners:profile_edit' %}">Company profile</a><a class="outline-action" href="{% url 'partners:asset_list' 'achievements' %}">Achievements</a><a class="outline-action" href="{% url 'partners:asset_list' 'certifications' %}">Certifications</a><a class="outline-action" href="{% url 'partners:asset_list' 'gallery' %}">Gallery</a></nav>{% endif %}
   {% if company and request.user.id == company.user_id %}<nav class="flex flex-wrap gap-3" aria-label="Partner catalogue"><a class="outline-action" href="{% url 'partners:product_list' %}">Company products</a>{% if company.can_publish %}<a class="outline-action" href="{{ company.get_absolute_url }}">View Partner Store</a>{% endif %}</nav>{% endif %}
   {% block partner_content %}{% endblock %}
+  {% if user.is_authenticated %}<p><a class="outline-action" href="{% url 'partners:buyer_orders' %}">My Partner Order Requests</a></p>{% endif %}
 </div></div>{% endblock %}

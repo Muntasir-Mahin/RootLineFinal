@@ -218,3 +218,82 @@ class CompanyProductImage(models.Model):
 
     def __str__(self):
         return f'{self.product}: {self.caption or "extra image"}'
+
+
+def order_number():
+    return 'PR-' + uuid4().hex[:16].upper()
+
+
+class OrderRequest(models.Model):
+    STATUS_CHOICES = [('requested', 'Requested'), ('accepted', 'Accepted'), ('completed', 'Completed'),
+                      ('declined', 'Declined'), ('cancelled', 'Cancelled by buyer')]
+    number = models.CharField(max_length=24, unique=True, default=order_number, editable=False)
+    company = models.ForeignKey(CompanyProfile, on_delete=models.PROTECT, related_name='order_requests')
+    buyer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='partner_order_requests')
+    product = models.ForeignKey(CompanyProduct, on_delete=models.PROTECT, related_name='order_requests')
+    product_name = models.CharField(max_length=200)
+    unit = models.CharField(max_length=10)
+    unit_price = models.DecimalField(max_digits=12, decimal_places=2)
+    quantity = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
+    expected_amount = models.DecimalField(max_digits=14, decimal_places=2)
+    phone = models.CharField(max_length=30)
+    delivery_address = models.TextField(max_length=1000)
+    note = models.TextField(max_length=2000, blank=True)
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default='requested')
+    decision_reason = models.TextField(blank=True)
+    final_amount = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    amount_change_reason = models.TextField(blank=True)
+    buyer_confirmed_at = models.DateTimeField(null=True, blank=True)
+    buyer_dispute = models.TextField(blank=True)
+    buyer_claimed_amount = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at', '-pk']
+        constraints = [
+            models.CheckConstraint(condition=models.Q(quantity__gt=0), name='partner_order_positive_quantity'),
+            models.CheckConstraint(condition=models.Q(expected_amount__gt=0), name='partner_order_positive_total'),
+        ]
+
+    def __str__(self):
+        return self.number
+
+
+class SalesLedger(models.Model):
+    SOURCE_CHOICES = [('order', 'Order Request'), ('manual', 'Manually reported')]
+    company = models.ForeignKey(CompanyProfile, on_delete=models.PROTECT, related_name='ledger_entries')
+    order = models.OneToOneField(OrderRequest, null=True, blank=True, on_delete=models.PROTECT, related_name='ledger_entry')
+    source = models.CharField(max_length=10, choices=SOURCE_CHOICES)
+    original_amount = models.DecimalField(max_digits=14, decimal_places=2)
+    amount = models.DecimalField(max_digits=14, decimal_places=2)
+    sale_date = models.DateField()
+    reference = models.CharField(max_length=200, blank=True)
+    reported_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    buyer_confirmed_at = models.DateTimeField(null=True, blank=True)
+    needs_review = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-sale_date', '-pk']
+        constraints = [
+            models.CheckConstraint(condition=models.Q(amount__gte=0), name='partner_ledger_nonnegative_amount'),
+            models.CheckConstraint(condition=models.Q(source='order', order__isnull=False) |
+                models.Q(source='manual', order__isnull=True), name='partner_ledger_source_matches_order'),
+        ]
+
+    def __str__(self):
+        return f'{self.company}: {self.amount} on {self.sale_date}'
+
+
+class LedgerAdjustment(models.Model):
+    ledger = models.ForeignKey(SalesLedger, on_delete=models.PROTECT, related_name='adjustments')
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    previous_amount = models.DecimalField(max_digits=14, decimal_places=2)
+    new_amount = models.DecimalField(max_digits=14, decimal_places=2)
+    reason = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at', '-pk']

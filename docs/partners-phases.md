@@ -66,3 +66,29 @@ Validation: All 14 Partner tests passed, including marketplace/cart isolation, p
 | `partners/tests/test_stores.py` | Phase 2 ownership, isolation and workflow regression tests. |
 | `partners/urls.py` | Register phase 2 namespaced routes before the store slug route. |
 | `templates/base.html` | Add only the Agro Partners navbar link. |
+
+## Phase 3 — Order Requests and immutable sales ledger
+
+Validation: All 21 Partner tests passed. Request/accept/complete/cancel, stock reservation/restoration, buyer-phone privacy, one ledger entry per order, buyer confirmation/disputes, manual sale labels and owner-only audited adjustments are covered.
+
+| File | Reason |
+| --- | --- |
+| `docs/partners-phases.md` | Record this phase, verification and the complete file inventory. |
+| `partners/admin.py` | Register phase 3 models and owner-only actions. |
+| `partners/migrations/0003_orderrequest_salesledger_ledgeradjustment_and_more.py` | New phase 3 schema migration; no old marketplace schema edits. |
+| `partners/models.py` | Add phase 3 data models, constraints and public-state queries. |
+| `partners/order_forms.py` | Implement the isolated phase 3 workflow or operational tooling. |
+| `partners/order_services.py` | Implement the isolated phase 3 workflow or operational tooling. |
+| `partners/order_views.py` | Implement the isolated phase 3 workflow or operational tooling. |
+| `partners/services.py` | Add phase 3 transactional and audited business operations. |
+| `partners/static/partners/partners.css` | Rebuild only the Partner-scoped Tailwind utility asset. |
+| `partners/templates/admin/partners/action_form.html` | New or updated phase 3 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/base.html` | New or updated phase 3 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/dashboard.html` | New or updated phase 3 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/ledger.html` | New or updated phase 3 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/order_action.html` | New or updated phase 3 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/order_detail.html` | New or updated phase 3 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/order_list.html` | New or updated phase 3 page using existing design classes and scoped Tailwind. |
+| `partners/templates/partners/product_detail.html` | New or updated phase 3 page using existing design classes and scoped Tailwind. |
+| `partners/tests/test_orders.py` | Phase 3 ownership, isolation and workflow regression tests. |
+| `partners/urls.py` | Register phase 3 namespaced routes before the store slug route. |

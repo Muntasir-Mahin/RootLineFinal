@@ -2,12 +2,19 @@ from django import forms
 from django.contrib import admin, messages
 from django.contrib.admin.helpers import ActionForm
 from django.core.exceptions import ValidationError
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
+from django.urls import path, reverse
+from django.utils.html import format_html
 
 from .forms import AchievementForm, CertificationForm, GalleryImageForm, CompanyProfileForm
 from .models import Achievement, Certification, CompanyProfile, GalleryImage, PartnerAuditLog, PartnerCategory
 from .services import decide_company
 from .forms import CompanyProductForm, CompanyProductImageForm
 from .models import CompanyProduct, CompanyProductImage
+from .models import LedgerAdjustment, OrderRequest, SalesLedger
+from .order_services import adjust_ledger
 
 
 class PartnerActionForm(ActionForm):
@@ -129,3 +136,55 @@ class CompanyProductImageAdmin(admin.ModelAdmin):
     fields = ('product', 'image', 'caption')
     list_display = ('product', 'caption')
     search_fields = ('product__name',)
+
+
+@admin.register(OrderRequest)
+class OrderRequestAdmin(ImmutableAdmin):
+    list_display = ('number', 'company', 'buyer', 'status', 'expected_amount', 'final_amount', 'created_at')
+    list_filter = ('status', 'company')
+    search_fields = ('number', 'product_name', 'company__name')
+
+
+class LedgerAdjustmentForm(forms.Form):
+    amount = forms.DecimalField(max_digits=14, decimal_places=2, min_value=0)
+    reason = forms.CharField(widget=forms.Textarea, max_length=4000)
+    resolve_review = forms.BooleanField(required=False, label='Resolve owner review (does not claim buyer confirmation)')
+
+
+@admin.register(SalesLedger)
+class SalesLedgerAdmin(ImmutableAdmin):
+    list_display = ('company', 'sale_date', 'source', 'order', 'amount', 'buyer_confirmed_at', 'needs_review', 'adjust_link')
+    list_filter = ('source', 'needs_review', 'company')
+    search_fields = ('reference', 'company__name', 'order__number')
+
+    @admin.display(description='Owner decision')
+    def adjust_link(self, obj):
+        return format_html('<a href="{}">Adjust / review with reason</a>',
+            reverse('admin:partners_salesledger_adjust', args=[obj.pk]))
+
+    def get_urls(self):
+        return [path('<int:pk>/adjust/', self.admin_site.admin_view(self.adjust_view),
+                     name='partners_salesledger_adjust')] + super().get_urls()
+
+    def adjust_view(self, request, pk):
+        ledger = get_object_or_404(SalesLedger, pk=pk)
+        form = LedgerAdjustmentForm(request.POST or None, initial={'amount': ledger.amount})
+        if request.method == 'POST' and form.is_valid():
+            try:
+                adjust_ledger(ledger.pk, actor=request.user, amount=form.cleaned_data['amount'],
+                              reason=form.cleaned_data['reason'], resolve=form.cleaned_data['resolve_review'])
+            except ValidationError as error:
+                form.add_error(None, error)
+            else:
+                return HttpResponseRedirect(reverse('admin:partners_salesledger_changelist'))
+        return TemplateResponse(request, 'admin/partners/action_form.html', {
+            **self.admin_site.each_context(request), 'opts': self.model._meta, 'form': form,
+            'title': 'Adjust Partner sales ledger',
+            'explanation': 'The original amount is retained. Your reason and adjustment are permanently logged.',
+        })
+
+
+@admin.register(LedgerAdjustment)
+class LedgerAdjustmentAdmin(ImmutableAdmin):
+    list_display = ('ledger', 'actor', 'previous_amount', 'new_amount', 'created_at')
+    search_fields = ('ledger__company__name', 'reason')
