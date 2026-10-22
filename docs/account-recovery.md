@@ -161,7 +161,7 @@ configuration to `MAILERS` before upgrading to Django 2028. Do not add both.
    form errors; a valid password should show the completion page.
 4. Return to Login and sign in with the original username and new password.
    The old password must fail. The used reset URL must no longer work. Links
-   expire after one hour; use a fresh email if necessary.
+   expire after 3 days; use a fresh email if necessary.
 5. Sign out. Select **Forgot username?**, enter the same email and verify the
    same generic confirmation. The email should list the active username(s)
    associated with that email; no usernames should appear on the public page.
@@ -192,8 +192,8 @@ Run the focused automated checks (the test email backend sends no real mail):
 python manage.py test accounts.test_recovery accounts.tests --noinput
 ```
 
-Validation on Django 6.1.2: all 21 focused tests passed (13 new recovery tests
-and 8 existing logout tests). The full file-backed suite ran 229 tests:
+Validation on Django 6.1.2: all 22 focused tests passed (14 new recovery tests
+and 8 existing logout tests). The previous full file-backed suite ran 229 tests:
 228 passed and the one previously documented error remains in
 `reviews.tests.ReviewMigrationTests.test_duplicate_reviews_block_migration_without_deleting_data`
 (`accounts_user.theme_preference` NOT NULL). That unrelated historical-model
@@ -210,7 +210,7 @@ real Gmail delivery still needs your own configuration and end-to-end test.
 | SMTP connection times out | Check outbound TCP 587, firewall/hosting restrictions, and the provider's hostname. The application uses a ten-second email timeout. An HTTP proxy does not itself provide SMTP connectivity. |
 | SMTP authentication fails (often 535) | Use the full Gmail address and its App Password, not the ordinary account password. Confirm 2-Step Verification, remove spaces around the App Password, restart Django, and check whether exported variables override `.env`. Changing your Google password can revoke App Passwords. Never disable TLS verification. |
 | Email goes to spam | Use an approved sender, check Spam/Promotions, avoid mismatched From addresses, and configure SPF/DKIM for your verified custom domain. Gmail quotas and reputation can make a transactional provider more appropriate. |
-| Reset link is invalid/expired | Copy the complete URL; it lasts one hour and becomes invalid after a successful password change. Keep `DJANGO_SECRET_KEY` stable on every worker and restart. Use the newest link, check server time, and request a fresh link after expiry. |
+| Reset link is invalid/expired | Copy the complete URL; it lasts 3 days and becomes invalid after a successful password change. Keep `DJANGO_SECRET_KEY` stable on every worker and restart. Use the newest link, check server time, and request a fresh link after expiry. |
 | Reset URL has the wrong domain or HTTP scheme | Django builds it from the incoming request. Use the intended hostname and an explicit `ALLOWED_HOSTS` list. Correct the proxy's Host forwarding. Behind a trusted TLS proxy, configure Django's secure-request handling only when the proxy strips spoofed headers. `ALLOWED_HOSTS` validates the Host header; it does not select or rewrite the domain. |
 | DisallowedHost error | Add the exact legitimate local or production hostname to `ALLOWED_HOSTS`, without a scheme or path. Avoid `'*'`. Restart Django. |
 | MAILERS/EMAIL_* configuration error | Do not define `MAILERS` alongside these legacy `EMAIL_*` settings on Django 6.1.2. The provided settings use only the requested legacy configuration. |
@@ -254,7 +254,7 @@ Configure deployment settings separately; this feature does not change them:
 | `accounts/templates/accounts/username_recovery_done.html` (new) | Generic username recovery confirmation. |
 | `accounts/templates/accounts/username_recovery_email.txt` (new) | Email listing matching active usernames. |
 | `accounts/test_recovery.py` (new) | Recovery, privacy, CSRF, throttling, token and login regression tests. |
-| `rootline/settings.py` | Load `.env`; configure email and one-hour reset expiry. |
+| `rootline/settings.py` | Load `.env`; configure email and three-day reset expiry. |
 | `.env.example` | Fake SMTP values and a stable-secret placeholder. |
 | `requirements.txt` (new) | Record Django/Pillow runtime requirements and the new python-dotenv dependency. |
 | `docs/account-recovery.md` (new) | Setup, manual tests, troubleshooting and file inventory. |

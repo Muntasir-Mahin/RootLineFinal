@@ -46,7 +46,8 @@ class AccountRecoveryTests(TestCase):
         self.assertRedirects(response, reverse('password_reset_done'))
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, ['Buyer@example.com'])
-        self.assertEqual(mail.outbox[0].subject, 'Reset your RootLine password')
+        self.assertEqual(mail.outbox[0].subject, 'Reset your Rootline password')
+        self.assertIn('This link will expire in 3 days and can only be used once.', mail.outbox[0].body)
         link = self.reset_link()
         response = self.client.get(link)
         self.assertEqual(response.status_code, 302)
@@ -72,6 +73,13 @@ class AccountRecoveryTests(TestCase):
         response = self.client.get(self.reset_link())
         self.assertFalse(response.context['validlink'])
         self.assertContains(response, 'invalid or expired')
+
+    def test_password_reset_link_is_still_valid_after_two_days(self):
+        self.client.post(reverse('password_reset'), {'email': self.user.email})
+        later = datetime.now() + timedelta(days=2)
+        with patch.object(default_token_generator, '_now', return_value=later):
+            response = self.client.get(self.reset_link(), follow=True)
+        self.assertTrue(response.context['validlink'])
 
     def test_shared_email_password_reset_sends_one_link_per_active_usable_account(self):
         User = get_user_model()
