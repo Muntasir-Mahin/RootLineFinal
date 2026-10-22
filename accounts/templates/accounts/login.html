@@ -8,6 +8,7 @@
       <div class="form-field"><label for="login-password">Password</label><input id="login-password" type="password" name="password" autocomplete="current-password" required placeholder="Enter password"></div>
       <button type="submit" class="primary-action full-action">Login {% include 'components/icon.html' with name='arrow' %}</button>
     </form>
+    <p class="auth-switch"><a href="{% url 'password_reset' %}">Forgot password?</a> · <a href="{% url 'username_recovery' %}">Forgot username?</a></p>
     <p class="auth-switch">Don't have an account? <a href="{% url 'register' %}">Create Account</a></p>
   </section>
 </div>
