@@ -1,0 +1,7 @@
+{% extends 'base.html' %}{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'partners/partners.css' %}">{% endblock %}
+{% block content %}<div class="partner-pages"><div class="space-y-8">
+  <header class="page-heading"><p class="section-eyebrow">AGRO PARTNERS</p><h1>{% block partner_title %}Partner Company{% endblock %}</h1>{% block partner_intro %}{% endblock %}</header>
+  {% if company and request.user.id == company.user_id %}<nav class="flex flex-wrap gap-3" aria-label="Partner Company dashboard"><a class="outline-action" href="{% url 'partners:dashboard' %}">Dashboard</a><a class="outline-action" href="{% url 'partners:profile_edit' %}">Company profile</a><a class="outline-action" href="{% url 'partners:asset_list' 'achievements' %}">Achievements</a><a class="outline-action" href="{% url 'partners:asset_list' 'certifications' %}">Certifications</a><a class="outline-action" href="{% url 'partners:asset_list' 'gallery' %}">Gallery</a></nav>{% endif %}
+  {% block partner_content %}{% endblock %}
+</div></div>{% endblock %}

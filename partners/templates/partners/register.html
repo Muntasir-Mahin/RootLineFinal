@@ -1,0 +1,4 @@
+{% extends 'partners/base.html' %}
+{% block partner_title %}Register as a Partner Company{% endblock %}
+{% block partner_intro %}<p class="page-description">Create your company account. The owner reviews every application before a Partner Store is published.</p>{% endblock %}
+{% block partner_content %}<section class="surface ui-card max-w-3xl"><form method="post" class="modern-form">{% csrf_token %}{% include 'components/form_fields.html' %}<p><a class="underline" href="{% url 'partners:terms' %}" target="_blank" rel="noopener">Read the draft Partner Terms</a></p><button class="primary-action" type="submit">Register as a Partner Company</button></form><p class="auth-switch">Already registered? <a href="{% url 'partners:login' %}">Partner Company Login</a></p></section>{% endblock %}

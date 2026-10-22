@@ -1,0 +1,4 @@
+{% extends 'partners/base.html' %}
+{% block partner_title %}Partner Company Login{% endblock %}
+{% block partner_intro %}<p class="page-description">Use the email address registered for your Partner Company.</p>{% endblock %}
+{% block partner_content %}<section class="surface ui-card max-w-2xl"><form method="post" class="modern-form">{% csrf_token %}{% include 'components/form_fields.html' %}<button class="primary-action" type="submit">Sign in to Partner Company</button></form><p class="auth-switch"><a href="{% url 'password_reset' %}">Forgot password?</a> · <a href="{% url 'partners:register' %}">Register as a Partner Company</a></p><p class="auth-switch"><a href="{% url 'login' %}">Customer / seller login</a></p></section>{% endblock %}

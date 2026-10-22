@@ -10,6 +10,7 @@
     </form>
     <p class="auth-switch"><a href="{% url 'password_reset' %}">Forgot password?</a> · <a href="{% url 'username_recovery' %}">Forgot username?</a></p>
     <p class="auth-switch">Don't have an account? <a href="{% url 'register' %}">Create Account</a></p>
+    <p class="auth-switch"><a href="{% url 'partners:login' %}">Partner Company Login</a></p>
   </section>
 </div>
 {% endblock %}
