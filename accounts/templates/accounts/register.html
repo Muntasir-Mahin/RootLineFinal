@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
 <div class="auth-layout auth-page auth-page-register">
   <aside class="auth-story">
@@ -50,6 +51,18 @@
           {% include 'components/icon.html' with name='edit' %}
           <span>Choose File</span>
         </label>
+
+        <button type="button" id="register-camera-open" class="outline-action" aria-controls="register-camera-panel" aria-expanded="false">
+          Take photo
+        </button>
+        <div id="register-camera-panel" class="w-full" hidden>
+          <video id="register-camera-video" class="w-full rounded-xl" autoplay muted playsinline aria-label="Live camera preview"></video>
+          <div class="flex flex-wrap justify-center gap-2 mt-2">
+            <button type="button" id="register-camera-capture" class="primary-action" disabled>Use photo</button>
+            <button type="button" id="register-camera-cancel" class="outline-action">Cancel</button>
+          </div>
+        </div>
+        <p id="register-camera-status" class="field-help" role="status" aria-live="polite"></p>
 
         {% if form.profile_picture.errors %}
           <div class="form-errors text-xs mt-1" role="alert">{{ form.profile_picture.errors }}</div>
@@ -113,4 +126,5 @@
     }
   }
 </script>
+<script src="{% static 'js/register-camera.js' %}" defer></script>
 {% endblock %}
