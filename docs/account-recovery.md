@@ -44,16 +44,17 @@ If it exists, add only the missing recovery variables; preserve its other values
 `.gitignore` already ignores `.env`, so no ignore-file change was necessary.
 Never commit `.env`, paste credentials into chat, or put passwords in settings.
 
-Use this initial example. Its credentials are fake and console mode sends no mail:
+The supplied `.env.example` selects Gmail SMTP. For console-only testing, use
+this initial example instead. The sender is configured for `mahinislam020@gmail.com`; the password is a fake placeholder and console mode sends no mail:
 
 ```dotenv
 EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USE_TLS=true
-EMAIL_HOST_USER=your-sender@gmail.com
+EMAIL_HOST_USER=mahinislam020@gmail.com
 EMAIL_HOST_PASSWORD=replace-with-your-gmail-app-password
-DEFAULT_FROM_EMAIL=rootlineuap@gmail.com
+DEFAULT_FROM_EMAIL=mahinislam020@gmail.com
 DJANGO_SECRET_KEY=replace-with-a-locally-generated-secret
 ```
 
@@ -74,7 +75,7 @@ if changes in `.env` appear to be ignored. Restart Django after editing values.
 
 ## 3. Create a Gmail App Password
 
-1. Sign into the Google account `rootlineuap@gmail.com`, which must be an account
+1. Sign into the Google account `mahinislam020@gmail.com`, which must be an account
    you control.
 2. Open [Google Account security](https://myaccount.google.com/security).
 3. Under **How you sign in to Google**, turn on **2-Step Verification** and
@@ -84,8 +85,8 @@ if changes in `.env` appear to be ignored. Restart Django after editing values.
 5. Copy the generated 16-character password into your private `.env` as
    `EMAIL_HOST_PASSWORD`. Remove the visual grouping spaces. This is an App
    Password, not your ordinary Google password.
-6. Set `EMAIL_HOST_USER=rootlineuap@gmail.com` and
-   `DEFAULT_FROM_EMAIL=rootlineuap@gmail.com`. Keep console mode until step 5.
+6. Set `EMAIL_HOST_USER=mahinislam020@gmail.com` and
+   `DEFAULT_FROM_EMAIL=mahinislam020@gmail.com`. Keep console mode until step 5.
 
 Google may hide App Passwords for managed accounts, Advanced Protection, or some
 2-Step Verification configurations. Ask your Google administrator or use a
