@@ -45,8 +45,9 @@ class PartnerAccountTests(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         with self.assertRaises(ValidationError):
             decide_company(company.pk, actor=owner, decision='reject')
-        decide_company(company.pk, actor=owner, decision='reject', reason='Trade license needs clarification.')
-        self.assertTrue(PartnerAuditLog.objects.filter(company=company, action='company.reject').exists())
+        rejected = make_company('Rejected farm', status='pending')
+        decide_company(rejected.pk, actor=owner, decision='reject', reason='Trade license needs clarification.')
+        self.assertTrue(PartnerAuditLog.objects.filter(company=rejected, action='company.reject').exists())
 
     def test_asset_ownership_and_csrf_are_enforced(self):
         first = make_company()

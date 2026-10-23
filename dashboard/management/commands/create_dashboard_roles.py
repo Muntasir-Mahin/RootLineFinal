@@ -5,7 +5,7 @@ from dashboard.permissions import ROLES
 
 
 class Command(BaseCommand):
-    help = 'Create the Finance, Support and Catalogue groups without granting Django admin permissions.'
+    help = 'Create the Finance, Support, Catalogue and Partners groups without granting Django admin permissions.'
 
     def handle(self, *args, **options):
         for name in ROLES:

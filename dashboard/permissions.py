@@ -5,7 +5,8 @@ from django.core.exceptions import PermissionDenied
 FINANCE = 'Finance'
 SUPPORT = 'Support'
 CATALOGUE = 'Catalogue'
-ROLES = (FINANCE, SUPPORT, CATALOGUE)
+PARTNERS = 'Partners'
+ROLES = (FINANCE, SUPPORT, CATALOGUE, PARTNERS)
 
 
 def has_role(user, role=None):

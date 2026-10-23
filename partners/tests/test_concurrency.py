@@ -11,7 +11,8 @@ from django.test import TransactionTestCase
 from django.utils import timezone
 
 from partners.billing_services import generate_invoice, month_start
-from partners.models import BillingPlan, Invoice, SalesLedger
+from partners.models import BillingPlan, Invoice, SalesLedger, PartnerAuditLog
+from partners.services import decide_company
 from partners.order_services import company_order_decision, complete_order, request_order
 from partners.review_services import create_review
 from .helpers import make_company, make_product
@@ -70,3 +71,18 @@ class PartnerConcurrencyTests(TransactionTestCase):
 
         self.parallel(review)
         self.assertEqual(self.company.company_reviews.count(), 1)
+
+    def test_concurrent_application_decisions_have_one_winner(self):
+        self.company.status = 'pending'
+        self.company.save(update_fields=['status'])
+        owner = get_user_model().objects.create_superuser('owner', 'owner@example.com', 'Owner-test-931!')
+
+        def decision():
+            try:
+                return decide_company(self.company.pk, actor=owner, decision='approve')
+            except ValidationError:
+                return None
+
+        results = self.parallel(decision)
+        self.assertEqual(sum(result is not None for result in results), 1)
+        self.assertEqual(PartnerAuditLog.objects.filter(company=self.company, action='company.approve').count(), 1)

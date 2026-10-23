@@ -74,6 +74,10 @@ class CompanyProfile(models.Model):
     farmers_supported = models.PositiveIntegerField(null=True, blank=True)
     status = models.CharField(max_length=12, choices=STATUS_CHOICES, default='pending')
     rejection_reason = models.TextField(blank=True)
+    decision_reason = models.TextField(max_length=4000, blank=True)
+    decided_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
+        on_delete=models.SET_NULL, related_name='partner_application_decisions')
+    decided_at = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_suspended = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)

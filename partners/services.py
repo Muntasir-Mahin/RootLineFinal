@@ -38,6 +38,7 @@ def notify(recipient, subject, body):
         return
     if settings.EMAIL_BACKEND == 'django.core.mail.backends.smtp.EmailBackend' and not (
             settings.EMAIL_HOST_USER and settings.EMAIL_HOST_PASSWORD):
+        logger.warning('Partner email skipped: SMTP credentials are not configured.')
         return
 
     def deliver():
@@ -55,7 +56,7 @@ def register_company(data, *, applicant):
     try:
         with transaction.atomic():
             user = get_user_model().objects.select_for_update().get(pk=applicant.pk)
-            if user.is_staff or user.is_superuser or not is_verified(user):
+            if not user.is_active or user.is_staff or user.is_superuser or not is_verified(user):
                 raise ValidationError('Verify your current customer email before applying.')
             company = CompanyProfile.objects.select_for_update().filter(user=user).first()
             if company and company.status != 'rejected':
@@ -72,10 +73,14 @@ def register_company(data, *, applicant):
                 company.trade_license_document = data['trade_license_document']
             company.status = 'pending'
             company.rejection_reason = ''
+            company.decision_reason = ''
+            company.decided_by = company.decided_at = None
             company.submitted_at = company.terms_accepted_at = timezone.now()
             company.save()
             user.groups.remove(*Group.objects.filter(name=ROLE_NAME))
             audit(company, user, 'company.apply', reason='Accepted draft-v1 Partner Terms.')
+            from .application_notifications import application_submitted
+            application_submitted(company)
             return company
     except IntegrityError:
         raise ValidationError('We could not submit this application with these details. Please check them or contact staff.')
@@ -83,8 +88,21 @@ def register_company(data, *, applicant):
 
 @transaction.atomic
 def decide_company(company_id, *, actor, decision, reason=''):
-    require_owner(actor)
+    from dashboard.permissions import PARTNERS, has_role
+    if decision in ('approve', 'reject'):
+        if not has_role(actor, PARTNERS):
+            raise PermissionDenied('The Partners staff role is required.')
+    else:
+        require_owner(actor)
     company = CompanyProfile.objects.select_for_update().get(pk=company_id)
+    if decision in ('approve', 'reject'):
+        if company.status != 'pending':
+            raise ValidationError('Only a pending application can be decided. This decision cannot be repeated.')
+        if len(reason) > 4000:
+            raise ValidationError('Keep the decision reason within 4000 characters.')
+        company.decided_by = actor
+        company.decided_at = timezone.now()
+        company.decision_reason = reason.strip()
     if decision == 'approve':
         company.status = 'approved'
         company.rejection_reason = ''
@@ -113,7 +131,6 @@ def decide_company(company_id, *, actor, decision, reason=''):
         company.user.groups.remove(group)
     audit(company, actor, f'company.{decision}', reason=reason)
     if decision in ('approve', 'reject'):
-        notify(company.email, f'RootLine Partner Company: {company.get_status_display()}',
-               f'Your Partner Company, {company.name}, has been {company.status}.\n{reason}\n'
-               'Sign in through Partner Company Login to view your dashboard.')
+        from .application_notifications import application_decided
+        application_decided(company)
     return company

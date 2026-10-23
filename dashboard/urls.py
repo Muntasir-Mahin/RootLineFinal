@@ -1,9 +1,13 @@
 from django.urls import path
 from . import views
+from . import partner_views
 from agro_updates import staff_views as agro
 
 app_name = 'dashboard'
 urlpatterns = [
+    path('partners/', partner_views.partners, name='partners'),
+    path('partners/<int:pk>/', partner_views.partner_detail, name='partner_detail'),
+    path('partners/<int:pk>/decide/', partner_views.partner_decide, name='partner_decide'),
     path('agro-updates/', agro.video_list, name='agro_videos'),
     path('agro-updates/add/', agro.video_edit, name='agro_video_create'),
     path('agro-updates/<int:pk>/edit/', agro.video_edit, name='agro_video_edit'),

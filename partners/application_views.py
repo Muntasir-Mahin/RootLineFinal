@@ -11,6 +11,7 @@ from .email_verification import confirm_verification, is_verified, send_verifica
 from .forms import PartnerApplicationForm
 from .models import CompanyProfile
 from .services import register_company
+from dashboard.permissions import PARTNERS, has_role
 
 
 @never_cache
@@ -96,7 +97,7 @@ def verify_email_confirm(request, token):
 def trade_license_download(request, pk):
     company = get_object_or_404(CompanyProfile, pk=pk)
     owner = request.user.is_active and request.user.is_staff and request.user.is_superuser
-    if company.user_id != request.user.pk and not owner:
+    if company.user_id != request.user.pk and not owner and not has_role(request.user, PARTNERS):
         raise PermissionDenied
     if not company.trade_license_document:
         from django.http import Http404

@@ -34,10 +34,18 @@ class CompanyProfileAdmin(admin.ModelAdmin):
     list_filter = ('status', 'is_active', 'is_suspended', 'is_verified', 'district')
     search_fields = ('name', 'email', 'phone', 'trade_license')
     readonly_fields = ('user', 'slug', 'status', 'rejection_reason', 'is_verified', 'is_suspended',
-                       'approved_at', 'terms_accepted_at', 'terms_version', 'created_at', 'updated_at')
+                       'approved_at', 'terms_accepted_at', 'terms_version', 'created_at', 'updated_at',
+                       'submitted_at', 'decided_by', 'decided_at', 'decision_reason', 'license_link')
     action_form = PartnerActionForm
     actions = ('approve', 'reject', 'verify', 'suspend', 'unsuspend', 'generate_monthly_invoices')
     fields = (*CompanyProfileForm.Meta.fields, 'is_active', 'visibility_override', *readonly_fields)
+
+    @admin.display(description='Private trade-license document')
+    def license_link(self, obj):
+        if obj.trade_license_document:
+            return format_html('<a href="{}">Download private license</a>',
+                               reverse('partners:trade_license_download', args=[obj.pk]))
+        return 'Not supplied'
 
     def save_model(self, request, obj, form, change):
         from .services import audit

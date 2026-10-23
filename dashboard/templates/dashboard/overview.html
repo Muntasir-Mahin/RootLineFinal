@@ -1,6 +1,7 @@
 {% extends 'dashboard/base.html' %}{% block content %}
 <p class="intro">A clear view of the marketplace and the work waiting for your team.</p>
 <div class="cards queues">
+{% if can_partners %}<div class="card"><span>Partner applications</span><strong>{{ queue_sizes.partners }}</strong><a href="{% url 'dashboard:partners' %}">Review Partners →</a></div>{% endif %}
 <div class="card"><span>Payments to verify</span><strong>{{ queue_sizes.payments }}</strong>{% if can_finance %}<a href="{% url 'dashboard:payments' %}">Review payments →</a>{% endif %}</div>
 <div class="card"><span>Open disputes</span><strong>{{ queue_sizes.disputes }}</strong>{% if can_support %}<a href="{% url 'dashboard:disputes' %}">Review disputes →</a>{% endif %}</div>
 <div class="card"><span>Products awaiting review</span><strong>{{ queue_sizes.products }}</strong>{% if can_catalogue %}<a href="{% url 'dashboard:products' %}">Review products →</a>{% endif %}</div>

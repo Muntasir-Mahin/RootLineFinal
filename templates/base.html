@@ -29,6 +29,7 @@
 <a class="site-brand" href="{% url 'marketplace' %}"><span class="brand-mark">{% include 'components/icon.html' with name='leaf' %}</span><span class="brand-wordmark">RootLine</span></a>
 <div id="header-search" class="header-search">{% include 'components/site_search.html' %}</div>
 <div class="nav-tools">
+{% include 'notifications/bell.html' %}
 <button type="button" id="search-toggle" class="icon-button mobile-search-button" aria-label="Open search" aria-expanded="false" aria-controls="header-search" hidden>{% include 'components/icon.html' with name='search' %}</button>
 <a class="header-cart" href="{% url 'cart' %}" aria-label="Cart, {{ navigation_cart_count }} item{{ navigation_cart_count|pluralize }}">{% include 'components/icon.html' with name='cart' %}<span class="desktop-label">Cart</span><span class="cart-count">{{ navigation_cart_count }}</span></a>
 <a class="header-wishlist icon-button" href="{% url 'my_wishlist' %}" aria-label="Wishlist">{% include 'components/icon.html' with name='heart' %}</a>
