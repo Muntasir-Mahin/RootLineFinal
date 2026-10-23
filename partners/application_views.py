@@ -6,6 +6,8 @@ from django.http import FileResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_http_methods
+from django.urls import reverse
+from urllib.parse import urlencode
 
 from .email_verification import confirm_verification, is_verified, send_verification
 from .forms import PartnerApplicationForm
@@ -43,9 +45,11 @@ def apply(request):
         except ValidationError as error:
             form.add_error(None, '; '.join(error.messages))
         else:
+            request.session['partner_application_submitted'] = request.user.pk
             messages.success(request, 'Your Partner application was submitted for staff review.')
             return redirect('partners:application_status')
-    return render(request, 'partners/register.html', {'form':form, 'application':company})
+    return render(request, 'partners/register.html', {'form':form, 'application':company,
+        'terms_url':reverse('partners:terms') + '?' + urlencode({'next':reverse('partners:apply')})})
 
 
 @never_cache
@@ -55,7 +59,8 @@ def application_status(request):
     company = CompanyProfile.objects.filter(user=request.user).first()
     if not company:
         return redirect('partners:apply')
-    return render(request, 'partners/application_status.html', {'application':company})
+    clear_draft = request.session.pop('partner_application_submitted', None) == request.user.pk
+    return render(request, 'partners/application_status.html', {'application':company, 'clear_draft':clear_draft})
 
 
 @never_cache

@@ -57,18 +57,18 @@ Full suite: 283 tests, 282 passed; the same pre-existing reviews migration error
 | `dashboard/urls.py` | Add staff Partner list/detail/decision routes. |
 | `dashboard/views.py` | Expose pending Partner count and role-gated navigation in staff pages. |
 | `docs/partner-application-fixes.md` | Record every changed/created/deleted file, purpose and each phase test result. |
-| `notifications/__init__.py` | Implement the generic notification service, permissions or delivery workflow. |
-| `notifications/admin.py` | Implement the generic notification service, permissions or delivery workflow. |
-| `notifications/apps.py` | Implement the generic notification service, permissions or delivery workflow. |
-| `notifications/context_processors.py` | Implement the generic notification service, permissions or delivery workflow. |
+| `notifications/__init__.py` | Initialize the reusable notifications package. |
+| `notifications/admin.py` | Provide owner-only, read-only notification inspection. |
+| `notifications/apps.py` | Register the generic notifications Django app. |
+| `notifications/context_processors.py` | Count only the signed-in recipient’s unread notifications; guests do not query the inbox. |
 | `notifications/migrations/0001_initial.py` | New schema migration for the scoped application/notification fields. |
-| `notifications/migrations/__init__.py` | New schema migration for the scoped application/notification fields. |
-| `notifications/models.py` | Implement the generic notification service, permissions or delivery workflow. |
-| `notifications/services.py` | Implement the generic notification service, permissions or delivery workflow. |
-| `notifications/templates/notifications/bell.html` | Render the new application/notification workflow using existing design classes. |
-| `notifications/templates/notifications/inbox.html` | Render the new application/notification workflow using existing design classes. |
-| `notifications/urls.py` | Implement the generic notification service, permissions or delivery workflow. |
-| `notifications/views.py` | Implement the generic notification service, permissions or delivery workflow. |
+| `notifications/migrations/__init__.py` | Initialize notifications migration discovery. |
+| `notifications/models.py` | Store recipient, message, internal link, read state and creation time with an inbox index. |
+| `notifications/services.py` | Create reusable notifications while allowing only internal navigation links. |
+| `notifications/templates/notifications/bell.html` | Render the accessible authenticated bell and unread count in both navigation areas. |
+| `notifications/templates/notifications/inbox.html` | Render the recipient’s paginated inbox and CSRF-protected mark-read buttons. |
+| `notifications/urls.py` | Register the inbox and mark-read routes. |
+| `notifications/views.py` | List only the recipient’s notifications and mark read through ownership-scoped POST. |
 | `partners/admin.py` | Keep customer email separate and route Partner administration through audited services. |
 | `partners/application_notifications.py` | Notify eligible staff and applicant in-app/by email after committed actions. |
 | `partners/application_views.py` | Serve authenticated apply, status, email verification and private license download pages. |
@@ -78,7 +78,30 @@ Full suite: 283 tests, 282 passed; the same pre-existing reviews migration error
 | `partners/templates/partners/application_status.html` | Show pending/approved/rejected/suspended status and resubmission/private-license links. |
 | `partners/tests/test_accounts.py` | Replace obsolete independent-registration expectations with the new access rules. |
 | `partners/tests/test_concurrency.py` | Add scoped regression coverage for this phase. |
-| `partners/tests/test_staff_applications.py` | Add scoped regression coverage for this phase. |
+| `partners/tests/test_staff_applications.py` | Cover Partners permissions, mail/outbox, rollback/outage behavior, private licenses, decisions and inbox isolation. |
 | `rootline/settings.py` | Register generic notifications and unread-count context; load staff notification recipients from environment. |
 | `rootline/urls.py` | Include the generic notifications URL namespace. |
 | `templates/base.html` | Add the conditional Partner link and/or authenticated notification indicator without changing other navigation. |
+
+## Flaw 3
+
+Full suite: 287 tests, 286 passed; only the unchanged pre-existing reviews migration error remains. All 57 Partner tests passed. Browser checks passed for Terms popup/back safety, account-scoped draft privacy/restoration/validation/clear, reject/resubmit/approve, notifications, customer access, mobile layouts and dark theme. Staff application timestamps were verified in Asia/Dhaka. System, migration drift, dependency and design checks passed.
+
+| File | Reason |
+| --- | --- |
+| `accounts/templates/accounts/profile.html` | Add Partner Dashboard/application-status/apply link to the existing account page. |
+| `accounts/views.py` | Preserve the original end-of-file formatting after the targeted login/signup integration. |
+| `dashboard/partner_views.py` | Display application dates in Bangladesh time and readable choice labels. |
+| `docs/agro-partners-setup.md` | Correct the superseded registration/approval instructions while preserving billing guidance. |
+| `docs/partner-application-fixes.md` | Record every changed/created/deleted file, purpose and each phase test result. |
+| `docs/partner-application-flow.md` | Provide beginner setup, staff-role/email configuration, manual checks and remaining gaps. |
+| `partners/application_views.py` | Serve authenticated apply, status, email verification and private license download pages. |
+| `partners/static/partners/application-draft.js` | Save only approved non-sensitive fields in sessionStorage, and clear only after successful submit. |
+| `partners/templates/partners/account_link.html` | Reuse one conditional Partner link in account/navigation locations. |
+| `partners/templates/partners/application_status.html` | Show pending/approved/rejected/suspended status and resubmission/private-license links. |
+| `partners/templates/partners/register.html` | Render the password-free application and multipart license upload. |
+| `partners/templates/partners/terms.html` | Provide validated internal Back navigation. |
+| `partners/tests/test_application_forms.py` | Cover Terms checkbox/new-tab attributes, safe Back URLs, bound values and success-only draft clearing. |
+| `partners/tests/test_staff_applications.py` | Verify staff application dates are formatted in Bangladesh time. |
+| `partners/views.py` | Redirect obsolete registration/login URLs; gate Partner operations; keep customer email separate. |
+| `rootline/urls.py` | Preserve the original end-of-file formatting around the new notifications include. |

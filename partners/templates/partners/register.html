@@ -1,4 +1,12 @@
-{% extends 'partners/base.html' %}
+{% extends 'partners/base.html' %}{% load static %}
+{% block extra_js %}{{ block.super }}<script src="{% static 'partners/application-draft.js' %}" defer></script>{% endblock %}
 {% block partner_title %}Become an Agro Partner{% endblock %}
 {% block partner_intro %}<p class="page-description">Apply using your existing customer account. Staff review every application before a Partner Store is published.</p>{% endblock %}
-{% block partner_content %}<section class="surface ui-card max-w-3xl"><form method="post" enctype="multipart/form-data" class="modern-form">{% csrf_token %}{% include 'components/form_fields.html' %}<p><a class="underline" href="{% url 'partners:terms' %}" target="_blank" rel="noopener">Read the draft Partner Terms</a></p><button class="primary-action" type="submit">Become an Agro Partner</button></form><p class="auth-switch"><a href="{% url 'partners:application_status' %}">View application status</a></p></section>{% endblock %}
+{% block partner_content %}
+<section class="surface ui-card max-w-3xl space-y-4"><p class="text-muted">Company name, district and division can be restored in this browser tab. Private contact details, license details, files and consent are not stored. After a validation error, reselect any file.</p>
+<form method="post" enctype="multipart/form-data" class="modern-form" data-partner-application-form data-draft-key="rootline.partner-application:{{ user.pk }}" data-bound="{{ form.is_bound|yesno:'true,false' }}">{% csrf_token %}
+{% if form.non_field_errors %}<div class="form-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+{% for field in form %}<div class="form-field{% if field.errors %} has-errors{% endif %}">{% if field.name == 'agree_terms' %}<div class="flex flex-wrap items-center gap-2">{{ field }}{{ field.label_tag }}<a class="underline" href="{{ terms_url }}" target="_blank" rel="noopener noreferrer" aria-describedby="partner-terms-hint">Read Partner Terms</a><span id="partner-terms-hint">(opens in a new tab)</span></div>{% else %}{{ field.label_tag }}{{ field }}{% endif %}{% if field.errors %}<div class="form-errors" role="alert">{{ field.errors }}</div>{% endif %}{% if field.help_text %}<div class="field-help">{{ field.help_text }}</div>{% endif %}</div>{% endfor %}
+<button type="submit" class="primary-action full-action">Submit Partner application</button></form>
+<p class="auth-switch"><a href="{% url 'partners:application_status' %}">View application status</a></p></section>
+{% endblock %}

@@ -3,6 +3,8 @@ from django.core.exceptions import ValidationError
 from django.db.models import Case, IntegerField, Value, When
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_GET, require_POST
+from django.utils import timezone
+from datetime import datetime
 
 from partners.models import CompanyProfile
 from partners.services import decide_company
@@ -30,8 +32,16 @@ def partners(request):
 
 
 def detail_response(request, company, form, status=200):
-    fields = [(field.verbose_name, getattr(company, field.name)) for field in company._meta.fields
-              if field.name not in ('user', 'logo', 'cover_image', 'trade_license_document')]
+    fields = []
+    for field in company._meta.fields:
+        if field.name in ('user', 'logo', 'cover_image', 'trade_license_document'):
+            continue
+        value = getattr(company, field.name)
+        if isinstance(value, datetime):
+            value = timezone.localtime(value).strftime('%d %b %Y, %I:%M %p')
+        elif field.choices:
+            value = getattr(company, f'get_{field.name}_display')()
+        fields.append((field.verbose_name, value))
     response = panel(request, 'partner_detail', 'Partner application', 'partners',
         company=company, applicant=company.user, details=fields, form=form)
     response.status_code = status

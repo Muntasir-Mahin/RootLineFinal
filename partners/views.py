@@ -43,11 +43,14 @@ def partner_login(request):
 @require_GET
 def terms(request):
     from .billing_services import default_plan
+    from accounts.navigation import internal_next
+    from django.urls import reverse
     try:
         plan = default_plan()
     except ValidationError:
         plan = None
-    return render(request, 'partners/terms.html', {'default_plan':plan})
+    return render(request, 'partners/terms.html', {'default_plan':plan,
+        'back_url':internal_next(request.GET.get('next'), reverse('partners:apply'))})
 
 
 @company_required

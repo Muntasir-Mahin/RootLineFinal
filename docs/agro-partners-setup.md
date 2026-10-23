@@ -1,5 +1,7 @@
 # Agro Partners: setup and owner guide
 
+For the current customer-to-Partner application, staff review and email verification setup, see [partner-application-flow.md](partner-application-flow.md).
+
 This branch adds a separate `partners` app. Partner products never use the existing marketplace `Product`, search, cart or checkout. Buyers send Order Requests and pay companies directly; RootLine does not process those payments or deliveries. The existing `accounts.User` model is unchanged: a Django **Partner Company** group plus a one-to-one company profile identifies the new account type.
 
 Complete per-phase file lists and reasons: [partners-phases.md](partners-phases.md).
@@ -102,25 +104,21 @@ npx tailwindcss -c partners/tailwind.config.js -i partners/static/partners/sourc
 
 Do not rebuild unrelated global styles for a Partner-only change. Hard-refresh after CSS updates: **Cmd + Shift + R** on macOS, **Ctrl + Shift + R** on Windows/Linux.
 
-## 5. Start Django and register a company
+## 5. Start Django and apply from a customer account
 
 ```bash
 python manage.py runserver
 ```
 
-Visit `http://127.0.0.1:8000/partners/`. Choose **Register as a Partner Company**. Supply a company name, email, password, phone, address, district/division and optional trade license; accept the Partner Terms.
+Visit `http://127.0.0.1:8000/partners/apply/`. Sign up/sign in as an ordinary customer, verify the customer email, and submit the password-free Partner application with Terms consent. The same customer account owns the pending profile; no separate account is created. Use `/partners/application/` for status and rejected-application resubmission.
 
-This creates a separate account, not a conversion of an existing buyer/seller. Use **Partner Company Login** at `/partners/login/` with the company email and password. Registration returns the same generic message for duplicates. Partner-company names and login emails are unique ignoring case; normal user email rules are unchanged.
-
-A pending company can edit its profile and assets but cannot publish products or appear publicly. The internal username is generated; company login uses email. Existing password recovery can also recover these accounts by email.
-
-The Terms are clearly marked **Draft v1: must be reviewed by a lawyer**. They describe fees, direct sales, accurate reporting, audit rights, non-payment suspension and fake reviews. The registration stores the acceptance time/version.
+See [the updated application guide](partner-application-flow.md) for verification, private trade-license uploads, staff notifications and old URL/legacy-login compatibility. The Terms remain a draft requiring lawyer review.
 
 ## 6. Approve the company and prepare its store
 
-1. In another browser/profile, sign in at `/admin/` as the owner.
-2. Under **Partners → Company profiles**, select the company and choose **Approve selected Partner Companies**.
-3. Rejection requires a reason in the action form. Verification is a separate action; approval does not automatically award a verified badge. Suspension/unsuspension also requires a reason.
+1. Give an active staff user the **Partners** role using the owner admin, then sign in as that reviewer through customer login.
+2. Open **Staff dashboard → Partners**, review the application and choose Approve or Reject. Only pending applications can be decided. Owner admin actions use the same service.
+3. Rejection requires a reason. Verification and suspension/unsuspension remain separate owner-only actions; approval does not automatically award a verified badge.
 4. Add product categories under **Partner categories**. These do not affect main marketplace categories.
 5. In the company dashboard, edit the profile: logo/cover, tagline, About us, established year, one Why choose us reason per line, categories, website/social/map links and optional employees/farmers counts. Add achievements, certifications and gallery images.
 6. Add a company product with a category, price, optional lower discount price, unit, stock, description and image. Manage extra images from the product list. Hide/unhide or edit products there. Products referenced by orders are protected from deletion; hide them instead.
@@ -204,7 +202,7 @@ Under **Company reviews**, the owner can hide/restore selected reviews with a re
 Use separate browser profiles/incognito windows for company, buyer and owner:
 
 1. Check normal marketplace search/cart/checkout still work. Partner products must be absent there.
-2. Register a company; verify Terms are required. Pending company can log in/edit, but product publishing is denied and its public URL returns 404.
+2. Apply from an existing verified customer account; verify Terms are required. Pending applicants use their status page, cannot access the Partner dashboard/publish, and their public store returns 404.
 3. Approve as owner, add Partner categories, complete profile/assets and add a discounted product with stock. Check directory filters, store search/sorting/pagination and product detail on desktop/mobile and both themes. Card hover should match existing products.
 4. Sign out: contacts must be absent from HTML, not merely visually hidden. Sign in as buyer: contacts appear. A normal buyer/seller must not access company dashboards.
 5. Place an Order Request with quantity, address and phone. Before acceptance, company sees no buyer phone/address; after acceptance, it does. Acceptance reserves stock; cancellation restores it. Try a second company's IDs: edits/orders/invoices/replies must be refused.
@@ -241,7 +239,7 @@ python manage.py test partners --noinput
 Remove-Item Env:ROOTLINE_TEST_DB
 ```
 
-37 Partner tests pass, including concurrent completion/invoice/review, isolation, privacy, permissions, fee modes and moderation. The complete repository run has 267 tests: 266 pass and one existing `reviews.tests.ReviewMigrationTests.test_duplicate_reviews_block_migration_without_deleting_data` errors on the old `accounts_user.theme_preference` NOT NULL constraint. That unrelated migration test was left unchanged to respect scope.
+57 Partner tests pass, including application identity/verification, staff notifications/decisions, concurrent completion/invoice/review, isolation, privacy, permissions, fee modes and moderation. The complete repository run has 287 tests: 286 pass and one existing `reviews.tests.ReviewMigrationTests.test_duplicate_reviews_block_migration_without_deleting_data` errors on the old `accounts_user.theme_preference` NOT NULL constraint. That unrelated migration test was left unchanged to respect scope.
 
 Before production, configure `DEBUG=False`, explicit `ALLOWED_HOSTS`, HTTPS, secure cookies and a stable secret in deployment configuration; collect static files with `python manage.py collectstatic` and serve static/public media through your production server/storage. The existing project does not read `DEBUG`/`ALLOWED_HOSTS` from `.env`; merely adding those variable names will not change them. Do not expose your development server or private evidence folder. Keep databases and both upload locations backed up. Use a real transactional email provider and proper SPF/DKIM for a custom sending domain.
 

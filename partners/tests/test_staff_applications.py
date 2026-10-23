@@ -71,7 +71,10 @@ class PartnerStaffTests(TestCase):
                 decide_company(company.pk, actor=user, decision='approve')
         self.client.force_login(self.reviewer)
         self.assertEqual(self.client.get(reverse('dashboard:partners')).status_code, 200)
-        self.assertContains(self.client.get(reverse('dashboard:partner_detail', args=[company.pk])), company.email)
+        response = self.client.get(reverse('dashboard:partner_detail', args=[company.pk]))
+        self.assertContains(response, company.email)
+        self.assertEqual(dict(response.context['details'])['submitted at'],
+                         timezone.localtime(company.submitted_at).strftime('%d %b %Y, %I:%M %p'))
         for decision in ('verify', 'suspend', 'unsuspend'):
             with self.assertRaises(PermissionDenied):
                 decide_company(company.pk, actor=self.reviewer, decision=decision, reason='Unauthorized')
