@@ -1,12 +1,17 @@
 from django.urls import path
 
-from . import billing_views, order_views, product_views, public_views, review_views, views
+from . import application_views, billing_views, order_views, product_views, public_views, review_views, views
 
 app_name = 'partners'
 urlpatterns = [
     path('', public_views.directory, name='directory'),
     path('register/', views.register, name='register'),
     path('login/', views.partner_login, name='login'),
+    path('apply/', application_views.apply, name='apply'),
+    path('application/', application_views.application_status, name='application_status'),
+    path('verify-email/', application_views.verify_email, name='verify_email'),
+    path('verify-email/<str:token>/', application_views.verify_email_confirm, name='verify_email_confirm'),
+    path('trade-licenses/<int:pk>/', application_views.trade_license_download, name='trade_license_download'),
     path('terms/', views.terms, name='terms'),
     path('my-orders/', order_views.buyer_orders, name='buyer_orders'),
     path('my-orders/<int:pk>/', order_views.buyer_order, name='buyer_order'),

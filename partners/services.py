@@ -1,5 +1,4 @@
 import logging
-from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -30,7 +29,7 @@ def require_owner(actor):
 def require_company_actor(company, actor, *, publishing=False):
     if not actor.is_authenticated or not actor.is_active or company.user_id != actor.pk:
         raise PermissionDenied('This Partner Company does not belong to you.')
-    if publishing and not company.can_publish:
+    if not company.can_publish or not actor.groups.filter(name=ROLE_NAME).exists():
         raise PermissionDenied('An active, approved, non-suspended Partner Company is required.')
 
 
@@ -49,23 +48,37 @@ def notify(recipient, subject, body):
     transaction.on_commit(deliver)
 
 
-def register_company(data):
-    # Both successful and duplicate-email registrations have the same public
-    # redirect/message. Never attach a new company to an existing user's account.
+def register_company(data, *, applicant):
+    from .email_verification import is_verified
+    if not applicant.is_authenticated or not applicant.is_active or applicant.is_staff or applicant.is_superuser:
+        raise PermissionDenied('Only a customer account may apply for partnership.')
     try:
         with transaction.atomic():
-            user = get_user_model()._default_manager.create_user(
-                username=f'partner-{uuid4().hex}', email=data['email'].strip(), password=data['password1'])
-            company = CompanyProfile.objects.create(user=user, name=data['company_name'].strip(),
-                email=data['email'].strip(), phone=data['phone'], address=data['address'],
-                district=data['district'], division=data['division'], trade_license=data.get('trade_license', ''),
-                terms_accepted_at=timezone.now())
-            group, _ = Group.objects.get_or_create(name=ROLE_NAME)
-            user.groups.add(group)
-            audit(company, user, 'company.register', reason='Accepted draft-v1 Partner Terms.')
+            user = get_user_model().objects.select_for_update().get(pk=applicant.pk)
+            if user.is_staff or user.is_superuser or not is_verified(user):
+                raise ValidationError('Verify your current customer email before applying.')
+            company = CompanyProfile.objects.select_for_update().filter(user=user).first()
+            if company and company.status != 'rejected':
+                raise ValidationError('You already have a pending or approved Partner application.')
+            company = company or CompanyProfile(user=user)
+            if CompanyProfile.objects.filter(name__iexact=data['company_name']).exclude(pk=company.pk).exists():
+                raise ValidationError('A company with this name already exists.')
+            company.name = data['company_name']
+            for field in ('email', 'phone', 'address', 'district', 'division', 'trade_license'):
+                setattr(company, field, data.get(field, '').strip())
+            if not data.get('agree_terms'):
+                raise ValidationError('You must agree to the Partner Terms.')
+            if data.get('trade_license_document'):
+                company.trade_license_document = data['trade_license_document']
+            company.status = 'pending'
+            company.rejection_reason = ''
+            company.submitted_at = company.terms_accepted_at = timezone.now()
+            company.save()
+            user.groups.remove(*Group.objects.filter(name=ROLE_NAME))
+            audit(company, user, 'company.apply', reason='Accepted draft-v1 Partner Terms.')
             return company
     except IntegrityError:
-        return None
+        raise ValidationError('We could not submit this application with these details. Please check them or contact staff.')
 
 
 @transaction.atomic
@@ -93,6 +106,11 @@ def decide_company(company_id, *, actor, decision, reason=''):
     else:
         raise ValidationError('Unknown company decision.')
     company.save()
+    group, _ = Group.objects.get_or_create(name=ROLE_NAME)
+    if company.can_publish:
+        company.user.groups.add(group)
+    else:
+        company.user.groups.remove(group)
     audit(company, actor, f'company.{decision}', reason=reason)
     if decision in ('approve', 'reject'):
         notify(company.email, f'RootLine Partner Company: {company.get_status_display()}',

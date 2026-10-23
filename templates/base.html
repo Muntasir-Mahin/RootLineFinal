@@ -34,6 +34,7 @@
 <a class="header-wishlist icon-button" href="{% url 'my_wishlist' %}" aria-label="Wishlist">{% include 'components/icon.html' with name='heart' %}</a>
 <details class="nav-popover nav-account-menu"><summary aria-label="Account menu">{% include 'components/icon.html' with name='user' %}<span class="desktop-label">{% if user.is_authenticated %}Account{% else %}Sign in{% endif %}</span></summary><div class="nav-popover-body">
 <a href="{% url 'contact' %}">Contact us</a>
+{% include 'partners/account_link.html' %}
 {% if user.is_authenticated %}<a href="{% url 'profile' %}">My account</a><a href="{% url 'my_orders' %}">Orders</a><a href="{% url 'logout' %}">Logout</a>{% else %}<a href="{% url 'login' %}">Sign in</a><a href="{% url 'register' %}">Register</a>{% endif %}
 {% if user.seller_approved %}<a href="{% url 'my_products' %}">My products</a><a href="{% url 'seller_orders' %}">Seller orders</a><a href="{% url 'seller_dashboard' %}">Seller dashboard</a>{% endif %}
 {% if user.is_staff %}<a href="{% url 'dashboard:overview' %}">Staff dashboard</a>{% endif %}

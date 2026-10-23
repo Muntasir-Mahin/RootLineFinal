@@ -56,6 +56,9 @@ class CompanyProfile(models.Model):
     district = models.CharField(max_length=100)
     division = models.CharField(max_length=100)
     trade_license = models.CharField(max_length=100, blank=True)
+    trade_license_document = models.FileField(upload_to='trade-licenses/', blank=True,
+        storage=PartnerPrivateStorage(), validators=[validate_document])
+    submitted_at = models.DateTimeField(default=timezone.now)
     logo = models.ImageField(upload_to='partners/logos/', blank=True, validators=[validate_image])
     cover_image = models.ImageField(upload_to='partners/covers/', blank=True, validators=[validate_image])
     tagline = models.CharField(max_length=200, blank=True)
@@ -109,6 +112,14 @@ class CompanyProfile(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class CustomerEmailVerification(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                               related_name='partner_email_verification')
+    email = models.EmailField()
+    nonce = models.UUIDField(default=uuid4)
+    verified_at = models.DateTimeField(null=True, blank=True)
 
 
 class Achievement(models.Model):

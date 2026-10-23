@@ -16,6 +16,7 @@
 
     <form method="POST" enctype="multipart/form-data" class="modern-form">
       {% csrf_token %}
+      {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
 
       {% if form.non_field_errors %}
         <div class="form-errors" role="alert">{{ form.non_field_errors }}</div>

@@ -40,10 +40,8 @@ class CompanyProfileAdmin(admin.ModelAdmin):
     fields = (*CompanyProfileForm.Meta.fields, 'is_active', 'visibility_override', *readonly_fields)
 
     def save_model(self, request, obj, form, change):
-        from django.contrib.auth import get_user_model
         from .services import audit
         super().save_model(request, obj, form, change)
-        get_user_model().objects.filter(pk=obj.user_id).update(email=obj.email)
         audit(obj, request.user, 'company.owner_update', reason='Owner updated company settings.',
               fields=list(form.changed_data))
 

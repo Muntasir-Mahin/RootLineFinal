@@ -19,46 +19,6 @@ class PartnerAccountTests(TestCase):
     def setUp(self):
         cache.clear()
 
-    def registration(self, **kwargs):
-        data = dict(company_name='New Agro', email='new@example.com', password1='Partner-demo-793!',
-            password2='Partner-demo-793!', phone='01700000001', address='Dhaka', district='Dhaka',
-            division='Dhaka', trade_license='', agree_terms='on')
-        data.update(kwargs)
-        return data
-
-    def test_registration_requires_terms_creates_pending_role_and_login_works(self):
-        response = self.client.post(reverse('partners:register'), self.registration(agree_terms=''))
-        self.assertEqual(response.status_code, 200)
-        self.assertFalse(CompanyProfile.objects.exists())
-        self.assertRedirects(self.client.post(reverse('partners:register'), self.registration()), reverse('partners:login'))
-        company = CompanyProfile.objects.get()
-        self.assertEqual(company.status, 'pending')
-        self.assertFalse(company.user.is_staff)
-        self.assertFalse(company.user.seller_approved)
-        self.assertTrue(company.user.groups.filter(name='Partner Company').exists())
-        self.assertRedirects(self.client.post(reverse('partners:login'), {
-            'email': 'NEW@EXAMPLE.COM', 'password': 'Partner-demo-793!',
-        }), reverse('partners:dashboard'))
-        self.assertContains(self.client.get(reverse('partners:dashboard')), 'Waiting for approval')
-
-    def test_duplicate_partner_email_is_generic_and_does_not_create_orphan_user(self):
-        self.client.post(reverse('partners:register'), self.registration())
-        count = get_user_model().objects.count()
-        response = self.client.post(reverse('partners:register'), self.registration(
-            company_name='Another company', email='NEW@EXAMPLE.COM'), follow=True)
-        self.assertContains(response, 'If registration can be completed')
-        self.assertNotContains(response, 'email already exists')
-        self.assertEqual(get_user_model().objects.count(), count)
-
-    def test_existing_normal_user_email_does_not_get_taken_over(self):
-        ordinary = get_user_model().objects.create_user('buyer', email='new@example.com', password='Original-238!')
-        self.client.post(reverse('partners:register'), self.registration())
-        company = CompanyProfile.objects.get()
-        self.assertNotEqual(company.user_id, ordinary.pk)
-        ordinary.refresh_from_db()
-        self.assertTrue(ordinary.check_password('Original-238!'))
-        self.assertFalse(ordinary.groups.filter(name='Partner Company').exists())
-
     def test_dashboard_rejects_normal_user_and_profile_cannot_self_approve(self):
         buyer = get_user_model().objects.create_user('buyer')
         self.client.force_login(buyer)
@@ -67,7 +27,7 @@ class PartnerAccountTests(TestCase):
         self.client.force_login(company.user)
         data = dict(name=company.name, email=company.email, phone=company.phone, address=company.address,
             district=company.district, division=company.division, status='approved', is_verified='on')
-        self.assertRedirects(self.client.post(reverse('partners:profile_edit'), data), reverse('partners:dashboard'))
+        self.assertEqual(self.client.post(reverse('partners:profile_edit'), data).status_code, 403)
         company.refresh_from_db()
         self.assertEqual(company.status, 'pending')
         self.assertFalse(company.is_verified)

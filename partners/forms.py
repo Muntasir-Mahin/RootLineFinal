@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
@@ -7,35 +6,32 @@ from .models import Achievement, Certification, CompanyProduct, CompanyProductIm
 from .validators import clean_upload
 
 
-class PartnerRegistrationForm(forms.Form):
+class PartnerApplicationForm(forms.Form):
     company_name = forms.CharField(max_length=160)
     email = forms.EmailField(max_length=254)
-    password1 = forms.CharField(label='Password', widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}))
-    password2 = forms.CharField(label='Confirm password', widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}))
     phone = forms.CharField(max_length=30)
     address = forms.CharField(max_length=1000, widget=forms.Textarea(attrs={'rows': 3}))
     district = forms.CharField(max_length=100)
     division = forms.CharField(max_length=100)
     trade_license = forms.CharField(max_length=100, required=False)
+    trade_license_document = forms.FileField(required=False, help_text='PDF, JPG, PNG or WebP; up to 5 MB. Visible only to you and application reviewers.')
     agree_terms = forms.BooleanField(label='I agree to the Partner Terms')
 
-    def clean(self):
-        data = super().clean()
-        if data.get('password1') != data.get('password2'):
-            self.add_error('password2', 'The passwords do not match.')
-        if data.get('password1'):
-            from django.contrib.auth import get_user_model
-            user = get_user_model()(email=data.get('email', ''))
-            try:
-                validate_password(data['password1'], user)
-            except ValidationError as error:
-                self.add_error('password1', error)
-        return data
+    def __init__(self, *args, company=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.company = company
 
+    def clean_company_name(self):
+        name = self.cleaned_data['company_name'].strip()
+        matches = CompanyProfile.objects.filter(name__iexact=name)
+        if self.company:
+            matches = matches.exclude(pk=self.company.pk)
+        if matches.exists():
+            raise ValidationError('A company with this name already exists.')
+        return name
 
-class PartnerLoginForm(forms.Form):
-    email = forms.EmailField(max_length=254)
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'autocomplete': 'current-password'}))
+    def clean_trade_license_document(self):
+        return clean_upload(self.cleaned_data.get('trade_license_document'), document=True)
 
 
 class UploadFormMixin:
