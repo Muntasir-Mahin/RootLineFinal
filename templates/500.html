@@ -1,0 +1,5 @@
+{% extends 'base.html' %}
+{% block title %}We’re tending to a small problem · RootLine{% endblock %}
+{% block content %}
+<section class="agro-error-page">{% include 'components/agro_illustration.html' with art='farmer-basket'  %}<p class="section-eyebrow">ROOTLINE · 500</p><h1>We’re tending to a small problem</h1><p class="page-description">Something went wrong on our side. Please try again in a little while.</p><div class="cta-actions"><a class="primary-action" href="{% url 'marketplace' %}">Back to marketplace</a><a class="outline-action" href="{% url 'help' %}">Find some help</a></div></section>
+{% endblock %}

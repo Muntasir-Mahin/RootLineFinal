@@ -240,11 +240,7 @@ Total:
 </div>
 {% endfor %}
 {% else %}
-<div class="surface bg-surface p-8 rounded-xl ui-card">
-<p class="text-xl text-muted">
-You have no orders yet.
-</p>
-</div>
+<div class="surface bg-surface p-8 rounded-xl ui-card empty-state">{% include 'components/agro_empty_art.html' %}<h3>Your first fresh find is waiting</h3><p class="text-xl text-muted">You have no orders yet.</p><a class="primary-action" href="{% url 'marketplace' %}">Explore marketplace</a></div>
 {% endif %}
 <a href="{% url 'marketplace' %}"
 class="inline-block mt-5 text-content font-semibold">

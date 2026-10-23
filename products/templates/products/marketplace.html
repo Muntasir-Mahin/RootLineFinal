@@ -2,8 +2,8 @@
 {% block content %}
 <div class="workflow-page page-marketplace">
   <header class="storefront-hero vercel-glow">
-    <div class="hero-copy"><p class="section-eyebrow">THE ORGANIC MARKETPLACE</p><h1>Fresh finds.<br><span class="headline-gradient">Rooted in good things.</span></h1><p class="page-description">Explore verified organic products from local sellers. Find something good for your table, and your everyday.</p><span class="hero-note">{% include 'components/icon.html' with name='leaf' %} Thoughtful choices start here.</span></div>
-    <div class="hero-art" aria-hidden="true"><span class="hero-ring"></span><span class="hero-leaf">{% include 'components/icon.html' with name='leaf' %}</span><span class="hero-art-label">ROOTLINE<br><small>Organic marketplace</small></span></div>
+    <div class="hero-copy"><p class="section-eyebrow">THE ORGANIC MARKETPLACE</p><h1>Fresh finds.<br><span class="headline-gradient">Rooted in good things.</span></h1><p class="page-description">Explore verified organic products from local sellers. Find something good for your table, and your everyday.</p><span class="hero-note">{% include 'components/icon.html' with name='leaf' %} From local growers. For everyday good.</span></div>
+    <div class="hero-art" aria-hidden="true">{% include 'components/agro_illustration.html' with art='farmer-basket'  %}</div>
   </header>
   <section class="filter-panel surface" aria-labelledby="filter-title">
     <div class="section-heading"><h2 id="filter-title">Find your fresh favorite</h2><span>Search & Filter</span></div>
@@ -25,7 +25,8 @@
     {% include 'components/product_card.html' with product=product %}
     {% endfor %}
   </div>
-  {% else %}<div class="empty-state surface"><span class="empty-icon">{% include 'components/icon.html' with name='leaf' %}</span><h3>A fresh start</h3><p>No verified products are available right now.</p></div>{% endif %}
+  {% else %}<div class="empty-state surface">{% include 'components/agro_empty_art.html' %}<h3>A fresh start</h3><p>No verified products are available right now.</p><a class="outline-action" href="{% url 'marketplace' %}">Browse all products</a></div>{% endif %}
+  <div class="agro-divider" aria-hidden="true">{% include 'components/agro_illustration.html' with art='field-divider' width='1200' height='64' lazy=True %}</div>
   <section class="category-section" aria-label="Shop by category">
     {% include 'components/section_heading.html' with eyebrow='[ 02 ] FIND YOUR EVERYDAY' title='Good things, by nature.' description='Browse the categories already growing in our marketplace.' %}
     <div class="bordered-grid category-links"><a href="?category=Food"><small>01 / PANTRY</small><strong>Food</strong>{% include 'components/icon.html' with name='bag' %}</a><a href="?category=Fruit"><small>02 / SEASONAL</small><strong>Fruit</strong>{% include 'components/icon.html' with name='leaf' %}</a><a href="?category=Vegetable"><small>03 / FRESH</small><strong>Vegetables</strong>{% include 'components/icon.html' with name='leaf' %}</a><a href="?category=Honey"><small>04 / NATURAL</small><strong>Honey</strong>{% include 'components/icon.html' with name='box' %}</a></div>

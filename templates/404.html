@@ -1,0 +1,5 @@
+{% extends 'base.html' %}
+{% block title %}A little off the beaten path · RootLine{% endblock %}
+{% block content %}
+<section class="agro-error-page">{% include 'components/agro_illustration.html' with art='farmer-basket'  %}<p class="section-eyebrow">ROOTLINE · 404</p><h1>A little off the beaten path</h1><p class="page-description">We couldn’t find this page. Let’s get you back to something good.</p><div class="cta-actions"><a class="primary-action" href="{% url 'marketplace' %}">Back to marketplace</a><a class="outline-action" href="{% url 'help' %}">Find some help</a></div></section>
+{% endblock %}

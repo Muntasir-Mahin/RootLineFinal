@@ -1,5 +1,9 @@
 /* Agro identity: shared layout accents. Palette lives in theme.css/Tailwind. */
 .agro-illustration { display: block; max-width: 100%; height: auto; pointer-events: none; }
+.agro-lazy-art { display: block; }
+.agro-lazy-art img { width: 100%; height: 100%; object-fit: fill; }
+.agro-art-dark, :root[data-theme=dark] .agro-art-light { display: none; }
+:root[data-theme=dark] .agro-art-dark { display: block; }
 .agro-empty-art { width: 112px; height: 112px; }
 .section-eyebrow { display: flex; align-items: center; gap: 8px; }
 .section-eyebrow::before { content: ''; display: inline-block; width: 8px; height: 13px; flex-shrink: 0; border-radius: 9px 1px 9px 1px; background: var(--agro-leaf); transform: rotate(25deg); }
@@ -7,9 +11,9 @@
 .brand-mark { border-color: var(--primary); }
 .product-card-badges .badge, .verified-label { background: var(--agro-tint); border-color: var(--agro-line); }
 .agro-divider { margin: 32px 0; overflow: hidden; }
-.agro-divider svg { width: 100%; height: 36px; }
+.agro-divider > :is(svg, .agro-lazy-art) { width: 100%; height: 36px; }
 .agro-footer-horizon { overflow: hidden; margin-top: 32px; }
-.agro-footer-horizon svg { width: 100%; height: 72px; }
+.agro-footer-horizon > :is(svg, .agro-lazy-art) { width: 100%; height: 72px; }
 .site-footer { border-top-color: var(--agro-line); }
 .agro-welcome { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px 32px; margin-bottom: 32px; border: 1px solid var(--border); border-radius: 12px; background: var(--agro-tint); }
 .agro-welcome h1 { margin: 8px 0 12px; }
@@ -52,7 +56,7 @@
   .agro-welcome > .agro-illustration { display: none; }
   .agro-partner-heading { padding: 24px; }
   .agro-partner-heading > .agro-illustration { display: none; }
-  .agro-footer-horizon svg { height: 40px; }
+  .agro-footer-horizon > :is(svg, .agro-lazy-art) { height: 40px; }
   .agro-divider { margin-block: 20px; }
   .agro-empty-art { width: 88px; height: 88px; }
   .agro-store-cover, .agro-store-cover svg { min-height: 100px; height: 100px; }

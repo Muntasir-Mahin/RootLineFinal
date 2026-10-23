@@ -161,7 +161,9 @@ horizon `1200`/`120`. Default farmer/blob dimensions are `480`/`360`. A same-ori
 SVG `<use>` reuses each small cacheable file while inheriting theme variables.
 Decorative SVGs are hidden from assistive technology and contain no image text.
 The art is static, has reserved dimensions, and adds no animation or library.
-Below-fold assets are reusable vector references rather than raster images;
+Below-fold horizon/divider SVGs use native lazy-loaded images with small dark
+variants (`field-horizon-dark.svg`, `field-divider-dark.svg`). Set `lazy=True`
+only for those two art names. Other art uses cacheable vector references;
 real below-fold photos retain/add native lazy loading. Keep only one full scene
 in a content-heavy viewport; small heading leaves/dividers are decoration.
 
