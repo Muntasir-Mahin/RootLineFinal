@@ -11,6 +11,7 @@ from django.utils import timezone
 
 from dashboard.audit import DecisionError, record_action
 from orders.models import Order
+from orders.notifications import payment_verified, sale_completed
 from .models import Payment
 
 COMMISSION_RATE = Decimal('0.05')
@@ -61,6 +62,7 @@ def verify_payment(payment_id, *, actor, note=''):
     payment.save(update_fields=['payment_status', 'escrow_status', 'paid_at', 'updated_at'])
     record_action(actor=actor, action='payment.verify', target=payment,
                   summary=f'Verified payment for order #{order.pk}', note=note)
+    payment_verified(order, payment)
     return payment
 
 
@@ -104,6 +106,7 @@ def _release_locked(order, payment, *, actor, note):
     order.save(update_fields=['status', 'updated_at'])
     record_action(actor=actor, action='payment.release', target=payment,
                   summary=f'Released escrow for order #{order.pk}; commission BDT {payment.commission_amount}', note=note)
+    sale_completed(order, payment)
     return payment
 
 

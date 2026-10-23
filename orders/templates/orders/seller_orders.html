@@ -4,7 +4,7 @@
 <header class="page-heading"><p class="section-eyebrow">[ 01 ] SELLER STUDIO</p><h1>Incoming Orders</h1><p class="page-description">Keep your customers in the loop, every step of the way.</p></header>
 {% if orders %}
 {% for order in orders %}
-<div class="surface bg-surface rounded-xl p-6 mb-8 ui-card order-card">
+<div id="seller-order-{{ order.pk }}" class="surface bg-surface rounded-xl p-6 mb-8 ui-card order-card">
 <h3 class="text-2xl font-bold mb-6">
 Order #{{ order.id }}
 </h3>

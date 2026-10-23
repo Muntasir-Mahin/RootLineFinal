@@ -4,6 +4,7 @@ from django.utils import timezone
 
 from products.models import Product
 from .audit import DecisionError, record_action
+from .seller_notifications import seller_decided, seller_requested
 
 
 @transaction.atomic
@@ -40,6 +41,7 @@ def review_seller(user_id, *, actor, decision, note=''):
     seller.save(update_fields=['seller_approved', 'seller_requested', 'seller_requested_at'])
     record_action(actor=actor, action=f'seller.{decision}', target=seller,
                   summary=f'Seller {decision}: {seller.get_username()}', note=note)
+    seller_decided(seller, decision, note)
     return seller
 
 
@@ -50,3 +52,4 @@ def request_seller_access(user_id):
         seller.seller_requested = True
         seller.seller_requested_at = timezone.now()
         seller.save(update_fields=['seller_requested', 'seller_requested_at'])
+        seller_requested(seller)
