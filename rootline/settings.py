@@ -42,6 +42,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'notifications',
+    'partners',
     'dashboard',
     'agro_updates',
     'chatbot',
@@ -85,6 +87,7 @@ TEMPLATES = [
                 'rootline.context_processors.marketplace_navigation',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'notifications.context_processors.unread_notifications',
             ],
         },
     },
@@ -159,8 +162,9 @@ EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'true').lower() in ('true', '1', 'yes')
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'rootlineuap@gmail.com')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'mahinislam020@gmail.com')
 EMAIL_TIMEOUT = 10
+STAFF_NOTIFICATION_EMAILS = [value.strip() for value in os.environ.get('STAFF_NOTIFICATION_EMAILS', '').split(',') if value.strip()]
 PASSWORD_RESET_TIMEOUT = 259200
 
 AUTH_USER_MODEL = 'accounts.User'

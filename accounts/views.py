@@ -10,6 +10,9 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 from dashboard.services import request_seller_access
 from .forms import RegisterForm, ProfileUpdateForm
+from .navigation import internal_next
+from django.urls import reverse
+from urllib.parse import urlencode
 
 
 def home_view(request):
@@ -19,15 +22,18 @@ def home_view(request):
 
 
 def register_view(request):
+    next_url = internal_next(request.POST.get('next') or request.GET.get('next'))
     if request.method == 'POST':
         form = RegisterForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             messages.success(request, 'Your account was created. You can now sign in.')
+            if next_url:
+                return redirect(reverse('login') + '?' + urlencode({'next':next_url}))
             return redirect('login')
     else:
         form = RegisterForm()
-    return render(request, 'accounts/register.html', {'form': form})
+    return render(request, 'accounts/register.html', {'form': form, 'next_url':next_url})
 
 
 def login_view(request):
@@ -35,11 +41,17 @@ def login_view(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
+        if user is None:
+            from partners.auth import authenticate_legacy_company
+            user = authenticate_legacy_company(request, username, password)
         if user is not None:
             login(request, user)
+            destination = internal_next(request.POST.get('next') or request.GET.get('next'))
+            if destination:
+                return redirect(destination)
             return redirect('profile')
         messages.error(request, 'The username or password was not recognised. Please try again.')
-    return render(request, 'accounts/login.html')
+    return render(request, 'accounts/login.html', {'next_url':internal_next(request.POST.get('next') or request.GET.get('next'))})
 
 
 @login_required

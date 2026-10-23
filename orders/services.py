@@ -10,6 +10,7 @@ from bidding.models import Auction
 from payments.models import Payment
 from products.models import Product
 from .models import Cart, Order, OrderItem
+from .notifications import order_placed
 
 
 class CheckoutUnavailable(Exception):
@@ -93,6 +94,7 @@ def checkout_cart(cart_id, buyer, checkout_data):
                 order=order, product=item.product, product_name=item.product.name,
                 price=item.product.price, quantity=item.quantity, unit=item.product.unit,
             )
+        order_placed(order)
         orders.append(order)
 
     cart.items.filter(pk__in=[item.pk for item in items]).delete()

@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="account-page">
+  <section class="agro-welcome" aria-label="Welcome to your account"><div><p class="section-eyebrow">GROWING TOGETHER</p><h1>Welcome, {{ user.first_name|default:user.username }}.</h1><p class="page-description">Your growers, fresh finds and everyday essentials, all in one place.</p></div>{% include 'components/agro_illustration.html' with art='farmer-woman'  %}</section>
   <header class="account-heading flex justify-between items-center mb-6">
     <div>
       <p class="section-eyebrow">YOUR ROOTLINE</p>
@@ -52,7 +53,8 @@
         <div class="shortcut-grid bordered-grid">
           <a href="{% url 'chatbot:chat' %}" class="shortcut surface"><span class="shortcut-icon">{% include 'components/icon.html' with name='leaf' %}</span><span><strong>Ask RootLine</strong><small>Chat about farming in Bangla or English</small></span><span class="shortcut-arrow">{% include 'components/icon.html' with name='arrow' %}</span></a>
           <a href="{% url 'agro_updates:index' %}" class="shortcut surface"><span class="shortcut-icon">{% include 'components/icon.html' with name='leaf' %}</span><span><strong>Agro Updates</strong><small>Watch farming news and practical guides</small></span><span class="shortcut-arrow">{% include 'components/icon.html' with name='arrow' %}</span></a>
-          {% if user.is_staff or user.is_superuser %}<a href="{% url 'dashboard:overview' %}" class="shortcut surface"><span><strong>Staff dashboard</strong><small>Open your RootLine workspace</small></span><span class="shortcut-arrow">{% include 'components/icon.html' with name='arrow' %}</span></a>{% endif %}
+          {% if user.is_staff or user.is_superuser %}<a href="{% url 'dashboard:overview' %}" class="shortcut surface"><span class="shortcut-icon">{% include 'components/icon.html' with name='box' %}</span><span><strong>Staff dashboard</strong><small>Open your RootLine workspace</small></span><span class="shortcut-arrow">{% include 'components/icon.html' with name='arrow' %}</span></a>{% endif %}
+          {% include 'partners/account_link.html' with link_class='shortcut surface' %}
           <a href="{% url 'marketplace' %}" class="shortcut surface"><span class="shortcut-icon">{% include 'components/icon.html' with name='bag' %}</span><span><strong>Marketplace</strong><small>Find your next fresh favorite</small></span><span class="shortcut-arrow">{% include 'components/icon.html' with name='arrow' %}</span></a>
           <a href="{% url 'cart' %}" class="shortcut surface"><span class="shortcut-icon">{% include 'components/icon.html' with name='cart' %}</span><span><strong>My cart</strong><small>Pick up where you left off</small></span><span class="shortcut-arrow">{% include 'components/icon.html' with name='arrow' %}</span></a>
           <a href="{% url 'my_orders' %}" class="shortcut surface"><span class="shortcut-icon">{% include 'components/icon.html' with name='box' %}</span><span><strong>My orders</strong><small>Keep track of your purchases</small></span><span class="shortcut-arrow">{% include 'components/icon.html' with name='arrow' %}</span></a>

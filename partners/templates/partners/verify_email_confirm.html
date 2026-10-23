@@ -1,0 +1,3 @@
+{% extends 'partners/base.html' %}
+{% block partner_title %}Confirm customer email{% endblock %}
+{% block partner_content %}<section class="surface ui-card space-y-4">{% if error %}<p class="form-errors" role="alert">{{ error }}</p><a class="outline-action" href="{% url 'partners:verify_email' %}">Request another link</a>{% else %}<p>Confirm that you own the email address on this signed-in customer account. The link expires after one hour.</p><form method="post">{% csrf_token %}<button class="primary-action" type="submit">Verify my email</button></form>{% endif %}</section>{% endblock %}

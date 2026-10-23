@@ -10,5 +10,6 @@ node_modules/
 media/
 .DS_Store
 local_models/
+private_partner_files/
 
 !.env.example

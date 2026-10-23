@@ -7,7 +7,7 @@
       <div class="catalog-image">{% if item.product.image %}<img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">{% else %}<div class="product-placeholder">{% include 'components/icon.html' with name='leaf' %}<span>{{ item.product.category }}</span></div>{% endif %}</div>
       <div class="catalog-body"><p class="catalog-seller">Seller: {{ item.product.seller.username }}</p><h3>{{ item.product.name }}</h3><p class="catalog-price font-mono">৳{{ item.product.price }}</p><a href="{% url 'marketplace_product_detail' item.product.id %}" class="outline-action full-action">View Product {% include 'components/icon.html' with name='arrow' %}</a><form method="POST" action="{% url 'remove_wishlist' item.product.id %}">{% csrf_token %}<button type="submit" class="text-danger wishlist-remove">Remove</button></form></div>
     </article>{% endfor %}
-  </div>{% else %}<div class="empty-state surface"><span class="empty-icon">{% include 'components/icon.html' with name='heart' %}</span><h3>A little room for your favorites</h3><p>No wishlist items.</p></div>{% endif %}
+  </div>{% else %}<div class="empty-state surface">{% include 'components/agro_empty_art.html' %}<h3>A little room for your favorites</h3><p>No wishlist items.</p><a class="primary-action" href="{% url 'marketplace' %}">Find something to save</a></div>{% endif %}
   <a href="{% url 'marketplace' %}" class="back-link">← Back to Marketplace</a>
 </div>
 {% endblock %}

@@ -528,8 +528,8 @@ class DashboardDisplayTests(Fixtures, TestCase):
         Auction.objects.create(product=self.product, starting_price=10, start_time=old,
                                end_time=timezone.now() + timedelta(hours=3), status='active')
         response = self.client.get(reverse('dashboard:overview'))
-        self.assertEqual(response.context['queue_sizes'], {'payments': 1, 'disputes': 1, 'products': 1, 'sellers': 1})
-        self.assertEqual([row['count'] for row in response.context['overdue']], [1, 1, 1, 1])
+        self.assertEqual(response.context['queue_sizes'], {'payments': 1, 'disputes': 1, 'products': 1, 'sellers': 1, 'partners': 0})
+        self.assertEqual([row['count'] for row in response.context['overdue']], [1, 1, 1, 1, 0])
         self.assertEqual(response.context['running_auctions'], 1)
         self.assertEqual(response.context['ending_auctions'], 1)
         for name in ['payments', 'disputes', 'products', 'sellers']:

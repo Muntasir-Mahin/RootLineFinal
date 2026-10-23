@@ -21,7 +21,8 @@ from products.models import Product
 from .audit import DecisionError
 from .forms import ActionForm, DisputeDecisionForm
 from .models import AuditRecord
-from .permissions import CATALOGUE, FINANCE, SUPPORT, has_role, staff_role_required
+from .permissions import CATALOGUE, FINANCE, SUPPORT, PARTNERS, has_role, staff_role_required
+from partners.models import CompanyProfile
 from .services import review_product, review_seller
 
 User = get_user_model()
@@ -29,7 +30,7 @@ PAYMENT_TABS = [
     ('verification_pending', 'Needs verification'), ('paid', 'Paid'), ('failed', 'Failed'),
     ('refunded', 'Refunded'), ('pending', 'Awaiting buyer'),
 ]
-STALE_HOURS = {'payments': 48, 'disputes': 72, 'products': 72, 'sellers': 72}
+STALE_HOURS = {'payments': 48, 'disputes': 72, 'products': 72, 'sellers': 72, 'partners': 72}
 
 
 def cutoff(queue):
@@ -43,6 +44,7 @@ def queues():
         'disputes': Dispute.objects.filter(status__in=OPEN_DISPUTE_STATUSES),
         'products': Product.objects.filter(verification_status='pending'),
         'sellers': User.objects.filter(seller_requested=True, seller_approved=False),
+        'partners': CompanyProfile.objects.filter(status='pending'),
     }
 
 
@@ -55,6 +57,7 @@ def panel(request, template, title, section, **context):
         title=title, section=section, agro_draft_count=Video.objects.filter(is_published=False).count(),
         can_finance=has_role(request.user, FINANCE), can_support=has_role(request.user, SUPPORT),
         can_catalogue=has_role(request.user, CATALOGUE),
+        can_partners=has_role(request.user, PARTNERS),
         queue_sizes={key: value.count() for key, value in queues().items()},
     )
     return render(request, f'dashboard/{template}.html', context)
@@ -74,8 +77,8 @@ def tab_filter(request, queryset, choices, field, default):
 def overview(request):
     waiting = queues()
     overdue_fields = {'payments': 'updated_at', 'disputes': 'created_at',
-                      'products': 'created_at', 'sellers': 'seller_requested_at'}
-    role_by_queue = {'payments': FINANCE, 'disputes': SUPPORT, 'products': CATALOGUE, 'sellers': CATALOGUE}
+                      'products': 'created_at', 'sellers': 'seller_requested_at', 'partners': 'submitted_at'}
+    role_by_queue = {'payments': FINANCE, 'disputes': SUPPORT, 'products': CATALOGUE, 'sellers': CATALOGUE, 'partners': PARTNERS}
     aged = [{'label': name.title(), 'count': qs.filter(**{overdue_fields[name] + '__lt': cutoff(name)}).count(),
              'hours': getattr(settings, 'DASHBOARD_STALE_HOURS', {}).get(name, STALE_HOURS[name]),
              'url_name': f'dashboard:{name}', 'allowed': has_role(request.user, role_by_queue[name])}

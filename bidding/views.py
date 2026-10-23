@@ -407,6 +407,8 @@ def auction_winner_checkout_view(request, auction_id):
                 auction.save(
                     update_fields=['order']
                 )
+                from orders.notifications import order_placed
+                order_placed(order)
 
             return redirect('my_orders')
 

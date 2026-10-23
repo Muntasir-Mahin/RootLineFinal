@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
 <div class="auth-layout auth-page auth-page-register">
   <aside class="auth-story">
     <span class="section-eyebrow">FRESH FINDS. THOUGHTFUL CHOICES.</span>
     <h2>A better way<br>to shop organic.</h2>
     <p>Join RootLine to discover organic products, connect with local sellers, and make your everyday a little greener.</p>
-    <div class="auth-leaf">{% include 'components/icon.html' with name='leaf' %}</div>
+    {% include 'components/agro_illustration.html' with art='farmer-basket'  %}
     <span class="auth-caption">Good for your table. Rooted in community.</span>
   </aside>
 
@@ -16,6 +17,7 @@
 
     <form method="POST" enctype="multipart/form-data" class="modern-form">
       {% csrf_token %}
+      {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
 
       {% if form.non_field_errors %}
         <div class="form-errors" role="alert">{{ form.non_field_errors }}</div>
@@ -49,6 +51,18 @@
           {% include 'components/icon.html' with name='edit' %}
           <span>Choose File</span>
         </label>
+
+        <button type="button" id="register-camera-open" class="outline-action" aria-controls="register-camera-panel" aria-expanded="false">
+          Take photo
+        </button>
+        <div id="register-camera-panel" class="w-full" hidden>
+          <video id="register-camera-video" class="w-full rounded-xl" autoplay muted playsinline aria-label="Live camera preview"></video>
+          <div class="flex flex-wrap justify-center gap-2 mt-2">
+            <button type="button" id="register-camera-capture" class="primary-action" disabled>Use photo</button>
+            <button type="button" id="register-camera-cancel" class="outline-action">Cancel</button>
+          </div>
+        </div>
+        <p id="register-camera-status" class="field-help" role="status" aria-live="polite"></p>
 
         {% if form.profile_picture.errors %}
           <div class="form-errors text-xs mt-1" role="alert">{{ form.profile_picture.errors }}</div>
@@ -112,4 +126,5 @@
     }
   }
 </script>
+<script src="{% static 'js/register-camera.js' %}" defer></script>
 {% endblock %}

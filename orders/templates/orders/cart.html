@@ -10,7 +10,7 @@
       </article>{% endfor %}
     </section>
     <aside class="summary-panel surface pricing-panel highlight-panel">{% include 'components/badge.html' with label='YOUR ORDER' kind='featured' %}<h3>Your cart summary</h3><div class="summary-total"><span>Total</span><strong class="font-mono">৳{{ total_price|floatformat:2 }}</strong></div><a href="{% url 'checkout' %}" class="primary-action full-action">Proceed to Checkout {% include 'components/icon.html' with name='arrow' %}</a><a href="{% url 'marketplace' %}" class="summary-back">Continue Shopping</a></aside>
-  </div>{% else %}<div class="empty-state surface"><span class="empty-icon">{% include 'components/icon.html' with name='cart' %}</span><h3>Good things are waiting</h3><p>Your cart is empty.</p><a href="{% url 'marketplace' %}" class="primary-action">Continue Shopping {% include 'components/icon.html' with name='arrow' %}</a></div>{% endif %}
+  </div>{% else %}<div class="empty-state surface">{% include 'components/agro_empty_art.html' %}<h3>Good things are waiting</h3><p>Your cart is empty.</p><a href="{% url 'marketplace' %}" class="primary-action">Continue Shopping {% include 'components/icon.html' with name='arrow' %}</a></div>{% endif %}
   <a href="{% url 'marketplace' %}" class="back-link">← Continue Shopping</a>
 </div>
 {% endblock %}
