@@ -1,20 +1,24 @@
 @font-face{font-family:'Noto Sans Bengali';src:url('../fonts/noto-sans-bengali-400.woff2') format('woff2');font-style:normal;font-weight:400;font-display:swap}
 @font-face{font-family:'Noto Sans Bengali';src:url('../fonts/noto-sans-bengali-600.woff2') format('woff2');font-style:normal;font-weight:600;font-display:swap}
 @font-face{font-family:'Noto Sans Bengali';src:url('../fonts/noto-sans-bengali-700.woff2') format('woff2');font-style:normal;font-weight:700;font-display:swap}
-/* RootLine: one palette, two themes. Self-hosted Geist under SIL OFL 1.1. */
+/* RootLine: shared neutrals and agro accents, two themes. Geist under SIL OFL 1.1. */
 @font-face{font-family:Geist;src:url('../fonts/geist-sans.woff2') format('woff2');font-style:normal;font-weight:100 900;font-display:swap}
 @font-face{font-family:'Geist Mono';src:url('../fonts/geist-mono.woff2') format('woff2');font-style:normal;font-weight:100 900;font-display:swap}
 :root{
  --c-900:#06141B;--c-800:#11212D;--c-700:#253745;--c-600:#4A5C6A;--c-400:#9BA8AB;--c-200:#CCD0CF;
- --page:color-mix(in srgb,var(--c-200) 18%,white);--surface:color-mix(in srgb,var(--c-200) 4%,white);--surface-hover:color-mix(in srgb,var(--c-200) 32%,white);--border:var(--c-200);--border-hover:var(--c-600);
- --control-border:var(--c-600);--text:var(--c-900);--muted:var(--c-600);--primary:var(--c-700);--primary-hover:var(--c-800);--on-primary:var(--c-200);--focus:var(--c-700);
+ --agro-leaf:#245B3D;--agro-leaf-deep:#19432C;--agro-fresh:#B8D99A;--agro-soil:#78563B;--agro-harvest:#D8AE48;--agro-cream:#F7F4EA;--agro-skin:#B87D52;--agro-clay:#A6533F;
+ --agro-tint:#EDF2E5;--agro-paper:#FDFCF7;--agro-line:#CFD9C8;
+ --page:var(--agro-cream);--surface:var(--agro-paper);--surface-hover:var(--agro-tint);--border:var(--agro-line);--border-hover:var(--agro-leaf);
+ --control-border:var(--c-600);--text:var(--c-900);--muted:var(--c-600);--primary:var(--agro-leaf);--primary-hover:var(--agro-leaf-deep);--on-primary:var(--agro-cream);--focus:var(--agro-leaf);
  --font-sans:Geist,'Noto Sans Bengali',ui-sans-serif,system-ui,sans-serif;--font-mono:'Geist Mono','Noto Sans Bengali',ui-monospace,monospace;
  --shadow:0 4px 16px color-mix(in srgb,var(--c-900) 8%,transparent);--header-height:140px;color-scheme:light;scroll-padding-top:160px;
 }
 :root[data-theme=dark]{
- --page:var(--c-900);--surface:var(--c-800);--surface-hover:var(--c-700);--border:var(--c-700);--border-hover:var(--c-400);
+ --agro-leaf:#9DCE9B;--agro-leaf-deep:#B8D99A;--agro-fresh:#395D3D;--agro-soil:#C8A27B;--agro-harvest:#E6C568;--agro-cream:#ECF1E8;
+ --agro-tint:#243B2C;--agro-paper:#192B21;--agro-line:#3C5744;
+ --page:#122019;--surface:var(--agro-paper);--surface-hover:var(--agro-tint);--border:var(--agro-line);--border-hover:var(--agro-leaf);
  --control-border:color-mix(in srgb,var(--c-400) 40%,var(--c-600));--text:var(--c-200);--muted:var(--c-400);
- --primary:var(--c-200);--primary-hover:var(--c-400);--on-primary:var(--c-900);--focus:var(--c-400);color-scheme:dark;
+ --primary:var(--agro-leaf);--primary-hover:var(--agro-leaf-deep);--on-primary:#122019;--focus:var(--agro-leaf);color-scheme:dark;
 }
 /* Deliberate reset replaces preflight's nonpalette placeholder/ring defaults. */
 *,::before,::after{box-sizing:border-box;border:0 solid var(--border)}

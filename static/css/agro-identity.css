@@ -1,0 +1,60 @@
+/* Agro identity: shared layout accents. Palette lives in theme.css/Tailwind. */
+.agro-illustration { display: block; max-width: 100%; height: auto; pointer-events: none; }
+.agro-empty-art { width: 112px; height: 112px; }
+.section-eyebrow { display: flex; align-items: center; gap: 8px; }
+.section-eyebrow::before { content: ''; display: inline-block; width: 8px; height: 13px; flex-shrink: 0; border-radius: 9px 1px 9px 1px; background: var(--agro-leaf); transform: rotate(25deg); }
+.hero-copy .section-eyebrow, .cta-band .section-eyebrow { justify-content: center; }
+.brand-mark { border-color: var(--primary); }
+.product-card-badges .badge, .verified-label { background: var(--agro-tint); border-color: var(--agro-line); }
+.agro-divider { margin: 32px 0; overflow: hidden; }
+.agro-divider svg { width: 100%; height: 36px; }
+.agro-footer-horizon { overflow: hidden; margin-top: 32px; }
+.agro-footer-horizon svg { width: 100%; height: 72px; }
+.site-footer { border-top-color: var(--agro-line); }
+.agro-welcome { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px 32px; margin-bottom: 32px; border: 1px solid var(--border); border-radius: 12px; background: var(--agro-tint); }
+.agro-welcome h1 { margin: 8px 0 12px; }
+.agro-welcome > .agro-illustration { width: 180px; flex-shrink: 0; }
+.shortcut-grid > .shortcut:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.shortcut-copy { min-width: 0; }
+.agro-partner-heading { position: relative; overflow: hidden; padding: 32px; padding-right: 220px; border: 1px solid var(--border); border-radius: 12px; background: var(--agro-tint); }
+.agro-partner-heading > .agro-illustration { position: absolute; right: 20px; bottom: 4px; width: 170px; opacity: .8; }
+.agro-store-cover { display: grid; place-items: end; min-height: 160px; overflow: hidden; background: var(--agro-tint); }
+.agro-store-cover svg { width: 100%; height: 160px; }
+.agro-company-placeholder { width: 80px; height: 80px; border-radius: 12px; background: var(--agro-tint); }
+.agro-recovery-layout { margin-block: 32px; }
+.agro-recovery-layout .account-form-wrap > .ui-card { width: 100%; }
+.agro-error-page { max-width: 48rem; margin: 32px auto; text-align: center; }
+.agro-error-page > .agro-illustration { width: 300px; margin: 0 auto 24px; }
+.agro-error-page .page-description { margin: 16px auto 24px; }
+.agro-error-page .cta-actions { margin-top: 24px; }
+.agro-search-empty { padding: 24px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+.agro-search-empty .agro-empty-art { width: 72px; height: 72px; margin-bottom: 12px; }
+/* One quiet scene per content-heavy header; no art behind body copy. */
+@media (min-width: 1024px) {
+  .storefront-hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: center; gap: 24px; padding: 40px 0; text-align: left; }
+  .hero-copy { margin: 0; }
+  .hero-copy h1 { font-size: clamp(2.5rem, 4.5vw, 3.75rem); }
+  .hero-copy .page-description, .hero-copy .section-eyebrow { margin-inline: 0; }
+  .hero-copy .section-eyebrow, .hero-note { justify-content: flex-start; }
+  .hero-art { display: block; }
+  .hero-art .agro-illustration { width: 100%; }
+  .auth-story > .agro-illustration { width: 360px; margin: 24px 0; }
+  .agro-recovery-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 48px; }
+}
+@media (max-width: 1023px) {
+  .auth-page > .auth-story, .agro-recovery-layout > .auth-story { display: none; }
+  .auth-layout { max-width: 640px; margin-inline: auto; }
+  .agro-welcome { padding: 24px; }
+  .agro-welcome > .agro-illustration { width: 140px; }
+}
+@media (max-width: 767px) {
+  .agro-welcome { align-items: flex-start; }
+  .agro-welcome > .agro-illustration { display: none; }
+  .agro-partner-heading { padding: 24px; }
+  .agro-partner-heading > .agro-illustration { display: none; }
+  .agro-footer-horizon svg { height: 40px; }
+  .agro-divider { margin-block: 20px; }
+  .agro-empty-art { width: 88px; height: 88px; }
+  .agro-store-cover, .agro-store-cover svg { min-height: 100px; height: 100px; }
+}
+/* Static art deliberately has no animation, including with reduced motion. */

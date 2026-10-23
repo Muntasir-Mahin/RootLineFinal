@@ -115,3 +115,56 @@ Each uses shared theme.css and output.css via base.html, except staff pages whic
 - `templates/site/help.html`
 - `templates/site/search.html`
 - `wishlist/templates/wishlist/my_wishlist.html`
+
+
+## Agro identity extension — October 2026
+
+The approved visual identity task supersedes the earlier six-colour-only rule
+for brand accents. Existing neutrals, Geist/Noto Sans Bengali, navigation,
+features, routes, and radius scale remain. This is a visual-only update, not
+implementation of the older deferred backend/page redesign stages.
+
+| Role | Light | Dark |
+| --- | --- | --- |
+| Leaf / primary | `#245B3D` | `#9DCE9B` |
+| Primary hover | `#19432C` | `#B8D99A` |
+| Fresh greenery | `#B8D99A` | `#395D3D` |
+| Soil | `#78563B` | `#C8A27B` |
+| Harvest | `#D8AE48` | `#E6C568` |
+| Cream / illustrated fabric | `#F7F4EA` | `#ECF1E8` |
+| Page | `#F7F4EA` | `#122019` |
+| Card | `#FDFCF7` | `#192B21` |
+| Soft tint | `#EDF2E5` | `#243B2C` |
+| Decorative border | `#CFD9C8` | `#3C5744` |
+
+Skin (`#B87D52`) and produce clay (`#A6533F`) are artwork-only tones; neither
+is a status colour or body-text colour. Body text/muted text keep the shared
+neutral tokens. Harvest/fresh accents are decorative, never low-contrast labels.
+Controls stay 8px, cards 12px, profile avatars round. No new heading font is
+loaded. Headings keep the readable sans treatment and gain a small leaf accent.
+
+### Reusable original illustration gallery
+
+Open [`/static/illustrations/agro/gallery.html`](static/illustrations/agro/gallery.html)
+while the development server runs to see every asset in light and dark palettes.
+The files are in `static/illustrations/agro/`; each is below 3 KB.
+
+| Growers | Plants | Helpers |
+| --- | --- | --- |
+| [Basket grower](static/illustrations/agro/farmer-basket.svg) | [Leaf](static/illustrations/agro/leaf.svg), [sprout](static/illustrations/agro/sprout.svg) | [Corner](static/illustrations/agro/corner.svg) |
+| [Paddy grower](static/illustrations/agro/farmer-paddy.svg) | [Paddy](static/illustrations/agro/paddy.svg), [tomato](static/illustrations/agro/tomato.svg) | [Field divider](static/illustrations/agro/field-divider.svg) |
+| [Woman grower](static/illustrations/agro/farmer-woman.svg) | [Tree](static/illustrations/agro/tree.svg), [vine](static/illustrations/agro/vine.svg) | [Horizon](static/illustrations/agro/field-horizon.svg), [blob](static/illustrations/agro/organic-blob.svg) |
+
+Include `components/agro_illustration.html` with the asset's `art` name. For
+plant assets pass width/height `180`; for the divider pass `1200`/`64`, and
+horizon `1200`/`120`. Default farmer/blob dimensions are `480`/`360`. A same-origin
+SVG `<use>` reuses each small cacheable file while inheriting theme variables.
+Decorative SVGs are hidden from assistive technology and contain no image text.
+The art is static, has reserved dimensions, and adds no animation or library.
+Below-fold assets are reusable vector references rather than raster images;
+real below-fold photos retain/add native lazy loading. Keep only one full scene
+in a content-heavy viewport; small heading leaves/dividers are decoration.
+
+Validation: `npm run check:design` checks the extended allowlist plus real agro
+text/button AA pairs. `npm run build:css` builds shared Tailwind; Partner utilities
+use `npx tailwindcss -c partners/tailwind.config.js -i partners/static/partners/source.css -o partners/static/partners/partners.css --minify`.

@@ -18,6 +18,8 @@ module.exports = {
         page: 'var(--page)', surface: 'var(--surface)', elevated: 'var(--surface-hover)',
         content: 'var(--text)', muted: 'var(--muted)', subtle: 'var(--muted)',
         line: 'var(--border)', primary: 'var(--primary)', 'on-primary': 'var(--on-primary)',
+        agro: {leaf: 'var(--agro-leaf)', fresh: 'var(--agro-fresh)', soil: 'var(--agro-soil)',
+          harvest: 'var(--agro-harvest)', cream: 'var(--agro-cream)', tint: 'var(--agro-tint)'},
       },
       fontFamily: {sans: ['Geist', 'Noto Sans Bengali', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         mono: ['Geist Mono', 'ui-monospace', 'SFMono-Regular', 'monospace']},
