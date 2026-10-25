@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="workflow-page page-seller-reviews">
+<div class="max-w-5xl mx-auto">
+<!-- HEADER -->
+<div class="surface bg-surface rounded-xl p-8 mb-8 ui-card">
+<header class="page-heading"><p class="section-eyebrow">[ 01 ] YOUR COMMUNITY</p><h1>Customer Reviews</h1><p class="page-description">See what customers are saying about your products.</p></header>
+</div>
+<!-- SELLER RATING -->
+<div class="surface pricing-panel bg-elevated rounded-xl p-8 mb-8">
+<h3 class="text-2xl font-bold text-content mb-4">
+Seller Rating
+</h3>
+{% if seller_rating %}
+<p class="text-xl">
+Rating:
+<strong class="text-content stat-value font-mono">
+★ {{ seller_rating|floatformat:1 }}/5
+</strong>
+</p>
+<p class="mt-2 text-content">
+Total Reviews:
+<strong>
+{{ total_reviews }}
+</strong>
+</p>
+{% else %}
+<p class="text-muted">
+No rating available yet.
+</p>
+{% endif %}
+</div>
+<!-- REVIEW LIST -->
+{% if reviews %}
+<div class="space-y-6">
+{% for review in reviews %}
+<div class="surface bg-surface rounded-xl p-6 ui-card">
+<h3 class="text-xl font-bold text-content mb-3">
+Product:
+<span class="text-content">
+{{ review.product.name }}
+</span>
+</h3>
+<p>
+Buyer:
+<strong>
+{{ review.buyer.username }}
+</strong>
+</p>
+<p class="mt-3">
+Rating:
+<span class="text-content text-xl">
+{% if review.rating == 5 %}
+★★★★★
+{% elif review.rating == 4 %}
+★★★★
+{% elif review.rating == 3 %}
+★★★
+{% elif review.rating == 2 %}
+★★
+{% else %}
+★
+{% endif %}
+</span>
+</p>
+<div class="mt-4 bg-elevated rounded-lg p-4">
+<p class="font-semibold text-content">
+Comment:
+</p>
+<p class="text-muted mt-2">
+{{ review.comment }}
+</p>
+</div>
+<p class="text-sm text-muted mt-4">
+Reviewed Date:
+{{ review.created_at }}
+</p>
+</div>
+{% endfor %}
+</div>
+{% else %}
+<div class="surface bg-surface rounded-xl p-8 ui-card">
+<p class="text-muted text-lg">
+No reviews have been submitted yet.
+</p>
+</div>
+{% endif %}
+<a
+href="{% url 'seller_dashboard' %}"
+class="inline-block mt-8 px-6 py-3 rounded-lg primary-action"
+>
+← Back to Seller Dashboard
+</a>
+</div>
+</div>
+{% endblock %}
