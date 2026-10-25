@@ -1,1 +1,15 @@
-{% if part == 'open' %}<section class="surface ui-card {% if featured %}highlight-panel{% endif %}">{% elif part == 'close' %}</section>{% else %}<section class="surface ui-card"><h3>{{ title }}</h3>{% if description %}<p class="page-description">{{ description }}</p>{% endif %}</section>{% endif %}
+{% if part == 'open' %}
+    <section class="surface ui-card
+{% if featured %}highlight-panel
+{% endif %}">{% elif part == 'close' %}
+    </section>
+{% else %}
+    <section class="surface ui-card">
+        <h3>{{ title }}</h3>
+        {% if description %}
+            <p class="page-description">
+                {{ description }}
+            </p>
+        {% endif %}
+    </section>
+{% endif %}

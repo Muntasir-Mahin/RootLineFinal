@@ -1,1 +1,15 @@
-{% if part == 'open' %}<details><summary>{{ question }}</summary>{% elif part == 'close' %}</details>{% else %}<details><summary>{{ question }}</summary><p>{{ answer }}</p></details>{% endif %}
+{% if part == 'open' %}
+    <details>
+        <summary>
+            {{ question }}
+        </summary>
+        {% elif part == 'close' %}
+    </details>
+{% else %}
+    <details>
+        <summary>
+            {{ question }}
+        </summary>
+        <p>{{ answer }}</p>
+    </details>
+{% endif %}
