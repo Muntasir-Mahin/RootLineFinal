@@ -1,0 +1,6 @@
+{% if contact.hours or contact.reply_time or contact.languages %}<div class="contact-service-info">
+{% if contact.hours %}<p>{% include 'components/icon.html' with name='clock' %}<span><strong>Support hours</strong> {{ contact.hours }} <span class="contact-timezone">Asia/Dhaka</span></span></p>{% endif %}
+{% if contact.availability %}<p class="contact-availability"><span class="availability-mark" aria-hidden="true">{% if contact.availability.is_open %}✓{% else %}◷{% endif %}</span><span>{{ contact.availability.label }} <small>Based on support hours</small></span></p>{% endif %}
+{% if contact.reply_time %}<p><strong>Expected reply</strong> {{ contact.reply_time }}</p>{% endif %}
+{% if contact.languages %}<p><strong>We speak</strong> {{ contact.languages }}</p>{% endif %}
+</div>{% endif %}

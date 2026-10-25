@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Contact RootLine · We're here to help
+{% endblock %}
+
+{% block content %}
+    <div class="contact-page">
+        <nav class="contact-breadcrumb" aria-label="Breadcrumb">
+            <a href="{% url 'marketplace' %}">Marketplace</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">Contact</span>
+        </nav>
+        <header class="page-heading contact-heading">
+            <p class="section-eyebrow">Contact RootLine</p>
+            <h1>We're here to help</h1>
+            <p class="page-description">Have a question about shopping, selling or using RootLine? Choose the channel that works for you.</p>
+            {% include 'components/contact_hours.html' %}
+        </header>
+        {% if not contact.has_channels %}
+            <p class="contact-fallback">Find answers in our FAQ, or open your orders for help with a purchase.</p>
+        {% endif %}
+        {% include 'components/contact_channels.html' %}
+        <div class="contact-help-grid">
+            <section class="contact-help-card">
+                <span class="contact-icon">
+                    {% include 'components/icon.html' with name='box' %}
+                </span>
+                <h2>Need help with an order?</h2>
+                <p>View your order status, payment details and dispute options in one place.</p>
+                <a class="outline-action" href="{% url 'my_orders' %}">
+                    My orders &amp; support
+                    {% include 'components/icon.html' with name='arrow' %}</a>
+            </section>
+            <section class="contact-help-card">
+                <span class="contact-icon">
+                    {% include 'components/icon.html' with name='help' %}</span>
+                <h2>Find answers fast</h2>
+                <p>Read about shopping, payments, delivery, selling and Ask RootLine.</p>
+                <a class="outline-action" href="{% url 'help' %}">Browse the FAQ
+                    {% include 'components/icon.html' with name='arrow' %}</a>
+            </section>
+        </div>
+        {% if contact.address %}
+            <section class="contact-address">
+                <span class="contact-icon">
+                    {% include 'components/icon.html' with name='location' %}</span>
+                <div>
+                    <h2>Address &amp; service area</h2>
+                    <p>{{ contact.address|linebreaksbr }}</p>
+                </div>
+            </section>
+        {% endif %}
+        {% if contact.socials %}
+            <nav class="contact-socials" aria-label="RootLine social channels">
+                {% for channel in contact.socials %}
+                    {% include 'components/contact_card.html' with channel=channel variant='social' %}
+                {% endfor %}
+            </nav>
+        {% endif %}
+        <section class="contact-seller-note">
+            <h2>Selling on RootLine?</h2>
+            <p>Contact us about becoming a seller, or visit your account to request seller access.</p>
+            <a class="contact-text-link" href="{% url 'profile' %}">
+                Open my account
+                {% include 'components/icon.html' with name='arrow' %}</a>
+        </section>
+        <p class="contact-privacy-note">Contact links open your chosen app or website. RootLine does not load social widgets or send a message automatically.</p>
+    </div>
+{% endblock %}
