@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-account-theme="{% if user.is_authenticated %}{{ user.theme_preference }}{% endif %}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}RootLine{% endblock %}</title>
+<link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
+<link rel="preload" href="{% static 'fonts/geist-sans.woff2' %}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{% static 'fonts/geist-mono.woff2' %}" as="font" type="font/woff2" crossorigin>
+<script src="{% static 'js/theme-init.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/output.css' %}">
+<link rel="stylesheet" href="{% static 'css/theme.css' %}">
+{% block extra_css %}{% endblock %}
+<link rel="stylesheet" href="{% static 'css/site-tools.css' %}">
+<link rel="stylesheet" href="{% static 'css/contact.css' %}">
+<link rel="stylesheet" href="{% static 'css/agro-identity.css' %}">
+<script src="{% static 'js/theme-toggle.js' %}" defer></script>
+<script src="{% static 'js/site-tools.js' %}" defer></script>
+<script src="{% static 'js/password-toggle.js' %}" defer></script>
+<script src="{% static 'js/number-inputs.js' %}" defer></script>
+{% block extra_js %}{% endblock %}
+</head>
+<body class="rootline-app">
+<a class="skip-link" href="#main-content">Skip to content</a>
+<div class="scroll-progress" aria-hidden="true"><span id="scroll-progress"></span></div>
+<header class="site-nav">
+{% if contact.phone or contact.whatsapp %}<div class="contact-utility"><div>{% if contact.phone %}<span>Need help?</span><a href="{{ contact.phone_href }}">{% include 'components/icon.html' with name='phone' %} Call {{ contact.phone }}</a>{% elif contact.whatsapp %}<a href="{{ contact.whatsapp_href }}" target="_blank" rel="noopener noreferrer">{% include 'components/icon.html' with name='whatsapp' %} WhatsApp {{ contact.whatsapp }}</a>{% endif %}<a href="{% url 'contact' %}">Contact us</a></div></div>{% endif %}
+<div class="nav-shell">
+<a class="site-brand" href="{% url 'marketplace' %}"><span class="brand-mark">{% include 'components/icon.html' with name='leaf' %}</span><span class="brand-wordmark">RootLine</span></a>
+<div id="header-search" class="header-search">{% include 'components/site_search.html' %}</div>
+<div class="nav-tools">
+{% include 'notifications/bell.html' %}
+<button type="button" id="search-toggle" class="icon-button mobile-search-button" aria-label="Open search" aria-expanded="false" aria-controls="header-search" hidden>{% include 'components/icon.html' with name='search' %}</button>
+<a class="header-cart" href="{% url 'cart' %}" aria-label="Cart, {{ navigation_cart_count }} item{{ navigation_cart_count|pluralize }}">{% include 'components/icon.html' with name='cart' %}<span class="desktop-label">Cart</span><span class="cart-count">{{ navigation_cart_count }}</span></a>
+<a class="header-wishlist icon-button" href="{% url 'my_wishlist' %}" aria-label="Wishlist">{% include 'components/icon.html' with name='heart' %}</a>
+<details class="nav-popover nav-account-menu"><summary aria-label="Account menu">{% include 'components/icon.html' with name='user' %}<span class="desktop-label">{% if user.is_authenticated %}Account{% else %}Sign in{% endif %}</span></summary><div class="nav-popover-body">
+<a href="{% url 'contact' %}">Contact us</a>
+{% include 'partners/account_link.html' %}
+{% if user.is_authenticated %}<a href="{% url 'profile' %}">My account</a><a href="{% url 'my_orders' %}">Orders</a><a href="{% url 'logout' %}">Logout</a>{% else %}<a href="{% url 'login' %}">Sign in</a><a href="{% url 'register' %}">Register</a>{% endif %}
+{% if user.seller_approved %}<a href="{% url 'my_products' %}">My products</a><a href="{% url 'seller_orders' %}">Seller orders</a><a href="{% url 'seller_dashboard' %}">Seller dashboard</a>{% endif %}
+{% if user.is_staff %}<a href="{% url 'dashboard:overview' %}">Staff dashboard</a>{% endif %}
+</div></details>
+<form id="theme-form" action="{% url 'toggle_theme' %}" method="post" data-authenticated="{{ user.is_authenticated|yesno:'true,false' }}">{% csrf_token %}<button type="button" id="theme-toggle" class="icon-button" aria-pressed="false" aria-label="Use dark mode" hidden>{% include 'components/icon.html' with name='moon' %}</button></form>
+<button type="button" id="menu-toggle" class="icon-button" aria-label="Open navigation" aria-expanded="false" aria-controls="site-links" hidden>{% include 'components/icon.html' with name='menu' %}</button>
+</div></div>
+<nav id="site-links" class="site-links" aria-label="Marketplace navigation"><div class="nav-primary">
+<a href="{% url 'marketplace' %}" {% if request.resolver_match.url_name == 'marketplace' %}aria-current="page"{% endif %}>Marketplace</a>
+<details class="category-menu"><summary>All categories</summary><div>{% for item in navigation_categories %}<a href="{% url 'marketplace' %}?category={{ item.category|urlencode }}">{{ item.category }} <span>({{ item.count }})</span></a>{% empty %}<a href="{% url 'marketplace' %}">Browse products</a>{% endfor %}</div></details>
+{% for item in navigation_categories|slice:':6' %}<a class="category-nav-link" href="{% url 'marketplace' %}?category={{ item.category|urlencode }}">{{ item.category }}</a>{% endfor %}
+<a href="{% url 'auction_list' %}">Auctions</a><a href="{% url 'agro_updates:index' %}">Agro Updates</a><a href="{% url 'chatbot:chat' %}">Ask RootLine</a><a href="{% url 'help' %}">Help</a>
+<a href="{% url 'partners:directory' %}">Agro Partners</a>
+</div><div class="drawer-contact"><a href="{% url 'contact' %}">Contact RootLine</a>{% if contact.phone %}<a href="{{ contact.phone_href }}">{% include 'components/icon.html' with name='phone' %} {{ contact.phone }}</a>{% endif %}{% if contact.whatsapp %}<a href="{{ contact.whatsapp_href }}" target="_blank" rel="noopener noreferrer">{% include 'components/icon.html' with name='whatsapp' %} WhatsApp</a>{% endif %}</div><div class="drawer-account"><a href="{% url 'my_orders' %}">My orders</a><a href="{% url 'my_wishlist' %}">Wishlist</a>{% if user.seller_approved %}<a href="{% url 'my_products' %}">My products</a><a href="{% url 'seller_dashboard' %}">Seller dashboard</a><a href="{% url 'seller_orders' %}">Seller orders</a>{% endif %}{% if user.is_staff %}<a href="{% url 'dashboard:overview' %}">Staff dashboard</a>{% endif %}</div></nav>
+</header>
+<main id="main-content" tabindex="-1" class="site-content container mx-auto p-6">
+  {% if messages %}<div class="site-messages" aria-live="polite">{% for message in messages %}<div class="site-message {{ message.tags }}" role="status"><span>{{ message }}</span><button type="button" data-dismiss-message aria-label="Dismiss notification">×</button></div>{% endfor %}</div>{% endif %}
+  {% block content %}{% endblock %}
+</main>
+<div class="agro-footer-horizon" aria-hidden="true">{% include 'components/agro_illustration.html' with art='field-horizon' width='1200' height='120' lazy=True %}</div>
+<footer class="site-footer"><div class="footer-shell"><div class="footer-brand"><a class="site-brand" href="{% url 'marketplace' %}"><span class="brand-mark">{% include 'components/icon.html' with name='leaf' %}</span><span class="brand-wordmark">RootLine</span></a><p>Rooted in Bangladesh. Growing good things together.</p></div><div class="footer-grid">
+{% include 'components/footer_links.html' with section='shop' title='Shop' %}{% include 'components/footer_links.html' with section='sell' title='Sell' %}{% include 'components/footer_links.html' with section='support' title='Support' %}{% include 'components/footer_links.html' with section='company' title='Company' %}
+</div>{% include 'components/footer_contact.html' %}<div class="footer-bottom"><p>© {% now 'Y' %} RootLine. Organic Marketplace Platform.</p><button type="button" id="cookie-settings" hidden>Cookie preferences</button></div></div></footer>
+<nav class="mobile-tabs" aria-label="Quick navigation">
+<a href="{% url 'marketplace' %}" {% if request.resolver_match.url_name == 'marketplace' %}aria-current="page"{% endif %}>{% include 'components/icon.html' with name='home' %}<span>Home</span></a>
+<a href="{% url 'site_search' %}" data-open-search {% if request.resolver_match.url_name == 'site_search' %}aria-current="page"{% endif %}>{% include 'components/icon.html' with name='search' %}<span>Search</span></a>
+<a href="{% url 'cart' %}" {% if request.resolver_match.url_name == 'cart' %}aria-current="page"{% endif %}><span class="tab-icon">{% include 'components/icon.html' with name='cart' %}<span class="cart-count">{{ navigation_cart_count }}</span></span><span>Cart</span></a>
+<a href="{% url 'my_orders' %}" {% if request.resolver_match.url_name == 'my_orders' %}aria-current="page"{% endif %}>{% include 'components/icon.html' with name='box' %}<span>Orders</span></a>
+<a href="{% url 'profile' %}" {% if request.resolver_match.url_name == 'profile' %}aria-current="page"{% endif %}>{% include 'components/icon.html' with name='user' %}<span>Account</span></a>
+</nav>
+<div class="floating-tools"><button type="button" id="back-to-top" aria-label="Back to top" class="tool-button" hidden>↑ Back to top</button><button type="button" id="contact-toggle" aria-label="Help &amp; contact" class="primary-action" aria-expanded="false" aria-controls="contact-panel" hidden><span class="floating-label">Help &amp; contact</span></button></div>
+<dialog id="contact-panel" class="contact-panel surface" aria-modal="true" aria-labelledby="contact-panel-title" hidden><div class="contact-sheet-heading"><div><h2 id="contact-panel-title">Help &amp; contact</h2><p>How can we help you?</p></div><button type="button" class="icon-button" data-contact-close aria-label="Close contact panel">×</button></div>
+{% include 'components/contact_channels.html' with variant='quick' %}
+<div class="contact-sheet-links"><a href="{% url 'help' %}">{% include 'components/icon.html' with name='help' %} Read the FAQ</a><a href="{% url 'my_orders' %}">{% include 'components/icon.html' with name='box' %} Order support &amp; disputes</a><a href="{% url 'contact' %}">All contact options {% include 'components/icon.html' with name='arrow' %}</a></div>{% include 'components/contact_hours.html' %}
+</dialog>
+<section id="cookie-banner" class="cookie-banner surface" aria-label="Cookie preferences" hidden><p>RootLine uses essential cookies for sign-in and form security. With your permission, we also keep campaign tags in this tab to understand how you found us. No external analytics service is loaded.</p><div><button type="button" class="outline-action" data-consent="essential">Essential only</button><button type="button" class="primary-action" data-consent="analytics">Allow campaign tracking</button></div></section>
+<div id="site-toast" class="site-toast" role="status" aria-live="polite" hidden></div>
+<dialog id="confirm-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-description"><form method="dialog"><h2 id="confirm-title">Confirm action</h2><p id="confirm-description"></p><div class="dialog-actions"><button class="outline-action" value="cancel" autofocus>Cancel</button><button class="danger-action" value="confirm">Continue</button></div></form></dialog>
+</body></html>
