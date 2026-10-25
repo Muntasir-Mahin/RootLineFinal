@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="auth-layout auth-page auth-page-login">
+  <aside class="auth-story"><span class="section-eyebrow">ROOTED IN GOOD THINGS</span><h2>Fresh finds.<br>Familiar faces.</h2><p>Your favorite organic products and local sellers, all in one thoughtful marketplace.</p>{% include 'components/agro_illustration.html' with art='farmer-paddy'  %}<span class="auth-caption">A little closer to the things that matter.</span></aside>
+  <section class="auth-panel surface"><p class="section-eyebrow">WELCOME BACK</p><h2>Login to RootLine</h2><p class="page-description">Make yourself at home.</p>
+    <form method="POST" class="modern-form">{% csrf_token %}
+      {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
+      <div class="form-field"><label for="login-username">Username</label><input id="login-username" type="text" name="username" autocomplete="username" required placeholder="Enter username"></div>
+      <div class="form-field"><label for="login-password">Password</label><input id="login-password" type="password" name="password" autocomplete="current-password" required placeholder="Enter password"></div>
+      <button type="submit" class="primary-action full-action">Login {% include 'components/icon.html' with name='arrow' %}</button>
+    </form>
+    <p class="auth-switch"><a href="{% url 'password_reset' %}">Forgot password?</a> · <a href="{% url 'username_recovery' %}">Forgot username?</a></p>
+    <p class="auth-switch">Don't have an account? <a href="{% url 'register' %}">Create Account</a></p>
+    {% if next_url == '/partners/apply/' or next_url == '/partners/application/' %}<p class="auth-switch">Create a customer account first, then apply for partnership. <a href="{% url 'register' %}?next={{ next_url|urlencode }}">Create a customer account</a></p>{% endif %}
+  </section>
+</div>
+{% endblock %}

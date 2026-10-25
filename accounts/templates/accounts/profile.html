@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="account-page">
+  <section class="agro-welcome" aria-label="Welcome to your account"><div><p class="section-eyebrow">GROWING TOGETHER</p><h1>Welcome, {{ user.first_name|default:user.username }}.</h1><p class="page-description">Your growers, fresh finds and everyday essentials, all in one place.</p></div>{% include 'components/agro_illustration.html' with art='farmer-woman'  %}</section>
+  <header class="account-heading flex justify-between items-center mb-6">
+    <div>
+      <p class="section-eyebrow">YOUR ROOTLINE</p>
+      <h2>My account</h2>
+      <p class="page-description">A little space for everything you grow, discover, and love.</p>
+    </div>
+    <a href="{% url 'marketplace' %}" class="outline-action">
+      Explore marketplace {% include 'components/icon.html' with name='arrow' %}
+    </a>
+  </header>
+
+  <div class="account-layout">
+    <aside class="profile-panel surface p-6 rounded-xl border">
+      <!-- Profile Picture Container -->
+      <div id="avatar-container" class="profile-avatar w-24 h-24 rounded-full overflow-hidden border border-line flex items-center justify-center mx-auto mb-4">
+        {% if user.profile_picture %}
+          <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="w-full h-full object-cover">
+        {% else %}
+          <span class="text-2xl font-bold">
+            {{ user.first_name|default:user.username|slice:':1'|upper }}{{ user.last_name|slice:':1'|upper }}
+          </span>
+        {% endif %}
+      </div>
+
+      <h3 class="text-center font-bold text-xl">{{ user.get_full_name|default:user.username }}</h3>
+      <p class="profile-handle text-center text-sm mb-2">@{{ user.username }}</p>
+      <span class="member-label badge font-mono block text-center text-xs px-3 py-1 bg-elevated text-content rounded-full w-max mx-auto mb-4">RootLine member</span>
+
+      <div class="panel-divider my-4 border-t"></div>
+
+      <p class="section-eyebrow mb-2">PERSONAL DETAILS</p>
+      <dl class="profile-details space-y-2 text-sm">
+        <div class="flex justify-between"><dt class="font-medium">Name:</dt><dd>{{ user.get_full_name|default:'Not provided' }}</dd></div>
+        <div class="flex justify-between"><dt class="font-medium">Email:</dt><dd>{{ user.email|default:'Not provided' }}</dd></div>
+        <div class="flex justify-between"><dt class="font-medium">Phone:</dt><dd>{{ user.phone_number|default:'Not provided' }}</dd></div>
+        <div class="flex justify-between"><dt class="font-medium">Address:</dt><dd>{{ user.address|default:'Not provided' }}</dd></div>
+        <div class="flex justify-between"><dt class="font-medium">Birth Date:</dt><dd>{{ user.birth_date|default:'Not provided' }}</dd></div>
+        <div class="flex justify-between"><dt class="font-medium">Age:</dt><dd>{% if user.age %}{{ user.age }} years old{% else %}Not provided{% endif %}</dd></div>
+      </dl>
+
+      <a href="{% url 'edit_profile' %}" class="outline-action full-action block text-center mt-6">
+        {% include 'components/icon.html' with name='edit' %} Edit profile
+      </a>
+    </aside>
+
+    <div class="account-main">
+      <section aria-labelledby="quick-links-title">
+        <div class="section-heading"><h3 id="quick-links-title">Your everyday essentials</h3><span>Quick links</span></div>
+        <div class="shortcut-grid bordered-grid">
+          <a href="{% url 'chatbot:chat' %}" class="shortcut surface"><span class="shortcut-icon">{% include 'components/icon.html' with name='leaf' %}</span><span><strong>Ask RootLine</strong><small>Chat about farming in Bangla or English</small></span><span class="shortcut-arrow">{% include 'components/icon.html' with name='arrow' %}</span></a>
+          <a href="{% url 'agro_updates:index' %}" class="shortcut surface"><span class="shortcut-icon">{% include 'components/icon.html' with name='leaf' %}</span><span><strong>Agro Updates</strong><small>Watch farming news and practical guides</small></span><span class="shortcut-arrow">{% include 'components/icon.html' with name='arrow' %}</span></a>
+          {% if user.is_staff or user.is_superuser %}<a href="{% url 'dashboard:overview' %}" class="shortcut surface"><span class="shortcut-icon">{% include 'components/icon.html' with name='box' %}</span><span><strong>Staff dashboard</strong><small>Open your RootLine workspace</small></span><span class="shortcut-arrow">{% include 'components/icon.html' with name='arrow' %}</span></a>{% endif %}
+          {% include 'partners/account_link.html' with link_class='shortcut surface' %}
+          <a href="{% url 'marketplace' %}" class="shortcut surface"><span class="shortcut-icon">{% include 'components/icon.html' with name='bag' %}</span><span><strong>Marketplace</strong><small>Find your next fresh favorite</small></span><span class="shortcut-arrow">{% include 'components/icon.html' with name='arrow' %}</span></a>
+          <a href="{% url 'cart' %}" class="shortcut surface"><span class="shortcut-icon">{% include 'components/icon.html' with name='cart' %}</span><span><strong>My cart</strong><small>Pick up where you left off</small></span><span class="shortcut-arrow">{% include 'components/icon.html' with name='arrow' %}</span></a>
+          <a href="{% url 'my_orders' %}" class="shortcut surface"><span class="shortcut-icon">{% include 'components/icon.html' with name='box' %}</span><span><strong>My orders</strong><small>Keep track of your purchases</small></span><span class="shortcut-arrow">{% include 'components/icon.html' with name='arrow' %}</span></a>
+          <a href="{% url 'auction_list' %}" class="shortcut surface"><span class="shortcut-icon">{% include 'components/icon.html' with name='auction' %}</span><span><strong>Auctions</strong><small>Discover something worth bidding on</small></span><span class="shortcut-arrow">{% include 'components/icon.html' with name='arrow' %}</span></a>
+        </div>
+      </section>
+
+      <section class="seller-panel surface p-6 rounded-xl border my-6" aria-labelledby="seller-title">
+        <div class="seller-copy"><span class="section-eyebrow">GROW WITH ROOTLINE</span><h3 id="seller-title">Good things start with you.</h3>
+          {% if user.seller_approved %}<p>Your seller account is approved. Your next great listing is just a step away.</p><span class="status-pill">Seller Status: Approved</span>
+          {% elif user.seller_requested %}<p>We've received your seller request. Your application is awaiting approval.</p><span class="status-pill pending">Seller Status: Pending Approval</span>
+          {% else %}<p>Bring your organic products to a community that cares about what they buy.</p><span class="seller-status">Seller Status: Not a Seller</span>{% endif %}
+        </div>
+        <div class="seller-action mt-4">
+          {% if user.seller_approved %}<a href="{% url 'seller_dashboard' %}" class="primary-action">Go to Seller Dashboard {% include 'components/icon.html' with name='arrow' %}</a>
+          {% elif not user.seller_requested %}<form method="POST" action="{% url 'become_seller' %}">{% csrf_token %}<button type="submit" class="primary-action">Become a Seller {% include 'components/icon.html' with name='arrow' %}</button></form>{% endif %}
+        </div>
+      </section>
+
+      <section class="settings-panel surface p-6 rounded-xl border" aria-labelledby="settings-title">
+        <div class="section-heading"><h3 id="settings-title">Account settings</h3><span>Make yourself at home</span></div>
+        <a href="{% url 'edit_profile' %}" class="settings-row flex items-center justify-between py-3 border-b"><span class="settings-icon">{% include 'components/icon.html' with name='edit' %}</span><span><strong>Edit profile</strong><small class="block text-xs">Keep your personal details up to date</small></span>{% include 'components/icon.html' with name='arrow' %}</a>
+        <a href="{% url 'change_password' %}" class="settings-row flex items-center justify-between py-3 border-b"><span class="settings-icon">{% include 'components/icon.html' with name='lock' %}</span><span><strong>Change password</strong><small class="block text-xs">Keep your account secure</small></span>{% include 'components/icon.html' with name='arrow' %}</a>
+        <div class="signout-form mt-4"><a href="{% url 'logout' %}" class="signout-action">{% include 'components/icon.html' with name='logout' %} Logout</a></div>
+      </section>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="auth-layout auth-page auth-page-register">
+  <aside class="auth-story">
+    <span class="section-eyebrow">FRESH FINDS. THOUGHTFUL CHOICES.</span>
+    <h2>A better way<br>to shop organic.</h2>
+    <p>Join RootLine to discover organic products, connect with local sellers, and make your everyday a little greener.</p>
+    {% include 'components/agro_illustration.html' with art='farmer-basket'  %}
+    <span class="auth-caption">Good for your table. Rooted in community.</span>
+  </aside>
+
+  <section class="auth-panel surface">
+    <p class="section-eyebrow">WELCOME TO ROOTLINE</p>
+    <h2>Create your account</h2>
+    <p class="page-description">Your next fresh discovery starts here.</p>
+
+    <form method="POST" enctype="multipart/form-data" class="modern-form">
+      {% csrf_token %}
+      {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
+
+      {% if form.non_field_errors %}
+        <div class="form-errors" role="alert">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <!-- PROFILE PICTURE SECTION WITH PREVIEW & CUSTOM BUTTON -->
+      <div class="profile-pic-section bg-elevated border-line flex flex-col items-center gap-4 p-6 rounded-xl border mb-6">
+
+        <!-- Circle Avatar Container -->
+        <div id="register-avatar-container" class="profile-avatar w-24 h-24 rounded-full overflow-hidden border border-line flex items-center justify-center">
+          <span id="register-avatar-fallback" class="text-2xl font-bold text-content">
+            <svg class="ui-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-label="Profile photo"><path d="M9 4 7 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2-3Z"/><circle cx="12" cy="13" r="4"/></svg>
+          </span>
+        </div>
+
+        <!-- Hidden File Input -->
+        <input
+          type="file"
+          name="profile_picture"
+          id="{{ form.profile_picture.id_for_label }}"
+          accept="image/*"
+          style="display: none;"
+          onchange="previewRegisterImage(this)"
+        >
+
+        <!-- Styled Custom File Button -->
+        <label
+          for="{{ form.profile_picture.id_for_label }}"
+          class="outline-action file-upload-label"
+        >
+          {% include 'components/icon.html' with name='edit' %}
+          <span>Choose File</span>
+        </label>
+
+        <button type="button" id="register-camera-open" class="outline-action" aria-controls="register-camera-panel" aria-expanded="false">
+          Take photo
+        </button>
+        <div id="register-camera-panel" class="w-full" hidden>
+          <video id="register-camera-video" class="w-full rounded-xl" autoplay muted playsinline aria-label="Live camera preview"></video>
+          <div class="flex flex-wrap justify-center gap-2 mt-2">
+            <button type="button" id="register-camera-capture" class="primary-action" disabled>Use photo</button>
+            <button type="button" id="register-camera-cancel" class="outline-action">Cancel</button>
+          </div>
+        </div>
+        <p id="register-camera-status" class="field-help" role="status" aria-live="polite"></p>
+
+        {% if form.profile_picture.errors %}
+          <div class="form-errors text-xs mt-1" role="alert">{{ form.profile_picture.errors }}</div>
+        {% endif %}
+      </div>
+
+      <!-- REMAINING FORM FIELDS -->
+      {% for field in form %}
+        {% if field.name != 'profile_picture' %}
+          <div class="form-field">
+            {{ field.label_tag }}
+            {{ field }}
+            {% if field.errors %}
+              <div class="form-errors" role="alert">{{ field.errors }}</div>
+            {% endif %}
+            {% if field.help_text %}
+              <div class="field-help">{{ field.help_text|safe }}</div>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      <button type="submit" class="primary-action full-action mt-4">
+        Create account {% include 'components/icon.html' with name='arrow' %}
+      </button>
+    </form>
+
+    <p class="auth-switch">Already have an account? <a href="{% url 'login' %}">Login</a></p>
+  </section>
+</div>
+
+<!-- Real-time Image Preview Script -->
+<script>
+  function previewRegisterImage(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        const container = document.getElementById('register-avatar-container');
+        const fallback = document.getElementById('register-avatar-fallback');
+        let img = document.getElementById('register-avatar-preview');
+
+        if (fallback) {
+          fallback.style.display = 'none';
+        }
+
+        if (!img) {
+          img = document.createElement('img');
+          img.id = 'register-avatar-preview';
+          img.style.width = '100%';
+          img.style.height = '100%';
+          img.style.objectFit = 'cover';
+          container.appendChild(img);
+        }
+
+        img.src = e.target.result;
+        img.style.display = 'block';
+      }
+
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+</script>
+<script src="{% static 'js/register-camera.js' %}" defer></script>
+{% endblock %}
