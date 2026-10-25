@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="workflow-page page-cart">
+        {% include 'components/page_heading.html' with eyebrow='YOUR NEXT FRESH FIND' title='My Cart' description='A few good things, ready to come home with you.' %}
+        {% if cart_items %}<div class="shopping-layout">
+            <section class="cart-list" aria-label="Cart items">
+                {% for item in cart_items %}<article class="cart-card surface">
+                    <div class="cart-product"><div class="cart-image">{% if item.product.image %}<img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">{% else %}{% include 'components/icon.html' with name='leaf' %}{% endif %}</div><div><span class="section-eyebrow">{{ item.product.category }}</span><h3>{{ item.product.name }}</h3><p class="catalog-seller">Seller: {{ item.product.seller.username }}</p><p class="catalog-price font-mono">৳{{ item.product.price }} <small>per {{ item.product.get_unit_display }}</small></p></div></div>
+                    <div class="cart-controls"><form method="POST" action="{% url 'update_cart_item' item.id %}" class="quantity-form">{% csrf_token %}<label for="quantity-{{ item.id }}">Quantity</label><input id="quantity-{{ item.id }}" type="number" name="quantity" value="{{ item.quantity }}" min="0.01" step="0.01" max="{{ item.product.stock_quantity }}" required><button type="submit" class="outline-action">Update</button></form><div class="cart-subtotal"><p>Subtotal: <strong class="font-mono">৳{% widthratio item.product.price 1 item.quantity %}</strong></p><form method="POST" action="{% url 'remove_cart_item' item.id %}">{% csrf_token %}<button type="submit" class="text-danger">Remove</button></form></div></div>
+                </article>{% endfor %}
+            </section>
+            <aside class="summary-panel surface pricing-panel highlight-panel">{% include 'components/badge.html' with label='YOUR ORDER' kind='featured' %}<h3>Your cart summary</h3><div class="summary-total"><span>Total</span><strong class="font-mono">৳{{ total_price|floatformat:2 }}</strong></div><a href="{% url 'checkout' %}" class="primary-action full-action">Proceed to Checkout {% include 'components/icon.html' with name='arrow' %}</a><a href="{% url 'marketplace' %}" class="summary-back">Continue Shopping</a></aside>
+        </div>{% else %}<div class="empty-state surface">{% include 'components/agro_empty_art.html' %}<h3>Good things are waiting</h3><p>Your cart is empty.</p><a href="{% url 'marketplace' %}" class="primary-action">Continue Shopping {% include 'components/icon.html' with name='arrow' %}</a></div>{% endif %}
+        <a href="{% url 'marketplace' %}" class="back-link">← Continue Shopping</a>
+    </div>
+{% endblock %}
