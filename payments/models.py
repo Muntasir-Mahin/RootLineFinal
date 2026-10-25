@@ -11,6 +11,7 @@ class Payment(models.Model):
         ('failed', 'Failed'),
         ('refunded', 'Refunded'),
     ]
+
     ESCROW_STATUS_CHOICES = [
         ('not_held', 'Not Held'),
         ('held', 'Held in Escrow'),
@@ -78,3 +79,21 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Payment for Order #{self.order.id}"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

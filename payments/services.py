@@ -143,3 +143,22 @@ def submit_transaction(order_id, *, actor, transaction_id):
     payment.payment_status = 'verification_pending'
     payment.save(update_fields=['transaction_id', 'payment_status', 'updated_at'])
     return payment
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
