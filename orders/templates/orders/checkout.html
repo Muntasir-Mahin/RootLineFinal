@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="workflow-page page-checkout">
+<header class="page-heading"><p class="section-eyebrow">[ 01 ] YOUR NEXT FRESH FIND</p><h1>Checkout</h1><p class="page-description">Review your order and tell us where it should go.</p></header>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<!-- ORDER SUMMARY -->
+<div class="surface bg-surface rounded-xl p-6 ui-card pricing-panel highlight-panel">
+{% include 'components/badge.html' with label='ORDER SUMMARY' kind='featured' %}
+<h3 class="text-2xl font-bold mb-5">
+Order Summary
+</h3>
+{% for item in cart_items %}
+<div class="summary-line border-b border-line py-4">
+<h4 class="text-xl font-semibold">
+{{ item.product.name }}
+</h4>
+<p class="text-muted">
+Quantity:
+{{ item.quantity }}
+{{ item.product.get_unit_display }}
+</p>
+<p class="font-mono text-content font-bold">
+৳{{ item.product.price }}
+</p>
+</div>
+{% endfor %}
+<div class="summary-total mt-6">
+<h3 class="text-3xl font-bold">
+Total:
+<span class="font-mono text-content">
+৳{{ total_price|floatformat:2 }}
+</span>
+</h3>
+</div>
+</div>
+<!-- DELIVERY FORM -->
+<div class="surface bg-surface rounded-xl p-6 ui-card">
+<h3 class="text-2xl font-bold mb-5">
+Delivery & Payment Information
+</h3>
+<form method="POST" class="modern-form">
+{% csrf_token %}
+<div class="space-y-4">
+{% include 'components/form_fields.html' %}
+</div>
+<button
+type="submit"
+class="mt-6 w-full py-3 rounded-lg font-semibold transition primary-action"
+>
+Place Order
+</button>
+</form>
+</div>
+</div>
+<a
+href="{% url 'cart' %}"
+class="inline-block mt-8 text-content font-semibold"
+>
+← Back to Cart
+</a>
+</div>
+{% include 'components/order_contact.html' %}
+{% endblock %}
