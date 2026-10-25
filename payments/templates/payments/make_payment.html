@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="workflow-page page-make-payment">
+        <div class="min-h-[70vh] flex items-center justify-center">
+            <div class="surface bg-surface rounded-xl p-8 w-full max-w-lg ui-card">
+                <header class="page-heading"><p class="section-eyebrow">[ 01 ] COMPLETE YOUR PURCHASE</p><h1>Make Payment</h1><p class="page-description">Submit your payment details for verification.</p></header>
+                <div class="bg-elevated rounded-lg p-5 mb-6">
+                    <p class="text-content">
+                        Order:<strong>#{{ order.id }}</strong>
+                    </p>
+                    <p class="mt-2 text-content">
+                        Payment Method:<strong>{{ order.get_payment_method_display }}</strong>
+                    </p>
+                    <p class="font-mono mt-2 text-xl font-bold text-content">
+                        Amount: ৳{{ payment.amount|floatformat:2 }}
+                    </p>
+                </div>
+                <div class="bg-elevated border border-line rounded-lg p-4 mb-6">
+                    <p class="text-content">
+                        Complete the payment using the selected payment method, then enter your transaction ID below.
+                    </p>
+                    <p class="mt-3 text-content font-semibold">
+                        Your payment will be verified before the seller can ship the order.
+                    </p>
+                </div>
+                <form method="POST" class="modern-form">
+                    {% csrf_token %}
+                    <div class="space-y-4">{% include 'components/form_fields.html' %}</div>
+                    <button type="submit" class="w-full mt-6 py-3 rounded-lg font-semibold transition primary-action">Submit Payment</button>
+                </form>
+                <a href="{% url 'my_orders' %}" class="block text-center mt-6 text-content font-semibold">
+                    ← Back to My Orders
+                </a>
+            </div>
+        </div>
+    </div>
+    {% include 'components/order_contact.html' with order_id=order.id %}
+{% endblock %}
