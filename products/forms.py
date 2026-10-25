@@ -9,6 +9,10 @@ class ProductForm(forms.ModelForm):
         fields = ['name', 'description', 'category', 'price',
                   'stock_quantity', 'unit', 'image', 'selling_type', 'is_available']
 
+        help_texts = {
+            'image': 'Best image size: 1200×900 (4:3). Other sizes will be cropped to fit.',
+        }
+
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'w-full p-3 border border-gray-300 rounded-lg'
