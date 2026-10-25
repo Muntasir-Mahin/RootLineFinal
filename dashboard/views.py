@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 from django.db.models import Count, Q, Sum
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
@@ -68,8 +69,8 @@ def tab_filter(request, queryset, choices, field, default):
     if selected not in dict(choices):
         selected = default
     counts = dict(queryset.values(field).annotate(count=Count('pk')).values_list(field, 'count'))
-    tabs = [{'value': key, 'label': label, 'count': counts.get(key, 0)} for key, label in choices]
-    return queryset.filter(**{field: selected}), selected, tabs
+    tabs = [{'value': key, 'label': label, 'count': sum(counts.values()) if key == 'all' else counts.get(key, 0)} for key, label in choices]
+    return (queryset if selected == 'all' else queryset.filter(**{field: selected})), selected, tabs
 
 
 @staff_role_required()
@@ -196,7 +197,7 @@ def dispute_decide(request, pk):
 @require_GET
 def products(request):
     qs, selected, tabs = tab_filter(request, Product.objects.select_related('seller'),
-                                    Product.VERIFICATION_STATUS_CHOICES, 'verification_status', 'pending')
+                                    [*Product.VERIFICATION_STATUS_CHOICES, ('all', 'All')], 'verification_status', 'pending')
     overdue = request.GET.get('overdue') == '1'
     if overdue:
         qs = qs.filter(verification_status='pending', created_at__lt=cutoff('products'))
@@ -208,7 +209,11 @@ def products(request):
 @require_POST
 def product_decide(request, pk, decision):
     get_object_or_404(Product, pk=pk)
-    return perform(request, review_product, pk, 'dashboard:products', decision=decision)
+    destination = 'dashboard:products'
+    selected = request.POST.get('tab')
+    if selected in ('pending', 'verified', 'rejected', 'all'):
+        destination = reverse(destination) + '?tab=' + selected
+    return perform(request, review_product, pk, destination, decision=decision)
 
 
 @staff_role_required(CATALOGUE)

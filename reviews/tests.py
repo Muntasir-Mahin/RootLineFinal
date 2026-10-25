@@ -9,9 +9,14 @@ class ReviewMigrationTests(TransactionTestCase):
 
     def test_duplicate_reviews_block_migration_without_deleting_data(self):
         executor = MigrationExecutor(connection)
-        executor.migrate(self.migrate_from)
+        # Only rewind reviews. Keep the other apps in the state of the actual
+        # schema, including accounts.theme_preference and products.unit.
+        other_apps = [node for node in executor.loader.graph.leaf_nodes() if node[0] != 'reviews']
+        migrate_from = other_apps + self.migrate_from
+        migrate_to = other_apps + self.migrate_to
+        executor.migrate(migrate_from)
         try:
-            apps = executor.loader.project_state(self.migrate_from).apps
+            apps = executor.loader.project_state(migrate_from).apps
             User = apps.get_model('accounts', 'User')
             Product = apps.get_model('products', 'Product')
             Order = apps.get_model('orders', 'Order')
@@ -26,16 +31,16 @@ class ReviewMigrationTests(TransactionTestCase):
             Review.objects.create(**values)
             duplicate = Review.objects.create(**dict(values, comment='Duplicate'))
             with self.assertRaisesMessage(RuntimeError, 'Duplicate reviews exist'):
-                MigrationExecutor(connection).migrate(self.migrate_to)
+                MigrationExecutor(connection).migrate(migrate_to)
             self.assertEqual(Review.objects.count(), 2)
             # Reconcile only this test's duplicate before applying the constraint.
             duplicate.delete()
-            MigrationExecutor(connection).migrate(self.migrate_to)
+            MigrationExecutor(connection).migrate(migrate_to)
             self.assertEqual(Review.objects.count(), 1)
         finally:
             # Ensure later tests see the current schema even if an assertion fails.
-            apps = MigrationExecutor(connection).loader.project_state(self.migrate_from).apps
+            apps = MigrationExecutor(connection).loader.project_state(migrate_from).apps
             Review = apps.get_model('reviews', 'Review')
             # These are disposable rows in the isolated test database.
             Review.objects.all().delete()
-            MigrationExecutor(connection).migrate(self.migrate_to)
+            MigrationExecutor(connection).migrate(migrate_to)

@@ -3,6 +3,7 @@ from decimal import Decimal
 from django import forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
@@ -22,9 +23,14 @@ def cart_quantity(value):
 
 
 @login_required
+@transaction.atomic
 def add_to_cart_view(request, product_id):
+    # Serialize this cart before locking its product, matching checkout's lock
+    # order so an item update cannot deadlock with concurrent checkout.
+    if request.method == 'POST':
+        cart, _ = Cart.objects.select_for_update().get_or_create(user=request.user)
     product = get_object_or_404(
-        Product,
+        Product.objects.select_for_update(),
         id=product_id,
         verification_status='verified',
         is_available=True,
@@ -48,8 +54,6 @@ def add_to_cart_view(request, product_id):
 
         if quantity <= 0:
             return redirect('marketplace_product_detail', product_id=product.id)
-
-        cart, created = Cart.objects.get_or_create(user=request.user)
 
         cart_item, created = CartItem.objects.get_or_create(
             cart=cart,
@@ -144,6 +148,11 @@ def checkout_view(request):
 
     if cart_items.filter(product__seller=request.user).exists():
         messages.error(request, 'Remove your own products from the cart before checking out.')
+        return redirect('cart')
+
+    if cart_items.exclude(product__verification_status='verified').exists():
+        messages.error(request, 'A product in your cart is no longer verified and cannot be purchased. '
+                       'Remove it from your cart before checking out.')
         return redirect('cart')
 
     initial_data = {

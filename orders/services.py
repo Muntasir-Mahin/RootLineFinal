@@ -66,9 +66,13 @@ def checkout_cart(cart_id, buyer, checkout_data):
         product = products[item.product_id]
         if product.seller_id == buyer.pk:
             raise CheckoutUnavailable('You cannot buy your own product.')
+        if product.verification_status != 'verified':
+            raise CheckoutUnavailable(
+                f'"{product.name}" is no longer verified and cannot be purchased. '
+                'Remove it from your cart before checking out.'
+            )
         if (
-            product.verification_status != 'verified'
-            or not product.is_available
+            not product.is_available
             or product.selling_type not in ['fixed', 'both']
             or product.price is None
             or item.quantity <= Decimal('0')

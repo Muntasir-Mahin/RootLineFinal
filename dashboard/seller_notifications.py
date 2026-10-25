@@ -25,3 +25,11 @@ def seller_decided(seller, decision, note=''):
         message += '\nStaff note: ' + note.strip()
     link = reverse('seller_dashboard') if decision == 'approve' else reverse('profile')
     create_notification(seller, message, link)
+
+
+def product_reviewed(product, previous, note=''):
+    message = (f'Your product "{product.name}" changed from {previous} '
+               f'to {product.verification_status}.')
+    if note:
+        message += '\nStaff reason: ' + note
+    create_notification(product.seller, message, reverse('product_detail', args=[product.pk]))

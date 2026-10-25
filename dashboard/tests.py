@@ -369,7 +369,7 @@ class DecisionTests(Fixtures, TestCase):
         self.assertTrue(self.applicant.seller_approved)
         self.assertFalse(self.applicant.seller_requested)
         with self.assertRaises(DecisionError):
-            review_product(self.product.pk, actor=self.catalogue, decision='rejected')
+            review_product(self.product.pk, actor=self.catalogue, decision='verified')
         with self.assertRaises(DecisionError):
             review_seller(self.applicant.pk, actor=self.catalogue, decision='approve')
         review_seller(self.applicant.pk, actor=self.catalogue, decision='revoke', note='Access revoked')
@@ -615,3 +615,279 @@ class ConcurrentDecisionTests(Fixtures, TransactionTestCase):
             self.assertEqual((self.order.status, self.payment.escrow_status), ('shipped', 'held'))
         else:
             self.assertEqual((self.order.status, self.payment.escrow_status), ('delivered', 'released'))
+
+
+class ProductReviewRevisionTests(Fixtures, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.make_fixtures()
+
+    def decide(self, decision, note='Corrected after checking the listing'):
+        return review_product(self.product.pk, actor=self.catalogue, decision=decision, note=note)
+
+    def status(self, status):
+        Product.objects.filter(pk=self.product.pk).update(verification_status=status)
+
+    def test_all_six_status_transitions_are_audited_and_notify_seller(self):
+        from notifications.models import Notification
+        transitions = [('pending', 'verified'), ('pending', 'rejected'),
+                       ('verified', 'rejected'), ('verified', 'pending'),
+                       ('rejected', 'verified'), ('rejected', 'pending')]
+        for previous, decision in transitions:
+            with self.subTest(previous=previous, decision=decision):
+                self.status(previous)
+                product = self.decide(decision, note='  Listing checked again  ')
+                self.assertEqual(product.verification_status, decision)
+                entry = AuditRecord.objects.latest('pk')
+                self.assertEqual(entry.actor, self.catalogue)
+                self.assertEqual(entry.action, f'product.{decision}')
+                self.assertEqual(entry.target, f'products.product:{product.pk}')
+                self.assertIn(f'{previous} → {decision}', entry.summary)
+                self.assertEqual(entry.note, 'Listing checked again')
+                notification = Notification.objects.filter(recipient=self.seller).latest('pk')
+                self.assertIn('Listing checked again', notification.message)
+                self.assertIn(f'from {previous} to {decision}', notification.message)
+                self.assertEqual(notification.link, reverse('product_detail', args=[product.pk]))
+        self.assertEqual(AuditRecord.objects.count(), 6)
+        self.assertEqual(Notification.objects.filter(recipient=self.seller).count(), 6)
+
+    def test_same_status_is_a_noop_without_audit_or_notification(self):
+        from notifications.models import Notification
+        for status in ['pending', 'verified', 'rejected']:
+            self.status(status)
+            with self.subTest(status=status), self.assertRaisesMessage(DecisionError, f'already {status}'):
+                self.decide(status)
+        self.assertFalse(AuditRecord.objects.exists())
+        self.assertFalse(Notification.objects.exists())
+
+    def test_reason_required_for_rejection_and_moving_away_from_verified(self):
+        for previous, decision in [('pending', 'rejected'), ('verified', 'rejected'), ('verified', 'pending')]:
+            self.status(previous)
+            for note in ['', ' \n\t ']:
+                with self.subTest(previous=previous, decision=decision, note=note):
+                    with self.assertRaisesMessage(DecisionError, 'reason is required'):
+                        self.decide(decision, note)
+                    self.product.refresh_from_db()
+                    self.assertEqual(self.product.verification_status, previous)
+        self.assertFalse(AuditRecord.objects.exists())
+
+    def test_verify_and_rejected_to_pending_allow_optional_notes(self):
+        for previous, decision in [('pending', 'verified'), ('rejected', 'verified'), ('rejected', 'pending')]:
+            self.status(previous)
+            self.assertEqual(self.decide(decision, '').verification_status, decision)
+
+    def test_invalid_status_and_overlong_reason_are_rejected(self):
+        for decision, note in [('deleted', 'Reason'), ('rejected', 'x' * 4001)]:
+            with self.assertRaises(DecisionError):
+                self.decide(decision, note)
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.verification_status, 'pending')
+        self.assertFalse(AuditRecord.objects.exists())
+
+    def test_audit_or_notification_failure_rolls_back_decision(self):
+        from notifications.models import Notification
+        for target in ['record_action', 'product_reviewed']:
+            with self.subTest(target=target):
+                with patch(f'dashboard.services.{target}', side_effect=RuntimeError('Unavailable')):
+                    with self.assertRaises(RuntimeError):
+                        self.decide('verified')
+                self.product.refresh_from_db()
+                self.assertEqual(self.product.verification_status, 'pending')
+                self.assertFalse(AuditRecord.objects.exists())
+                self.assertFalse(Notification.objects.exists())
+
+    def test_unverified_product_disappears_everywhere_and_cannot_be_added_to_cart(self):
+        from wishlist.models import Wishlist
+        Wishlist.objects.create(user=self.buyer, product=self.product)
+        self.client.force_login(self.buyer)
+        for decision in ['rejected', 'pending']:
+            with self.subTest(decision=decision):
+                self.status('verified')
+                self.assertIn(self.product, self.client.get(reverse('marketplace')).context['products'])
+                self.decide(decision)
+                for query in [{}, {'category': self.product.category}]:
+                    response = self.client.get(reverse('marketplace'), query)
+                    self.assertNotIn(self.product, response.context['products'])
+                response = self.client.get(reverse('site_search'), {'q': self.product.name})
+                self.assertEqual(response.context['product_page'].paginator.count, 0)
+                self.assertEqual(self.client.get(reverse('my_wishlist')).context['wishlist'].count(), 0)
+                self.assertEqual(self.client.get(reverse('marketplace_product_detail', args=[self.product.pk])).status_code, 404)
+                self.assertEqual(self.client.post(reverse('add_to_cart', args=[self.product.pk]), {'quantity': 1}).status_code, 404)
+        self.assertTrue(Wishlist.objects.filter(user=self.buyer, product=self.product).exists())
+        self.decide('verified')
+        self.assertEqual(self.client.get(reverse('my_wishlist')).context['wishlist'].count(), 1)
+
+    def test_stale_cart_checkout_is_blocked_with_clear_message_and_no_side_effects(self):
+        from orders.models import Cart, CartItem
+        from orders.services import CheckoutUnavailable, checkout_cart
+        cart = Cart.objects.create(user=self.buyer)
+        CartItem.objects.create(cart=cart, product=self.product, quantity=1)
+        data = dict(recipient_name='Buyer', email='buyer@example.com', phone_number='01700000000',
+                    delivery_address='Dhaka', payment_method='bkash')
+        self.client.force_login(self.buyer)
+        for decision in ['rejected', 'pending']:
+            self.status('verified')
+            self.decide(decision)
+            with self.assertRaisesMessage(CheckoutUnavailable, 'no longer verified'):
+                checkout_cart(cart.pk, self.buyer, data)
+            for method in [self.client.get, self.client.post]:
+                response = method(reverse('checkout'), data, follow=True)
+                self.assertContains(response, 'no longer verified and cannot be purchased')
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock_quantity, Decimal('10'))
+        self.assertEqual(Order.objects.count(), 1)
+        self.assertEqual(Payment.objects.count(), 1)
+        self.assertEqual(cart.items.count(), 1)
+
+    def test_existing_pending_orders_and_paid_orders_are_unchanged(self):
+        from orders.models import OrderItem
+        self.hold_payment()
+        pending = Order.objects.create(buyer=self.buyer, seller=self.seller, total_amount='100.10',
+                                       status='pending', payment_method='bkash')
+        Payment.objects.create(order=pending, amount='100.10')
+        for order in [self.order, pending]:
+            OrderItem.objects.create(order=order, product=self.product, product_name=self.product.name,
+                                     price=self.product.price, quantity=1, unit='kg')
+        before_orders = list(Order.objects.order_by('pk').values())
+        before_payments = list(Payment.objects.order_by('pk').values())
+        before_items = list(OrderItem.objects.order_by('pk').values())
+        self.status('verified')
+        self.decide('rejected')
+        self.assertEqual(list(Order.objects.order_by('pk').values()), before_orders)
+        self.assertEqual(list(Payment.objects.order_by('pk').values()), before_payments)
+        self.assertEqual(list(OrderItem.objects.order_by('pk').values()), before_items)
+
+    def auction(self, **changes):
+        data = dict(product=self.product, starting_price=10, status='active',
+                    start_time=timezone.now() - timedelta(hours=1), end_time=timezone.now() + timedelta(hours=1))
+        data.update(changes)
+        return Auction.objects.create(**data)
+
+    def test_unsettled_bids_block_rejection_and_unverify_including_awaiting_winner_checkout(self):
+        from bidding.models import Bid
+        auction = self.auction()
+        bid = Bid.objects.create(auction=auction, bidder=self.buyer, amount=20)
+        self.status('verified')
+        for status in ['upcoming', 'active', 'ended']:
+            Auction.objects.filter(pk=auction.pk).update(status=status)
+            for decision in ['rejected', 'pending']:
+                with self.subTest(status=status, decision=decision):
+                    with self.assertRaisesMessage(DecisionError, 'unsettled auction bids'):
+                        self.decide(decision)
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.verification_status, 'verified')
+        self.assertTrue(Bid.objects.filter(pk=bid.pk).exists())
+        self.assertFalse(AuditRecord.objects.exists())
+
+    def test_auction_without_bids_can_be_unverified_and_cannot_accept_new_bids(self):
+        auction = self.auction()
+        self.status('verified')
+        self.decide('pending')
+        self.client.force_login(self.buyer)
+        self.assertEqual(self.client.post(reverse('place_bid', args=[auction.pk]), {'amount': 20}).status_code, 404)
+        self.assertNotIn(auction, self.client.get(reverse('auction_list')).context['auctions'])
+        self.assertFalse(auction.bids.exists())
+        auction.refresh_from_db()
+        self.assertEqual(auction.status, 'active')
+
+    def test_cancelled_or_settled_auction_does_not_prevent_decision(self):
+        from bidding.models import Bid
+        auction = self.auction(status='cancelled')
+        Bid.objects.create(auction=auction, bidder=self.buyer, amount=20)
+        self.status('verified')
+        self.decide('rejected')
+        Auction.objects.filter(pk=auction.pk).update(status='ended', order=self.order)
+        self.status('verified')
+        self.decide('pending')
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, 'shipped')
+
+    def test_dashboard_tabs_default_to_pending_and_actions_match_each_status(self):
+        self.client.force_login(self.catalogue)
+        pending = self.product
+        verified = Product.objects.create(seller=self.seller, name='Verified rice', verification_status='verified')
+        rejected = Product.objects.create(seller=self.seller, name='Rejected rice', verification_status='rejected')
+        url = reverse('dashboard:products')
+        response = self.client.get(url)
+        self.assertEqual(list(response.context['page_obj']), [pending])
+        self.assertContains(response, 'required>')
+        self.assertContains(response, 'formnovalidate')
+        self.assertNotContains(response, 'This will remove it from the marketplace immediately')
+        for status, product in [('verified', verified), ('rejected', rejected)]:
+            response = self.client.get(url, {'tab': status})
+            self.assertEqual(list(response.context['page_obj']), [product])
+            self.assertContains(response, 'Send back to review' if status == 'rejected' else 'Unverify / send back to review')
+            if status == 'verified':
+                self.assertContains(response, "confirm('This will remove it from the marketplace immediately")
+                self.assertNotContains(response, 'formnovalidate')
+        response = self.client.get(url, {'tab': 'all'})
+        self.assertEqual(response.context['page_obj'].paginator.count, 3)
+        self.assertEqual(next(tab['count'] for tab in response.context['tabs'] if tab['value'] == 'all'), 3)
+        self.assertEqual(self.client.get(url, {'tab': 'invalid'}).context['selected'], 'pending')
+
+    def test_dashboard_validates_reason_and_keeps_selected_tab(self):
+        self.status('verified')
+        self.client.force_login(self.catalogue)
+        response = self.post('product_decide', self.product.pk, 'rejected', tab='verified', note='   ')
+        self.assertRedirects(response, reverse('dashboard:products') + '?tab=verified', fetch_redirect_response=False)
+        self.assertContains(self.client.get(response.url), 'A reason is required')
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.verification_status, 'verified')
+        self.post('product_decide', self.product.pk, 'pending', tab='verified', note='Check photo')
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.verification_status, 'pending')
+
+    def test_admin_actions_use_the_same_reversible_rules(self):
+        self.client.force_login(self.owner)
+        url = reverse('admin:products_product_changelist')
+        self.status('verified')
+        for action, expected in [('reject_products', 'rejected'), ('verify_products', 'verified'),
+                                 ('unverify_products', 'pending'), ('verify_products', 'verified')]:
+            response = self.client.post(url, {'action': action, '_selected_action': [self.product.pk], 'note': 'Corrected'})
+            self.assertEqual(response.status_code, 302)
+            self.product.refresh_from_db()
+            self.assertEqual(self.product.verification_status, expected)
+        self.client.post(url, {'action': 'reject_products', '_selected_action': [self.product.pk], 'note': ''})
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.verification_status, 'verified')
+        self.assertEqual(AuditRecord.objects.count(), 4)
+
+
+class ConcurrentProductReviewTests(Fixtures, TransactionTestCase):
+    race = ConcurrentDecisionTests.race
+
+    def setUp(self):
+        super().setUp()
+        self.make_fixtures()
+        if connection.vendor == 'sqlite' and connection.creation.is_in_memory_db(connection.settings_dict['NAME']):
+            self.skipTest('Use a file-backed ROOTLINE_TEST_DB for concurrency tests.')
+
+    def test_duplicate_reviews_only_save_and_notify_once(self):
+        from notifications.models import Notification
+        results = self.race([
+            lambda: review_product(self.product.pk, actor=self.catalogue, decision='verified'),
+            lambda: review_product(self.product.pk, actor=self.owner, decision='verified'),
+        ])
+        self.assertCountEqual(results, ['saved', 'blocked'])
+        self.assertEqual(AuditRecord.objects.filter(action='product.verified').count(), 1)
+        self.assertEqual(Notification.objects.filter(recipient=self.seller).count(), 1)
+
+    def test_bid_racing_with_unverify_cannot_leave_hidden_product_with_new_bid(self):
+        Product.objects.filter(pk=self.product.pk).update(verification_status='verified', selling_type='bidding')
+        auction = Auction.objects.create(product=self.product, starting_price=10,
+            start_time=timezone.now() - timedelta(minutes=10),
+            end_time=timezone.now() + timedelta(hours=1), status='active')
+        bidder = Client()
+        bidder.force_login(self.buyer)
+        self.race([
+            lambda: review_product(self.product.pk, actor=self.catalogue, decision='pending', note='Check photo'),
+            lambda: bidder.post(reverse('place_bid', args=[auction.pk]), {'amount': 20}),
+        ])
+        self.product.refresh_from_db()
+        if self.product.verification_status == 'pending':
+            self.assertFalse(auction.bids.exists())
+            self.assertEqual(AuditRecord.objects.filter(action='product.pending').count(), 1)
+        else:
+            self.assertEqual(self.product.verification_status, 'verified')
+            self.assertEqual(auction.bids.count(), 1)
+            self.assertFalse(AuditRecord.objects.exists())

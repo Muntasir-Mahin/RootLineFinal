@@ -53,9 +53,10 @@ def remove_wishlist(request, product_id):
 def my_wishlist(request):
 
     wishlist = Wishlist.objects.filter(
-        user=request.user
+        user=request.user,
+        product__verification_status='verified',
     ).select_related(
-        'product'
+        'product', 'product__seller'
     )
 
 

@@ -11,7 +11,7 @@ class ProductAdmin(ServiceActionMixin, admin.ModelAdmin):
     list_filter = ('selling_type', 'verification_status', 'is_available')
     search_fields = ('name', 'seller__username', 'category')
     readonly_fields = ('verification_status',)
-    actions = ('verify_products', 'reject_products')
+    actions = ('verify_products', 'reject_products', 'unverify_products')
 
     @admin.action(description='Verify selected products')
     def verify_products(self, request, queryset):
@@ -20,3 +20,7 @@ class ProductAdmin(ServiceActionMixin, admin.ModelAdmin):
     @admin.action(description='Reject selected products')
     def reject_products(self, request, queryset):
         self.run_service(request, queryset, review_product, decision='rejected')
+
+    @admin.action(description='Unverify selected products (send back to pending)')
+    def unverify_products(self, request, queryset):
+        self.run_service(request, queryset, review_product, decision='pending')
